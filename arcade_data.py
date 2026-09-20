@@ -212,12 +212,19 @@ GAME_SHELL = """
   .pad-status .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--red); }
   .pad-status .dot.on { background: var(--green); box-shadow: 0 0 6px rgba(105,211,139,.6); }
   .score { font: 700 14px ui-monospace, monospace; color: var(--accent-2); min-width: 70px; text-align: right; }
+  @media (max-width: 480px) {
+    .appbar { padding: 0 8px; gap: 6px; }
+    .brand > span:last-child { max-width: 72px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    #pad-label { display: none; }
+    .score { min-width: auto; font-size: 12px; }
+    .mini-btn { padding: 5px 8px; font-size: 10px; max-width: 78px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  }
   .stage {
     height: calc(100% - 34px); display: flex; align-items: center; justify-content: center;
     gap: 18px; flex-wrap: wrap; overflow: auto; padding: 10px;
     background: radial-gradient(circle at 50% 30%, #1a1c20, #0e0f11 75%);
   }
-  .board-col { position: relative; flex: 0 0 auto; }
+  .board-col { position: relative; flex: 0 1 auto; max-width: 100%; min-width: 0; }
   canvas { background: #0c0d0f; border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 20px 50px rgba(0,0,0,.5); max-width: 100%; height: auto; }
 
   /* Controles táctiles: solo en pantallas táctiles (no en escritorio con ratón/mando) */
