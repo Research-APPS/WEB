@@ -1,0 +1,383 @@
+{
+  "graph": {
+    "nodes": [
+      {
+        "id": "dinamico",
+        "label": "Micrófono dinámico",
+        "category": "tipos",
+        "color": "#7aa2ff",
+        "url": "/tipos/dinamico/"
+      },
+      {
+        "id": "condensador-diafragma-grande",
+        "label": "Condensador de diafragma grande",
+        "category": "tipos",
+        "color": "#7aa2ff",
+        "url": "/tipos/condensador-diafragma-grande/"
+      },
+      {
+        "id": "condensador-diafragma-pequeno",
+        "label": "Condensador de diafragma pequeño",
+        "category": "tipos",
+        "color": "#7aa2ff",
+        "url": "/tipos/condensador-diafragma-pequeno/"
+      },
+      {
+        "id": "cinta",
+        "label": "Micrófono de cinta",
+        "category": "tipos",
+        "color": "#7aa2ff",
+        "url": "/tipos/cinta/"
+      },
+      {
+        "id": "pzm-boundary",
+        "label": "Micrófono de superficie (PZM / boundary)",
+        "category": "tipos",
+        "color": "#7aa2ff",
+        "url": "/tipos/pzm-boundary/"
+      },
+      {
+        "id": "omnidireccional",
+        "label": "Omnidireccional",
+        "category": "patrones",
+        "color": "#69d38b",
+        "url": "/patrones/omnidireccional/"
+      },
+      {
+        "id": "cardioide",
+        "label": "Cardioide",
+        "category": "patrones",
+        "color": "#69d38b",
+        "url": "/patrones/cardioide/"
+      },
+      {
+        "id": "supercardioide",
+        "label": "Supercardioide",
+        "category": "patrones",
+        "color": "#69d38b",
+        "url": "/patrones/supercardioide/"
+      },
+      {
+        "id": "hipercardioide",
+        "label": "Hipercardioide",
+        "category": "patrones",
+        "color": "#69d38b",
+        "url": "/patrones/hipercardioide/"
+      },
+      {
+        "id": "figura-8",
+        "label": "Figura en 8 (bidireccional)",
+        "category": "patrones",
+        "color": "#69d38b",
+        "url": "/patrones/figura-8/"
+      },
+      {
+        "id": "shotgun",
+        "label": "Shotgun (lobular / interferencia)",
+        "category": "patrones",
+        "color": "#69d38b",
+        "url": "/patrones/shotgun/"
+      },
+      {
+        "id": "xy",
+        "label": "XY (coincidente)",
+        "category": "estereo",
+        "color": "#f0bf59",
+        "url": "/estereo/xy/"
+      },
+      {
+        "id": "ortf",
+        "label": "ORTF",
+        "category": "estereo",
+        "color": "#f0bf59",
+        "url": "/estereo/ortf/"
+      },
+      {
+        "id": "ab",
+        "label": "AB (par espaciado)",
+        "category": "estereo",
+        "color": "#f0bf59",
+        "url": "/estereo/ab/"
+      },
+      {
+        "id": "blumlein",
+        "label": "Blumlein",
+        "category": "estereo",
+        "color": "#f0bf59",
+        "url": "/estereo/blumlein/"
+      },
+      {
+        "id": "ms",
+        "label": "Mid-Side (M-S)",
+        "category": "estereo",
+        "color": "#f0bf59",
+        "url": "/estereo/ms/"
+      },
+      {
+        "id": "decca-tree",
+        "label": "Decca Tree",
+        "category": "estereo",
+        "color": "#f0bf59",
+        "url": "/estereo/decca-tree/"
+      },
+      {
+        "id": "voz",
+        "label": "Voz",
+        "category": "instrumentos",
+        "color": "#ff6b67",
+        "url": "/instrumentos/voz/"
+      },
+      {
+        "id": "guitarra-acustica",
+        "label": "Guitarra acústica",
+        "category": "instrumentos",
+        "color": "#ff6b67",
+        "url": "/instrumentos/guitarra-acustica/"
+      },
+      {
+        "id": "bateria",
+        "label": "Batería",
+        "category": "instrumentos",
+        "color": "#ff6b67",
+        "url": "/instrumentos/bateria/"
+      },
+      {
+        "id": "ampli-guitarra-electrica",
+        "label": "Amplificador de guitarra eléctrica",
+        "category": "instrumentos",
+        "color": "#ff6b67",
+        "url": "/instrumentos/ampli-guitarra-electrica/"
+      },
+      {
+        "id": "piano",
+        "label": "Piano (de cola)",
+        "category": "instrumentos",
+        "color": "#ff6b67",
+        "url": "/instrumentos/piano/"
+      }
+    ],
+    "edges": [
+      {
+        "source": "dinamico",
+        "target": "cardioide",
+        "relation": "patrón habitual"
+      },
+      {
+        "source": "dinamico",
+        "target": "ampli-guitarra-electrica",
+        "relation": "se usa en"
+      },
+      {
+        "source": "dinamico",
+        "target": "bateria",
+        "relation": "se usa en"
+      },
+      {
+        "source": "condensador-diafragma-grande",
+        "target": "cardioide",
+        "relation": "patrón habitual"
+      },
+      {
+        "source": "condensador-diafragma-grande",
+        "target": "voz",
+        "relation": "se usa en"
+      },
+      {
+        "source": "condensador-diafragma-grande",
+        "target": "piano",
+        "relation": "se usa en"
+      },
+      {
+        "source": "condensador-diafragma-pequeno",
+        "target": "cardioide",
+        "relation": "patrón habitual"
+      },
+      {
+        "source": "condensador-diafragma-pequeno",
+        "target": "omnidireccional",
+        "relation": "patrón habitual"
+      },
+      {
+        "source": "condensador-diafragma-pequeno",
+        "target": "bateria",
+        "relation": "se usa en"
+      },
+      {
+        "source": "condensador-diafragma-pequeno",
+        "target": "guitarra-acustica",
+        "relation": "se usa en"
+      },
+      {
+        "source": "cinta",
+        "target": "figura-8",
+        "relation": "patrón habitual"
+      },
+      {
+        "source": "pzm-boundary",
+        "target": "piano",
+        "relation": "se usa en"
+      },
+      {
+        "source": "omnidireccional",
+        "target": "ab",
+        "relation": "se usa en"
+      },
+      {
+        "source": "omnidireccional",
+        "target": "decca-tree",
+        "relation": "se usa en"
+      },
+      {
+        "source": "cardioide",
+        "target": "xy",
+        "relation": "se usa en"
+      },
+      {
+        "source": "cardioide",
+        "target": "ortf",
+        "relation": "se usa en"
+      },
+      {
+        "source": "figura-8",
+        "target": "blumlein",
+        "relation": "se usa en"
+      },
+      {
+        "source": "figura-8",
+        "target": "ms",
+        "relation": "se usa en"
+      },
+      {
+        "source": "figura-8",
+        "target": "cinta",
+        "relation": "típico de"
+      },
+      {
+        "source": "xy",
+        "target": "cardioide",
+        "relation": "usa patrón"
+      },
+      {
+        "source": "xy",
+        "target": "bateria",
+        "relation": "recomendada para"
+      },
+      {
+        "source": "ortf",
+        "target": "cardioide",
+        "relation": "usa patrón"
+      },
+      {
+        "source": "ab",
+        "target": "omnidireccional",
+        "relation": "usa patrón"
+      },
+      {
+        "source": "ab",
+        "target": "bateria",
+        "relation": "recomendada para"
+      },
+      {
+        "source": "ab",
+        "target": "piano",
+        "relation": "recomendada para"
+      },
+      {
+        "source": "blumlein",
+        "target": "figura-8",
+        "relation": "usa patrón"
+      },
+      {
+        "source": "ms",
+        "target": "figura-8",
+        "relation": "usa patrón"
+      },
+      {
+        "source": "decca-tree",
+        "target": "omnidireccional",
+        "relation": "usa patrón"
+      },
+      {
+        "source": "voz",
+        "target": "condensador-diafragma-grande",
+        "relation": "recomienda tipo"
+      },
+      {
+        "source": "voz",
+        "target": "cardioide",
+        "relation": "recomienda patrón"
+      },
+      {
+        "source": "guitarra-acustica",
+        "target": "condensador-diafragma-pequeno",
+        "relation": "recomienda tipo"
+      },
+      {
+        "source": "bateria",
+        "target": "dinamico",
+        "relation": "recomienda tipo"
+      },
+      {
+        "source": "bateria",
+        "target": "condensador-diafragma-pequeno",
+        "relation": "recomienda tipo"
+      },
+      {
+        "source": "bateria",
+        "target": "xy",
+        "relation": "recomienda técnica"
+      },
+      {
+        "source": "bateria",
+        "target": "ab",
+        "relation": "recomienda técnica"
+      },
+      {
+        "source": "ampli-guitarra-electrica",
+        "target": "dinamico",
+        "relation": "recomienda tipo"
+      },
+      {
+        "source": "piano",
+        "target": "ab",
+        "relation": "recomienda técnica"
+      },
+      {
+        "source": "piano",
+        "target": "pzm-boundary",
+        "relation": "recomienda tipo"
+      }
+    ]
+  },
+  "summary": {
+    "nodes": 22,
+    "edges": 38,
+    "categories": 4
+  },
+  "categories": [
+    {
+      "key": "tipos",
+      "label": "Tipos de micrófono",
+      "icon": "🎙️",
+      "desc": "El principio de transducción con el que cada micrófono convierte sonido en señal eléctrica."
+    },
+    {
+      "key": "patrones",
+      "label": "Patrones polares",
+      "icon": "🌐",
+      "desc": "Cómo de sensible es un micrófono según la dirección de la que llega el sonido."
+    },
+    {
+      "key": "estereo",
+      "label": "Técnicas estéreo",
+      "icon": "🎧",
+      "desc": "Formas de combinar dos o más micrófonos para capturar una imagen espacial."
+    },
+    {
+      "key": "instrumentos",
+      "label": "Close-miking por instrumento",
+      "icon": "🥁",
+      "desc": "Colocación práctica de micrófono cerca de una fuente concreta."
+    }
+  ]
+}

@@ -1,0 +1,1266 @@
+{
+  "@context": {
+    "mf": "https://microfonia.radiomicelio.com/ontology#",
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "dcterms": "http://purl.org/dc/terms/"
+  },
+  "@id": "mf:MicrofoniaOntology",
+  "dcterms:title": "Ontología de microfonía",
+  "dcterms:license": "https://creativecommons.org/licenses/by/4.0/",
+  "dcterms:created": "2026-09-20T10:12:18+02:00",
+  "@graph": [
+    {
+      "@id": "mf:MicrofoniaScheme",
+      "@type": "skos:ConceptScheme",
+      "rdfs:label": "Esquema de microfonía",
+      "dcterms:title": "Microfonía — Radio Micelio"
+    },
+    {
+      "@id": "mf:cat-tipos",
+      "@type": "skos:Collection",
+      "skos:prefLabel": {
+        "@language": "es",
+        "@value": "Tipos de micrófono"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "El principio de transducción con el que cada micrófono convierte sonido en señal eléctrica."
+      },
+      "skos:inScheme": {
+        "@id": "mf:MicrofoniaScheme"
+      }
+    },
+    {
+      "@id": "mf:cat-patrones",
+      "@type": "skos:Collection",
+      "skos:prefLabel": {
+        "@language": "es",
+        "@value": "Patrones polares"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "Cómo de sensible es un micrófono según la dirección de la que llega el sonido."
+      },
+      "skos:inScheme": {
+        "@id": "mf:MicrofoniaScheme"
+      }
+    },
+    {
+      "@id": "mf:cat-estereo",
+      "@type": "skos:Collection",
+      "skos:prefLabel": {
+        "@language": "es",
+        "@value": "Técnicas estéreo"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "Formas de combinar dos o más micrófonos para capturar una imagen espacial."
+      },
+      "skos:inScheme": {
+        "@id": "mf:MicrofoniaScheme"
+      }
+    },
+    {
+      "@id": "mf:cat-instrumentos",
+      "@type": "skos:Collection",
+      "skos:prefLabel": {
+        "@language": "es",
+        "@value": "Close-miking por instrumento"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "Colocación práctica de micrófono cerca de una fuente concreta."
+      },
+      "skos:inScheme": {
+        "@id": "mf:MicrofoniaScheme"
+      }
+    },
+    {
+      "@id": "mf:dinamico",
+      "@type": "skos:Concept",
+      "skos:prefLabel": {
+        "@language": "es",
+        "@value": "Micrófono dinámico"
+      },
+      "skos:altLabel": {
+        "@language": "en",
+        "@value": "Dynamic microphone"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "Genera señal por inducción electromagnética: el sonido mueve una bobina suspendida en un campo magnético, unida a un diafragma. Es el diseño más robusto y no necesita alimentación externa."
+      },
+      "skos:inScheme": {
+        "@id": "mf:MicrofoniaScheme"
+      },
+      "skos:member": {
+        "@id": "mf:cat-tipos"
+      },
+      "mf:hasProperty": [
+        {
+          "mf:propertyName": "Principio",
+          "mf:propertyValue": "Bobina móvil (inducción electromagnética)"
+        },
+        {
+          "mf:propertyName": "Alimentación phantom",
+          "mf:propertyValue": "No necesita"
+        },
+        {
+          "mf:propertyName": "Sensibilidad",
+          "mf:propertyValue": "Media-baja"
+        },
+        {
+          "mf:propertyName": "Resistencia a SPL alto",
+          "mf:propertyValue": "Muy alta"
+        },
+        {
+          "mf:propertyName": "Fragilidad",
+          "mf:propertyValue": "Baja — apto para uso intensivo en directo"
+        }
+      ],
+      "skos:related": [
+        {
+          "@id": "mf:cardioide"
+        },
+        {
+          "@id": "mf:ampli-guitarra-electrica"
+        },
+        {
+          "@id": "mf:bateria"
+        }
+      ],
+      "mf:relation": [
+        {
+          "@id": "mf:cardioide",
+          "mf:relationLabel": "patrón habitual"
+        },
+        {
+          "@id": "mf:ampli-guitarra-electrica",
+          "mf:relationLabel": "se usa en"
+        },
+        {
+          "@id": "mf:bateria",
+          "mf:relationLabel": "se usa en"
+        }
+      ]
+    },
+    {
+      "@id": "mf:condensador-diafragma-grande",
+      "@type": "skos:Concept",
+      "skos:prefLabel": {
+        "@language": "es",
+        "@value": "Condensador de diafragma grande"
+      },
+      "skos:altLabel": {
+        "@language": "en",
+        "@value": "Large-diaphragm condenser (LDC)"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "La cápsula es un condensador eléctrico: una membrana metalizada muy fina vibra frente a una placa fija cargada. Necesita alimentación phantom (48V) y es mucho más sensible y detallado que un dinámico."
+      },
+      "skos:inScheme": {
+        "@id": "mf:MicrofoniaScheme"
+      },
+      "skos:member": {
+        "@id": "mf:cat-tipos"
+      },
+      "mf:hasProperty": [
+        {
+          "mf:propertyName": "Principio",
+          "mf:propertyValue": "Condensador (placa cargada + diafragma)"
+        },
+        {
+          "mf:propertyName": "Alimentación phantom",
+          "mf:propertyValue": "Necesita 48V"
+        },
+        {
+          "mf:propertyName": "Sensibilidad",
+          "mf:propertyValue": "Alta"
+        },
+        {
+          "mf:propertyName": "Resistencia a SPL alto",
+          "mf:propertyValue": "Media (según modelo, algunos con pad)"
+        },
+        {
+          "mf:propertyName": "Fragilidad",
+          "mf:propertyValue": "Media — cuidado con golpes de aire y humedad"
+        }
+      ],
+      "skos:related": [
+        {
+          "@id": "mf:cardioide"
+        },
+        {
+          "@id": "mf:voz"
+        },
+        {
+          "@id": "mf:piano"
+        }
+      ],
+      "mf:relation": [
+        {
+          "@id": "mf:cardioide",
+          "mf:relationLabel": "patrón habitual"
+        },
+        {
+          "@id": "mf:voz",
+          "mf:relationLabel": "se usa en"
+        },
+        {
+          "@id": "mf:piano",
+          "mf:relationLabel": "se usa en"
+        }
+      ]
+    },
+    {
+      "@id": "mf:condensador-diafragma-pequeno",
+      "@type": "skos:Concept",
+      "skos:prefLabel": {
+        "@language": "es",
+        "@value": "Condensador de diafragma pequeño"
+      },
+      "skos:altLabel": {
+        "@language": "en",
+        "@value": "Small-diaphragm condenser (SDC)"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "También llamado 'de lápiz' por su forma. El diafragma pequeño responde más rápido a los transitorios y mantiene el patrón polar más consistente en todas las frecuencias que uno grande."
+      },
+      "skos:inScheme": {
+        "@id": "mf:MicrofoniaScheme"
+      },
+      "skos:member": {
+        "@id": "mf:cat-tipos"
+      },
+      "mf:hasProperty": [
+        {
+          "mf:propertyName": "Principio",
+          "mf:propertyValue": "Condensador (diafragma pequeño)"
+        },
+        {
+          "mf:propertyName": "Alimentación phantom",
+          "mf:propertyValue": "Necesita 48V"
+        },
+        {
+          "mf:propertyName": "Sensibilidad",
+          "mf:propertyValue": "Alta"
+        },
+        {
+          "mf:propertyName": "Respuesta transitoria",
+          "mf:propertyValue": "Muy rápida"
+        },
+        {
+          "mf:propertyName": "Fragilidad",
+          "mf:propertyValue": "Media"
+        }
+      ],
+      "skos:related": [
+        {
+          "@id": "mf:cardioide"
+        },
+        {
+          "@id": "mf:omnidireccional"
+        },
+        {
+          "@id": "mf:bateria"
+        },
+        {
+          "@id": "mf:guitarra-acustica"
+        }
+      ],
+      "mf:relation": [
+        {
+          "@id": "mf:cardioide",
+          "mf:relationLabel": "patrón habitual"
+        },
+        {
+          "@id": "mf:omnidireccional",
+          "mf:relationLabel": "patrón habitual"
+        },
+        {
+          "@id": "mf:bateria",
+          "mf:relationLabel": "se usa en"
+        },
+        {
+          "@id": "mf:guitarra-acustica",
+          "mf:relationLabel": "se usa en"
+        }
+      ]
+    },
+    {
+      "@id": "mf:cinta",
+      "@type": "skos:Concept",
+      "skos:prefLabel": {
+        "@language": "es",
+        "@value": "Micrófono de cinta"
+      },
+      "skos:altLabel": {
+        "@language": "en",
+        "@value": "Ribbon microphone"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "Una cinta metálica ultrafina, suspendida en un campo magnético, hace de diafragma y generador a la vez. Sonido cálido y suave en agudos; frágil ante golpes de aire directos."
+      },
+      "skos:inScheme": {
+        "@id": "mf:MicrofoniaScheme"
+      },
+      "skos:member": {
+        "@id": "mf:cat-tipos"
+      },
+      "mf:hasProperty": [
+        {
+          "mf:propertyName": "Principio",
+          "mf:propertyValue": "Cinta metálica en campo magnético"
+        },
+        {
+          "mf:propertyName": "Alimentación phantom",
+          "mf:propertyValue": "No la necesita (algunos modelos activos sí)"
+        },
+        {
+          "mf:propertyName": "Sensibilidad",
+          "mf:propertyValue": "Media"
+        },
+        {
+          "mf:propertyName": "Timbre",
+          "mf:propertyValue": "Cálido, agudos suavizados"
+        },
+        {
+          "mf:propertyName": "Fragilidad",
+          "mf:propertyValue": "Alta — evitar golpes de aire y phantom accidental en modelos pasivos"
+        }
+      ],
+      "skos:related": [
+        {
+          "@id": "mf:figura-8"
+        }
+      ],
+      "mf:relation": [
+        {
+          "@id": "mf:figura-8",
+          "mf:relationLabel": "patrón habitual"
+        }
+      ]
+    },
+    {
+      "@id": "mf:pzm-boundary",
+      "@type": "skos:Concept",
+      "skos:prefLabel": {
+        "@language": "es",
+        "@value": "Micrófono de superficie (PZM / boundary)"
+      },
+      "skos:altLabel": {
+        "@language": "en",
+        "@value": "Boundary / PZM microphone"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "La cápsula va pegada o muy cerca de una superficie grande (mesa, suelo, tapa de piano). Al captar la onda directa y la reflejada casi en fase, evita el filtro de peine que sufriría un micro suspendido cerca del suelo."
+      },
+      "skos:inScheme": {
+        "@id": "mf:MicrofoniaScheme"
+      },
+      "skos:member": {
+        "@id": "mf:cat-tipos"
+      },
+      "mf:hasProperty": [
+        {
+          "mf:propertyName": "Principio",
+          "mf:propertyValue": "Cápsula de electret pegada a una superficie"
+        },
+        {
+          "mf:propertyName": "Alimentación phantom",
+          "mf:propertyValue": "Suele necesitar"
+        },
+        {
+          "mf:propertyName": "Patrón resultante",
+          "mf:propertyValue": "Semiesférico (media esfera sobre la superficie)"
+        },
+        {
+          "mf:propertyName": "Uso típico",
+          "mf:propertyValue": "Conferencias, suelo de escenario de teatro, interior de piano de cola"
+        }
+      ],
+      "skos:related": [
+        {
+          "@id": "mf:piano"
+        }
+      ],
+      "mf:relation": [
+        {
+          "@id": "mf:piano",
+          "mf:relationLabel": "se usa en"
+        }
+      ]
+    },
+    {
+      "@id": "mf:omnidireccional",
+      "@type": "skos:Concept",
+      "skos:prefLabel": {
+        "@language": "es",
+        "@value": "Omnidireccional"
+      },
+      "skos:altLabel": {
+        "@language": "en",
+        "@value": "Omnidirectional"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "Capta con la misma sensibilidad desde cualquier dirección. Sin efecto de proximidad, respuesta en graves más extendida y natural, pero también capta todo el ambiente de la sala."
+      },
+      "skos:inScheme": {
+        "@id": "mf:MicrofoniaScheme"
+      },
+      "skos:member": {
+        "@id": "mf:cat-patrones"
+      },
+      "mf:hasProperty": [
+        {
+          "mf:propertyName": "Rechazo trasero",
+          "mf:propertyValue": "Ninguno (0 dB)"
+        },
+        {
+          "mf:propertyName": "Efecto de proximidad",
+          "mf:propertyValue": "No tiene"
+        },
+        {
+          "mf:propertyName": "Sensibilidad al viento/pop",
+          "mf:propertyValue": "Baja, comparado con direccionales"
+        }
+      ],
+      "skos:related": [
+        {
+          "@id": "mf:ab"
+        },
+        {
+          "@id": "mf:decca-tree"
+        }
+      ],
+      "mf:relation": [
+        {
+          "@id": "mf:ab",
+          "mf:relationLabel": "se usa en"
+        },
+        {
+          "@id": "mf:decca-tree",
+          "mf:relationLabel": "se usa en"
+        }
+      ]
+    },
+    {
+      "@id": "mf:cardioide",
+      "@type": "skos:Concept",
+      "skos:prefLabel": {
+        "@language": "es",
+        "@value": "Cardioide"
+      },
+      "skos:altLabel": {
+        "@language": "en",
+        "@value": "Cardioid"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "El patrón más común: máxima sensibilidad al frente, rechazo fuerte (en torno a -25 dB) exactamente detrás (180°). El nombre viene de la forma de corazón de su gráfica polar."
+      },
+      "skos:inScheme": {
+        "@id": "mf:MicrofoniaScheme"
+      },
+      "skos:member": {
+        "@id": "mf:cat-patrones"
+      },
+      "mf:hasProperty": [
+        {
+          "mf:propertyName": "Ángulo de máximo rechazo",
+          "mf:propertyValue": "180°"
+        },
+        {
+          "mf:propertyName": "Efecto de proximidad",
+          "mf:propertyValue": "Sí, notable en distancias cortas"
+        },
+        {
+          "mf:propertyName": "Uso típico",
+          "mf:propertyValue": "Voz, instrumento individual, micrófono \"todoterreno\""
+        }
+      ],
+      "skos:related": [
+        {
+          "@id": "mf:xy"
+        },
+        {
+          "@id": "mf:ortf"
+        }
+      ],
+      "mf:relation": [
+        {
+          "@id": "mf:xy",
+          "mf:relationLabel": "se usa en"
+        },
+        {
+          "@id": "mf:ortf",
+          "mf:relationLabel": "se usa en"
+        }
+      ]
+    },
+    {
+      "@id": "mf:supercardioide",
+      "@type": "skos:Concept",
+      "skos:prefLabel": {
+        "@language": "es",
+        "@value": "Supercardioide"
+      },
+      "skos:altLabel": {
+        "@language": "en",
+        "@value": "Supercardioid"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "Lóbulo frontal más estrecho que el cardioide, con un pequeño lóbulo trasero. El ángulo de máximo rechazo está en torno a 126°, no en 180°. Mejor aislamiento lateral en directo."
+      },
+      "skos:inScheme": {
+        "@id": "mf:MicrofoniaScheme"
+      },
+      "skos:member": {
+        "@id": "mf:cat-patrones"
+      },
+      "mf:hasProperty": [
+        {
+          "mf:propertyName": "Ángulo de máximo rechazo",
+          "mf:propertyValue": "≈126°"
+        },
+        {
+          "mf:propertyName": "Lóbulo trasero",
+          "mf:propertyValue": "Pequeño"
+        },
+        {
+          "mf:propertyName": "Uso típico",
+          "mf:propertyValue": "Directo, cuando hay monitores cerca y se busca más rechazo lateral"
+        }
+      ]
+    },
+    {
+      "@id": "mf:hipercardioide",
+      "@type": "skos:Concept",
+      "skos:prefLabel": {
+        "@language": "es",
+        "@value": "Hipercardioide"
+      },
+      "skos:altLabel": {
+        "@language": "en",
+        "@value": "Hypercardioid"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "Más estrecho todavía que el supercardioide, con un lóbulo trasero mayor. El ángulo de máximo rechazo baja hasta ≈110°. Muy usado en boom de cine."
+      },
+      "skos:inScheme": {
+        "@id": "mf:MicrofoniaScheme"
+      },
+      "skos:member": {
+        "@id": "mf:cat-patrones"
+      },
+      "mf:hasProperty": [
+        {
+          "mf:propertyName": "Ángulo de máximo rechazo",
+          "mf:propertyValue": "≈110°"
+        },
+        {
+          "mf:propertyName": "Lóbulo trasero",
+          "mf:propertyValue": "Moderado"
+        },
+        {
+          "mf:propertyName": "Uso típico",
+          "mf:propertyValue": "Boom de cine/TV, captación muy dirigida en directo"
+        }
+      ]
+    },
+    {
+      "@id": "mf:figura-8",
+      "@type": "skos:Concept",
+      "skos:prefLabel": {
+        "@language": "es",
+        "@value": "Figura en 8 (bidireccional)"
+      },
+      "skos:altLabel": {
+        "@language": "en",
+        "@value": "Figure-8 (bidirectional)"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "Capta igual por delante y por detrás, con rechazo total (en teoría) a 90° y 270°. Patrón nativo de los micrófonos de cinta y de muchos condensadores multipatrón."
+      },
+      "skos:inScheme": {
+        "@id": "mf:MicrofoniaScheme"
+      },
+      "skos:member": {
+        "@id": "mf:cat-patrones"
+      },
+      "mf:hasProperty": [
+        {
+          "mf:propertyName": "Ángulo de máximo rechazo",
+          "mf:propertyValue": "90° y 270° (los laterales)"
+        },
+        {
+          "mf:propertyName": "Efecto de proximidad",
+          "mf:propertyValue": "Muy marcado"
+        },
+        {
+          "mf:propertyName": "Uso típico",
+          "mf:propertyValue": "Entrevista cara a cara, Blumlein, canal Side de M-S"
+        }
+      ],
+      "skos:related": [
+        {
+          "@id": "mf:blumlein"
+        },
+        {
+          "@id": "mf:ms"
+        },
+        {
+          "@id": "mf:cinta"
+        }
+      ],
+      "mf:relation": [
+        {
+          "@id": "mf:blumlein",
+          "mf:relationLabel": "se usa en"
+        },
+        {
+          "@id": "mf:ms",
+          "mf:relationLabel": "se usa en"
+        },
+        {
+          "@id": "mf:cinta",
+          "mf:relationLabel": "típico de"
+        }
+      ]
+    },
+    {
+      "@id": "mf:shotgun",
+      "@type": "skos:Concept",
+      "skos:prefLabel": {
+        "@language": "es",
+        "@value": "Shotgun (lobular / interferencia)"
+      },
+      "skos:altLabel": {
+        "@language": "en",
+        "@value": "Shotgun (line + gradient)"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "Un tubo ranurado delante de la cápsula cancela por interferencia el sonido que no llega justo de frente, creando un patrón extremadamente estrecho y direccional."
+      },
+      "skos:inScheme": {
+        "@id": "mf:MicrofoniaScheme"
+      },
+      "skos:member": {
+        "@id": "mf:cat-patrones"
+      },
+      "mf:hasProperty": [
+        {
+          "mf:propertyName": "Directividad",
+          "mf:propertyValue": "Muy alta, especialmente en medios-agudos"
+        },
+        {
+          "mf:propertyName": "Comportamiento en graves",
+          "mf:propertyValue": "Se ensancha — pierde directividad en baja frecuencia"
+        },
+        {
+          "mf:propertyName": "Uso típico",
+          "mf:propertyValue": "Cine, documental, naturaleza, TV a distancia"
+        }
+      ]
+    },
+    {
+      "@id": "mf:xy",
+      "@type": "skos:Concept",
+      "skos:prefLabel": {
+        "@language": "es",
+        "@value": "XY (coincidente)"
+      },
+      "skos:altLabel": {
+        "@language": "en",
+        "@value": "XY (coincident pair)"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "Dos micrófonos cardioides con las cápsulas prácticamente en el mismo punto, angulados entre 90° y 135° entre sí. Al no haber separación física, no hay diferencias de tiempo entre canales: compatibilidad en mono perfecta."
+      },
+      "skos:inScheme": {
+        "@id": "mf:MicrofoniaScheme"
+      },
+      "skos:member": {
+        "@id": "mf:cat-estereo"
+      },
+      "mf:hasProperty": [
+        {
+          "mf:propertyName": "Micrófonos",
+          "mf:propertyValue": "2 cardioides (o similares)"
+        },
+        {
+          "mf:propertyName": "Separación física",
+          "mf:propertyValue": "Ninguna (cápsulas coincidentes)"
+        },
+        {
+          "mf:propertyName": "Compatibilidad mono",
+          "mf:propertyValue": "Excelente"
+        },
+        {
+          "mf:propertyName": "Sensación de espacio",
+          "mf:propertyValue": "Moderada"
+        }
+      ],
+      "skos:related": [
+        {
+          "@id": "mf:cardioide"
+        },
+        {
+          "@id": "mf:bateria"
+        }
+      ],
+      "mf:relation": [
+        {
+          "@id": "mf:cardioide",
+          "mf:relationLabel": "usa patrón"
+        },
+        {
+          "@id": "mf:bateria",
+          "mf:relationLabel": "recomendada para"
+        }
+      ]
+    },
+    {
+      "@id": "mf:ortf",
+      "@type": "skos:Concept",
+      "skos:prefLabel": {
+        "@language": "es",
+        "@value": "ORTF"
+      },
+      "skos:altLabel": {
+        "@language": "en",
+        "@value": "ORTF"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "Estándar francés (Office de Radiodiffusion Télévision Française): dos cardioides separados 17 cm entre cápsulas, angulados 110° entre sí. Equilibrio entre imagen precisa y sensación de profundidad."
+      },
+      "skos:inScheme": {
+        "@id": "mf:MicrofoniaScheme"
+      },
+      "skos:member": {
+        "@id": "mf:cat-estereo"
+      },
+      "mf:hasProperty": [
+        {
+          "mf:propertyName": "Micrófonos",
+          "mf:propertyValue": "2 cardioides"
+        },
+        {
+          "mf:propertyName": "Separación",
+          "mf:propertyValue": "17 cm"
+        },
+        {
+          "mf:propertyName": "Ángulo",
+          "mf:propertyValue": "110°"
+        },
+        {
+          "mf:propertyName": "Compatibilidad mono",
+          "mf:propertyValue": "Buena"
+        }
+      ],
+      "skos:related": [
+        {
+          "@id": "mf:cardioide"
+        }
+      ],
+      "mf:relation": [
+        {
+          "@id": "mf:cardioide",
+          "mf:relationLabel": "usa patrón"
+        }
+      ]
+    },
+    {
+      "@id": "mf:ab",
+      "@type": "skos:Concept",
+      "skos:prefLabel": {
+        "@language": "es",
+        "@value": "AB (par espaciado)"
+      },
+      "skos:altLabel": {
+        "@language": "en",
+        "@value": "AB (spaced pair)"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "Dos micrófonos (normalmente omnidireccionales) separados una distancia notable (40-60 cm o más), sin angular. La diferencia de tiempo de llegada entre canales crea una sensación de espacio muy amplia."
+      },
+      "skos:inScheme": {
+        "@id": "mf:MicrofoniaScheme"
+      },
+      "skos:member": {
+        "@id": "mf:cat-estereo"
+      },
+      "mf:hasProperty": [
+        {
+          "mf:propertyName": "Micrófonos",
+          "mf:propertyValue": "2, normalmente omnidireccionales"
+        },
+        {
+          "mf:propertyName": "Separación",
+          "mf:propertyValue": "40-60 cm o más"
+        },
+        {
+          "mf:propertyName": "Sensación de espacio",
+          "mf:propertyValue": "Muy amplia"
+        },
+        {
+          "mf:propertyName": "Compatibilidad mono",
+          "mf:propertyValue": "Riesgo de cancelaciones de fase"
+        }
+      ],
+      "skos:related": [
+        {
+          "@id": "mf:omnidireccional"
+        },
+        {
+          "@id": "mf:bateria"
+        },
+        {
+          "@id": "mf:piano"
+        }
+      ],
+      "mf:relation": [
+        {
+          "@id": "mf:omnidireccional",
+          "mf:relationLabel": "usa patrón"
+        },
+        {
+          "@id": "mf:bateria",
+          "mf:relationLabel": "recomendada para"
+        },
+        {
+          "@id": "mf:piano",
+          "mf:relationLabel": "recomendada para"
+        }
+      ]
+    },
+    {
+      "@id": "mf:blumlein",
+      "@type": "skos:Concept",
+      "skos:prefLabel": {
+        "@language": "es",
+        "@value": "Blumlein"
+      },
+      "skos:altLabel": {
+        "@language": "en",
+        "@value": "Blumlein pair"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "Dos micrófonos en figura de 8, coincidentes, cruzados a 90°. Captura de forma muy realista tanto la fuente como el ambiente de la sala — exige una sala que suene bien."
+      },
+      "skos:inScheme": {
+        "@id": "mf:MicrofoniaScheme"
+      },
+      "skos:member": {
+        "@id": "mf:cat-estereo"
+      },
+      "mf:hasProperty": [
+        {
+          "mf:propertyName": "Micrófonos",
+          "mf:propertyValue": "2 en figura de 8"
+        },
+        {
+          "mf:propertyName": "Ángulo",
+          "mf:propertyValue": "90°, cápsulas coincidentes"
+        },
+        {
+          "mf:propertyName": "Sensación de espacio",
+          "mf:propertyValue": "Muy realista, incluye mucho ambiente"
+        }
+      ],
+      "skos:related": [
+        {
+          "@id": "mf:figura-8"
+        }
+      ],
+      "mf:relation": [
+        {
+          "@id": "mf:figura-8",
+          "mf:relationLabel": "usa patrón"
+        }
+      ]
+    },
+    {
+      "@id": "mf:ms",
+      "@type": "skos:Concept",
+      "skos:prefLabel": {
+        "@language": "es",
+        "@value": "Mid-Side (M-S)"
+      },
+      "skos:altLabel": {
+        "@language": "en",
+        "@value": "Mid-Side (M-S)"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "Un micrófono central (Mid, cardioide u omni) más uno lateral en figura de 8 (Side). Se decodifica sumando y restando Mid±Side, lo que permite ajustar la anchura estéreo después de grabar, incluso mezclarlo a mono sin ningún problema de fase."
+      },
+      "skos:inScheme": {
+        "@id": "mf:MicrofoniaScheme"
+      },
+      "skos:member": {
+        "@id": "mf:cat-estereo"
+      },
+      "mf:hasProperty": [
+        {
+          "mf:propertyName": "Micrófonos",
+          "mf:propertyValue": "1 Mid + 1 Side (figura de 8)"
+        },
+        {
+          "mf:propertyName": "Compatibilidad mono",
+          "mf:propertyValue": "Perfecta"
+        },
+        {
+          "mf:propertyName": "Particularidad",
+          "mf:propertyValue": "La anchura estéreo se decide en la mezcla, no en el directo"
+        }
+      ],
+      "skos:related": [
+        {
+          "@id": "mf:figura-8"
+        }
+      ],
+      "mf:relation": [
+        {
+          "@id": "mf:figura-8",
+          "mf:relationLabel": "usa patrón"
+        }
+      ]
+    },
+    {
+      "@id": "mf:decca-tree",
+      "@type": "skos:Concept",
+      "skos:prefLabel": {
+        "@language": "es",
+        "@value": "Decca Tree"
+      },
+      "skos:altLabel": {
+        "@language": "en",
+        "@value": "Decca Tree"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "Tres micrófonos omnidireccionales en disposición triangular sobre la orquesta (uno central algo retrasado, dos laterales). Técnica clásica de Decca Records para grabación orquestal."
+      },
+      "skos:inScheme": {
+        "@id": "mf:MicrofoniaScheme"
+      },
+      "skos:member": {
+        "@id": "mf:cat-estereo"
+      },
+      "mf:hasProperty": [
+        {
+          "mf:propertyName": "Micrófonos",
+          "mf:propertyValue": "3 omnidireccionales"
+        },
+        {
+          "mf:propertyName": "Disposición",
+          "mf:propertyValue": "Triángulo sobre la orquesta"
+        },
+        {
+          "mf:propertyName": "Uso típico",
+          "mf:propertyValue": "Grabación orquestal y de música clásica"
+        }
+      ],
+      "skos:related": [
+        {
+          "@id": "mf:omnidireccional"
+        }
+      ],
+      "mf:relation": [
+        {
+          "@id": "mf:omnidireccional",
+          "mf:relationLabel": "usa patrón"
+        }
+      ]
+    },
+    {
+      "@id": "mf:voz",
+      "@type": "skos:Concept",
+      "skos:prefLabel": {
+        "@language": "es",
+        "@value": "Voz"
+      },
+      "skos:altLabel": {
+        "@language": "en",
+        "@value": "Vocals"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "Condensador de diafragma grande en cardioide, filtro antipop, 15-20 cm de distancia. El efecto de proximidad del cardioide se puede usar como recurso expresivo, acercando o alejando al cantante."
+      },
+      "skos:inScheme": {
+        "@id": "mf:MicrofoniaScheme"
+      },
+      "skos:member": {
+        "@id": "mf:cat-instrumentos"
+      },
+      "mf:hasProperty": [
+        {
+          "mf:propertyName": "Micrófono recomendado",
+          "mf:propertyValue": "Condensador de diafragma grande"
+        },
+        {
+          "mf:propertyName": "Patrón recomendado",
+          "mf:propertyValue": "Cardioide"
+        },
+        {
+          "mf:propertyName": "Distancia típica",
+          "mf:propertyValue": "15-20 cm"
+        },
+        {
+          "mf:propertyName": "Trucos",
+          "mf:propertyValue": "Ángulo ligeramente fuera de eje para reducir sibilancia"
+        }
+      ],
+      "skos:related": [
+        {
+          "@id": "mf:condensador-diafragma-grande"
+        },
+        {
+          "@id": "mf:cardioide"
+        }
+      ],
+      "mf:relation": [
+        {
+          "@id": "mf:condensador-diafragma-grande",
+          "mf:relationLabel": "recomienda tipo"
+        },
+        {
+          "@id": "mf:cardioide",
+          "mf:relationLabel": "recomienda patrón"
+        }
+      ]
+    },
+    {
+      "@id": "mf:guitarra-acustica",
+      "@type": "skos:Concept",
+      "skos:prefLabel": {
+        "@language": "es",
+        "@value": "Guitarra acústica"
+      },
+      "skos:altLabel": {
+        "@language": "en",
+        "@value": "Acoustic guitar"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "Apuntar hacia la unión del mástil con el cuerpo (zona del traste 12), nunca directamente al rosetón — ahí hay demasiado grave y \"boom\". Un segundo micro cerca del puente añade cuerpo si se necesita."
+      },
+      "skos:inScheme": {
+        "@id": "mf:MicrofoniaScheme"
+      },
+      "skos:member": {
+        "@id": "mf:cat-instrumentos"
+      },
+      "mf:hasProperty": [
+        {
+          "mf:propertyName": "Micrófono recomendado",
+          "mf:propertyValue": "Condensador de diafragma pequeño"
+        },
+        {
+          "mf:propertyName": "Punto de referencia",
+          "mf:propertyValue": "Unión mástil-cuerpo (traste 12), no el rosetón"
+        },
+        {
+          "mf:propertyName": "Distancia típica",
+          "mf:propertyValue": "15-30 cm"
+        }
+      ],
+      "skos:related": [
+        {
+          "@id": "mf:condensador-diafragma-pequeno"
+        }
+      ],
+      "mf:relation": [
+        {
+          "@id": "mf:condensador-diafragma-pequeno",
+          "mf:relationLabel": "recomienda tipo"
+        }
+      ]
+    },
+    {
+      "@id": "mf:bateria",
+      "@type": "skos:Concept",
+      "skos:prefLabel": {
+        "@language": "es",
+        "@value": "Batería"
+      },
+      "skos:altLabel": {
+        "@language": "en",
+        "@value": "Drum kit"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "Sistema multimicrófono: dinámico dentro y/o fuera del bombo, dinámico o de clip en la caja (a veces también por debajo para el bordón), pareja de overheads en XY o AB para platos y conjunto, condensadores en timbales."
+      },
+      "skos:inScheme": {
+        "@id": "mf:MicrofoniaScheme"
+      },
+      "skos:member": {
+        "@id": "mf:cat-instrumentos"
+      },
+      "mf:hasProperty": [
+        {
+          "mf:propertyName": "Bombo",
+          "mf:propertyValue": "Dinámico especializado (dentro y/o fuera)"
+        },
+        {
+          "mf:propertyName": "Caja",
+          "mf:propertyValue": "Dinámico o de clip, arriba y opcionalmente abajo"
+        },
+        {
+          "mf:propertyName": "Overheads",
+          "mf:propertyValue": "Par XY o AB, condensador"
+        },
+        {
+          "mf:propertyName": "Timbales",
+          "mf:propertyValue": "Condensador de diafragma pequeño con clip"
+        }
+      ],
+      "skos:related": [
+        {
+          "@id": "mf:dinamico"
+        },
+        {
+          "@id": "mf:condensador-diafragma-pequeno"
+        },
+        {
+          "@id": "mf:xy"
+        },
+        {
+          "@id": "mf:ab"
+        }
+      ],
+      "mf:relation": [
+        {
+          "@id": "mf:dinamico",
+          "mf:relationLabel": "recomienda tipo"
+        },
+        {
+          "@id": "mf:condensador-diafragma-pequeno",
+          "mf:relationLabel": "recomienda tipo"
+        },
+        {
+          "@id": "mf:xy",
+          "mf:relationLabel": "recomienda técnica"
+        },
+        {
+          "@id": "mf:ab",
+          "mf:relationLabel": "recomienda técnica"
+        }
+      ]
+    },
+    {
+      "@id": "mf:ampli-guitarra-electrica",
+      "@type": "skos:Concept",
+      "skos:prefLabel": {
+        "@language": "es",
+        "@value": "Amplificador de guitarra eléctrica"
+      },
+      "skos:altLabel": {
+        "@language": "en",
+        "@value": "Electric guitar amp"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "Dinámico pegado a la rejilla del altavoz. Apuntar al centro del cono da un sonido más agresivo/nasal; apuntar cerca del borde ('cap edge') da más brillo y menos distorsión de proximidad. Se puede combinar con un condensador algo más retirado para capturar la sala."
+      },
+      "skos:inScheme": {
+        "@id": "mf:MicrofoniaScheme"
+      },
+      "skos:member": {
+        "@id": "mf:cat-instrumentos"
+      },
+      "mf:hasProperty": [
+        {
+          "mf:propertyName": "Micrófono recomendado",
+          "mf:propertyValue": "Dinámico (clásico: cápsula tipo SM57)"
+        },
+        {
+          "mf:propertyName": "Posición",
+          "mf:propertyValue": "Pegado a la rejilla, entre el centro y el borde del cono"
+        },
+        {
+          "mf:propertyName": "Combinación habitual",
+          "mf:propertyValue": "+ condensador a 1-2 metros para ambiente"
+        }
+      ],
+      "skos:related": [
+        {
+          "@id": "mf:dinamico"
+        }
+      ],
+      "mf:relation": [
+        {
+          "@id": "mf:dinamico",
+          "mf:relationLabel": "recomienda tipo"
+        }
+      ]
+    },
+    {
+      "@id": "mf:piano",
+      "@type": "skos:Concept",
+      "skos:prefLabel": {
+        "@language": "es",
+        "@value": "Piano (de cola)"
+      },
+      "skos:altLabel": {
+        "@language": "en",
+        "@value": "Grand piano"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "Con la tapa apoyada en el palillo largo, un par estéreo de condensadores apunta uno hacia las cuerdas graves y otro hacia las agudas. Para escenario, un micrófono de superficie dentro de la caja evita problemas de feedback."
+      },
+      "skos:inScheme": {
+        "@id": "mf:MicrofoniaScheme"
+      },
+      "skos:member": {
+        "@id": "mf:cat-instrumentos"
+      },
+      "mf:hasProperty": [
+        {
+          "mf:propertyName": "Grabación",
+          "mf:propertyValue": "Par estéreo de condensadores (AB u ORTF), tapa apoyada en palillo largo"
+        },
+        {
+          "mf:propertyName": "Directo/escenario",
+          "mf:propertyValue": "Micrófono de superficie (PZM) dentro de la caja"
+        }
+      ],
+      "skos:related": [
+        {
+          "@id": "mf:ab"
+        },
+        {
+          "@id": "mf:pzm-boundary"
+        }
+      ],
+      "mf:relation": [
+        {
+          "@id": "mf:ab",
+          "mf:relationLabel": "recomienda técnica"
+        },
+        {
+          "@id": "mf:pzm-boundary",
+          "mf:relationLabel": "recomienda tipo"
+        }
+      ]
+    }
+  ]
+}
