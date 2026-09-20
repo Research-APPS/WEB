@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://microfonia.radiomicelio.com/sitemap.xml

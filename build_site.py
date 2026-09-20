@@ -20,10 +20,12 @@ Produce:
 
 import hashlib
 import json
+import urllib.parse
 from datetime import datetime, timezone
 from pathlib import Path
 
 from ontology_data import CATEGORIES, CONCEPTS, concepts_by_id, concepts_by_category
+from arcade_data import ARCADE_DECADES, GAMES as ARCADE_GAMES, GAME_SCRIPTS, render_game
 
 SITE_NAME = "Microfonía — Radio Micelio"
 SITE_URL = "https://microfonia.radiomicelio.com"
@@ -34,6 +36,9 @@ SITE_DESCRIPTION = (
 ONTOLOGY_NS = f"{SITE_URL}/ontology#"
 ROOT = Path(__file__).parent
 DOCS = ROOT / "docs"
+
+FAVICON_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🎙️</text></svg>'
+FAVICON_HREF = "data:image/svg+xml," + urllib.parse.quote(FAVICON_SVG)
 
 # Universo de ontologías de Radio Micelio: un personaje, un dominio de
 # conocimiento. Solo Sísmico está publicado; el resto son adelantos.
@@ -303,6 +308,7 @@ def page_shell(*, title, description, canonical, body_html, jsonld_obj, active_n
 <meta property="og:type" content="website">
 <meta property="og:url" content="{canonical}">
 <meta name="twitter:card" content="summary">
+<link rel="icon" href="{FAVICON_HREF}">
 <link rel="stylesheet" href="/assets/style.css">
 <script type="application/ld+json">
 {jsonld}
@@ -528,21 +534,37 @@ def build_graph_page():
     write_text(DOCS / "grafo" / "index.html", html)
 
 
-def build_arcade_stub():
+def _arcade_game_count(decade_key):
+    n = sum(1 for g in ARCADE_GAMES if g["decade"] == decade_key)
+    return "1 juego" if n == 1 else f"{n} juegos"
+
+
+def build_arcade_hub():
+    cards = "\n".join(
+        f"""<a class="cat-card" href="/arcade/decade/{d['key']}/">
+              <div class="icon">{d['icon']}</div>
+              <h3>{d['label']}</h3>
+              <p>{d['desc']}</p>
+              <p class="play-tag">{_arcade_game_count(d['key'])} · Entrar →</p>
+            </a>"""
+        for d in ARCADE_DECADES
+    )
     body = f"""
 <div class="crumbs"><a href="/">Inicio</a> / Arcade</div>
 <p class="pill">🕹️ Radio Micelio</p>
 <h1>Arcade</h1>
 <p class="lead">
-  Una colección de juegos sencillos y clásicos milenarios (ajedrez, Go) jugables con mando —
-  navegación completa por gamepad, motor de IA propio y comentaristas por reglas, sin nada generativo.
-  Hoy vive dentro de <strong>MCI MIDI Studio</strong>, corriendo en local.
+  {len(ARCADE_GAMES)} juegos sencillos y clásicos milenarios (ajedrez, Go), jugables con mando —
+  navegación completa por gamepad, IA propia por minimax y comentaristas por reglas, nada generativo.
+  Organizados por décadas, tal y como viven en <strong>MCI MIDI Studio</strong>.
 </p>
-<p class="lead">Cuando tenga despliegue público, este enlace apuntará directamente ahí.</p>
+<div class="cat-grid">
+{cards}
+</div>
 """
     jsonld = {
         "@context": "https://schema.org",
-        "@type": "WebPage",
+        "@type": "CollectionPage",
         "name": f"Arcade · {SITE_NAME}",
         "description": "Colección de juegos jugables con mando, parte de Radio Micelio / MCI.",
         "url": f"{SITE_URL}/arcade/",
@@ -555,6 +577,80 @@ def build_arcade_stub():
         jsonld_obj=jsonld,
     )
     write_text(DOCS / "arcade" / "index.html", html)
+
+
+def build_arcade_decade_pages():
+    for d in ARCADE_DECADES:
+        games = [g for g in ARCADE_GAMES if g["decade"] == d["key"]]
+        cards = "\n".join(
+            f"""<a class="concept-card" href="/arcade/{g['slug']}/">
+                  <b>{g['icon']} {g['title']}</b><span>{g['desc']}</span>
+                </a>"""
+            for g in games
+        )
+        body = f"""
+<div class="crumbs"><a href="/">Inicio</a> / <a href="/arcade/">Arcade</a> / {d['label']}</div>
+<p class="pill">{d['icon']} Arcade</p>
+<h1>{d['label']}</h1>
+<p class="lead">{d['desc']}</p>
+<div class="concept-list">
+{cards}
+</div>
+"""
+        jsonld = {
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            "name": f"{d['label']} · Arcade · {SITE_NAME}",
+            "description": d["desc"],
+            "url": f"{SITE_URL}/arcade/decade/{d['key']}/",
+        }
+        html = page_shell(
+            title=f"{d['label']} · Arcade · {SITE_NAME}",
+            description=d["desc"],
+            canonical=f"{SITE_URL}/arcade/decade/{d['key']}/",
+            body_html=body,
+            jsonld_obj=jsonld,
+        )
+        write_text(DOCS / "arcade" / "decade" / d["key"] / "index.html", html)
+
+
+def _inject_seo_head(html, *, description, canonical, jsonld_obj):
+    """render_game() no lleva metadatos SEO (venía de una app local) — se
+    los añadimos aquí sin tocar la plantilla original."""
+    jsonld = json.dumps(jsonld_obj, ensure_ascii=False, indent=2)
+    extra = (
+        f'<link rel="icon" href="{FAVICON_HREF}">\n'
+        f'<meta name="description" content="{description}">\n'
+        f'<link rel="canonical" href="{canonical}">\n'
+        f'<meta property="og:description" content="{description}">\n'
+        f'<meta property="og:url" content="{canonical}">\n'
+        f'<script type="application/ld+json">\n{jsonld}\n</script>\n'
+    )
+    return html.replace('<meta charset="utf-8">', '<meta charset="utf-8">\n' + extra, 1)
+
+
+def build_arcade_game_pages():
+    for g in ARCADE_GAMES:
+        decade = next(d for d in ARCADE_DECADES if d["key"] == g["decade"])
+        html = render_game(
+            g["title"], g["icon"], g["instructions"], GAME_SCRIPTS[g["slug"]],
+            back_href=f"/arcade/decade/{g['decade']}/", back_label=f"← {decade['label']}",
+        )
+        canonical = f"{SITE_URL}/arcade/{g['slug']}/"
+        jsonld = {
+            "@context": "https://schema.org",
+            "@type": "VideoGame",
+            "name": g["title"],
+            "description": g["desc"],
+            "url": canonical,
+            "genre": decade["label"],
+            "playMode": "SinglePlayer",
+            "applicationCategory": "Game",
+            "isAccessibleForFree": True,
+            "gamePlatform": "Web browser",
+        }
+        html = _inject_seo_head(html, description=g["desc"], canonical=canonical, jsonld_obj=jsonld)
+        write_text(DOCS / "arcade" / g["slug"] / "index.html", html)
 
 
 def build_upcoming_pages():
@@ -764,6 +860,36 @@ GRAPH_JS = """
 """
 
 
+def build_sitemap():
+    urls = [f"{SITE_URL}/", f"{SITE_URL}/grafo/", f"{SITE_URL}/arcade/"]
+    urls += [f"{SITE_URL}/{cat['key']}/" for cat in CATEGORIES]
+    urls += [f"{SITE_URL}/{c['category']}/{c['id']}/" for c in CONCEPTS]
+    urls += [f"{SITE_URL}/arcade/decade/{d['key']}/" for d in ARCADE_DECADES]
+    urls += [f"{SITE_URL}/arcade/{g['slug']}/" for g in ARCADE_GAMES]
+    urls += [f"{SITE_URL}/proximamente/{o['slug']}/" for o in ONTOLOGY_UPCOMING]
+
+    today = datetime.now(timezone.utc).date().isoformat()
+    entries = "\n".join(
+        f"  <url><loc>{u}</loc><lastmod>{today}</lastmod></url>" for u in urls
+    )
+    xml = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        f"{entries}\n"
+        "</urlset>\n"
+    )
+    write_text(DOCS / "sitemap.xml", xml)
+
+
+def build_robots():
+    txt = (
+        "User-agent: *\n"
+        "Allow: /\n"
+        f"Sitemap: {SITE_URL}/sitemap.xml\n"
+    )
+    write_text(DOCS / "robots.txt", txt)
+
+
 def build():
     if DOCS.exists():
         for p in sorted(DOCS.rglob('*'), reverse=True):
@@ -790,12 +916,20 @@ def build():
     build_category_pages()
     build_concept_pages()
     build_graph_page()
-    build_arcade_stub()
+    build_arcade_hub()
+    build_arcade_decade_pages()
+    build_arcade_game_pages()
     build_upcoming_pages()
     build_graph_data()
     build_ontology_jsonld()
+    build_sitemap()
+    build_robots()
 
-    total_pages = 1 + len(CATEGORIES) + len(CONCEPTS) + 1 + 1 + len(ONTOLOGY_UPCOMING)
+    total_pages = (
+        1 + len(CATEGORIES) + len(CONCEPTS) + 1
+        + 1 + len(ARCADE_DECADES) + len(ARCADE_GAMES)
+        + len(ONTOLOGY_UPCOMING)
+    )
     print(f"OK: {total_pages} páginas HTML + data.json + ontology.jsonld generadas en {DOCS}")
 
 

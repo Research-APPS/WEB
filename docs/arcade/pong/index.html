@@ -1,0 +1,582 @@
+
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Ctext%20y%3D%22.9em%22%20font-size%3D%2290%22%3E%F0%9F%8E%99%EF%B8%8F%3C/text%3E%3C/svg%3E">
+<meta name="description" content="El clásico. Tú contra la CPU, a 5 puntos.">
+<link rel="canonical" href="https://microfonia.radiomicelio.com/arcade/pong/">
+<meta property="og:description" content="El clásico. Tú contra la CPU, a 5 puntos.">
+<meta property="og:url" content="https://microfonia.radiomicelio.com/arcade/pong/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "Pong",
+  "description": "El clásico. Tú contra la CPU, a 5 puntos.",
+  "url": "https://microfonia.radiomicelio.com/arcade/pong/",
+  "genre": "Años 70",
+  "playMode": "SinglePlayer",
+  "applicationCategory": "Game",
+  "isAccessibleForFree": true,
+  "gamePlatform": "Web browser"
+}
+</script>
+
+<title>MCI · Pong</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    color-scheme: dark;
+    --bg-0: #111214; --bg-1: #18191c; --bg-2: #202226; --bg-3: #292b30;
+    --line: #3a3d43; --text: #f0f1f3; --text-2: #c3c6cc; --muted: #8c919b;
+    --accent: #78a9ff; --accent-2: #9bc1ff; --green: #69d38b; --amber: #f0bf59; --red: #ff6b67;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0; background: var(--bg-0); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+    font-size: 12px; overflow: hidden;
+    animation: mci-fade-in .3s ease both;
+  }
+  @keyframes mci-fade-in { from { opacity: 0; } to { opacity: 1; } }
+  .appbar {
+    display: flex; align-items: center; gap: 12px; height: 34px; padding: 0 12px;
+    background: linear-gradient(#25272b,#202226); border-bottom: 1px solid #0e0f10;
+  }
+  .brand { display: flex; align-items: center; gap: 8px; font-weight: 650; color: #e8eaed; }
+  .brand-mark {
+    width: 18px; height: 18px; border-radius: 4px; display: grid; place-items: center;
+    background: #33363b; border: 1px solid #4b4e55; font-size: 10px; color: var(--accent-2);
+  }
+  .mini-btn {
+    border: 1px solid #3b3f46; background: #292c31; color: #bfc3ca; border-radius: 4px;
+    padding: 5px 10px; font-size: 10.5px; cursor: pointer; text-decoration: none;
+  }
+  .mini-btn:hover { background: #34373d; color: #fff; }
+  .spacer { flex: 1; }
+  .pad-status { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 11px; }
+  .pad-status .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--red); }
+  .pad-status .dot.on { background: var(--green); box-shadow: 0 0 6px rgba(105,211,139,.6); }
+  .score { font: 700 14px ui-monospace, monospace; color: var(--accent-2); min-width: 70px; text-align: right; }
+  .stage {
+    height: calc(100% - 34px); display: flex; align-items: center; justify-content: center;
+    gap: 18px; flex-wrap: wrap; overflow: auto; padding: 10px;
+    background: radial-gradient(circle at 50% 30%, #1a1c20, #0e0f11 75%);
+  }
+  .board-col { position: relative; flex: 0 0 auto; }
+  canvas { background: #0c0d0f; border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 20px 50px rgba(0,0,0,.5); max-width: 100%; height: auto; }
+
+  /* Controles táctiles: solo en pantallas táctiles (no en escritorio con ratón/mando) */
+  .touch-controls { display: none; }
+  @media (hover: none) and (pointer: coarse) {
+    .touch-controls {
+      display: flex; justify-content: space-between; align-items: flex-end;
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; pointer-events: none;
+      padding: 0 16px calc(14px + env(safe-area-inset-bottom));
+    }
+    .touch-dpad {
+      pointer-events: auto; display: grid;
+      grid-template-columns: repeat(3, 46px); grid-template-rows: repeat(3, 46px); gap: 3px;
+    }
+    .touch-btn {
+      -webkit-user-select: none; user-select: none; touch-action: none; -webkit-tap-highlight-color: transparent;
+      background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.16); color: #fff;
+      display: flex; align-items: center; justify-content: center; font-size: 16px; border-radius: 10px;
+    }
+    .touch-btn:active { background: rgba(255,255,255,.18); }
+    .dpad-up { grid-column: 2; grid-row: 1; }
+    .dpad-left { grid-column: 1; grid-row: 2; }
+    .dpad-right { grid-column: 3; grid-row: 2; }
+    .dpad-down { grid-column: 2; grid-row: 3; }
+    .touch-actions { pointer-events: auto; display: flex; align-items: flex-end; gap: 14px; }
+    .touch-a, .touch-b { border-radius: 50%; font-weight: 800; }
+    .touch-a { width: 60px; height: 60px; font-size: 17px; background: rgba(239,43,43,.24); border-color: rgba(239,43,43,.55); }
+    .touch-a:active { background: rgba(239,43,43,.4); }
+    .touch-b { width: 48px; height: 48px; font-size: 14px; margin-bottom: 10px; }
+    /* deja hueco abajo para que los controles no tapen el tablero/pista */
+    .stage { padding-bottom: 150px; }
+  }
+  .hint { position: absolute; bottom: 14px; left: 0; right: 0; text-align: center; color: var(--muted); font-size: 11px; }
+  .overlay {
+    position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
+    flex-direction: column; gap: 10px; background: rgba(10,11,13,.72); backdrop-filter: blur(2px);
+  }
+  .overlay.show { display: flex; }
+  .overlay h2 { margin: 0; font-size: 20px; color: #fff; }
+  .overlay p { margin: 0; color: var(--muted); font-size: 12px; }
+  .overlay button { margin-top: 6px; }
+  .side-panel {
+    width: 300px; max-height: 420px; overflow-y: auto;
+    background: var(--bg-2); border: 1px solid var(--line); border-radius: 8px;
+    padding: 12px; font-size: 11.5px; line-height: 1.5;
+  }
+  .side-panel:empty { display: none; }
+  .side-panel .panel-head { font-size: 11px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+  .side-panel .bot-toggle-btn { width: 100%; margin-bottom: 10px; padding: 7px; }
+  .side-panel .commentary-feed { display: flex; flex-direction: column; gap: 7px; }
+  .side-panel .remark { padding: 7px 9px; border-radius: 6px; background: var(--bg-1); border: 1px solid var(--line); }
+  .side-panel .remark .who { font-weight: 700; font-size: 10.5px; margin-right: 4px; }
+  .side-panel .remark.bot-w .who { color: var(--accent-2); }
+  .side-panel .remark.bot-b .who { color: var(--amber); }
+  .side-panel .remark.reaction { opacity: .8; font-style: italic; margin-left: 10px; }
+  .pause-menu { display: flex; flex-direction: column; gap: 8px; min-width: 200px; margin-top: 4px; }
+  .pause-item {
+    padding: 10px 16px; border: 1px solid var(--line); border-radius: 6px;
+    background: #202226; color: var(--text-2); font-size: 13px; font-weight: 600;
+    cursor: pointer; text-align: center; transition: background .1s, border-color .1s;
+  }
+  .pause-item.sel { background: #33507a; border-color: var(--accent); color: #fff; }
+  .pause-hint { max-width: 260px; text-align: center; }
+  .gp-focus {
+    outline: 2px solid var(--accent) !important;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 5px rgba(120,169,255,.25) !important;
+  }
+</style>
+</head>
+<body>
+  <header class="appbar">
+    <div class="brand"><span class="brand-mark">🏓</span><span>Pong</span></div>
+    <div class="spacer"></div>
+    <div class="pad-status"><span class="dot" id="pad-dot"></span><span id="pad-label">Mando no detectado</span></div>
+    <div class="score" id="score">0</div>
+    <button class="mini-btn" onclick="togglePause()">⏸ Pausa</button>
+    <a href="/arcade/decade/1970s/" class="mini-btn">← Años 70</a>
+  </header>
+  <div class="stage">
+    <div class="board-col">
+      <canvas id="game" width="640" height="420"></canvas>
+      <div class="hint">Stick / flechas arriba-abajo para mover la pala</div>
+      <div class="overlay" id="overlay">
+        <h2 id="overlay-title">Game Over</h2>
+        <p id="overlay-sub"></p>
+        <button class="mini-btn" onclick="restartGame()">Reiniciar</button>
+      </div>
+      <div class="overlay" id="pause-overlay">
+        <h2>⏸ Pausa</h2>
+        <div class="pause-menu">
+          <div class="pause-item sel" data-action="resume">▶ Reanudar</div>
+          <div class="pause-item" data-action="restart">↻ Reiniciar</div>
+          <div class="pause-item" data-action="exit">🏠 Salir al Arcade</div>
+        </div>
+        <p class="hint pause-hint" style="position:static;">Start / Esc / P para abrir o cerrar · Stick arriba-abajo + botón de acción para elegir</p>
+      </div>
+    </div>
+    <div class="side-panel" id="side-panel"></div>
+  </div>
+
+  <div class="touch-controls" id="touch-controls">
+    <div class="touch-dpad">
+      <button class="touch-btn dpad-up" data-dir="up" aria-label="Arriba">▲</button>
+      <button class="touch-btn dpad-left" data-dir="left" aria-label="Izquierda">◀</button>
+      <button class="touch-btn dpad-right" data-dir="right" aria-label="Derecha">▶</button>
+      <button class="touch-btn dpad-down" data-dir="down" aria-label="Abajo">▼</button>
+    </div>
+    <div class="touch-actions">
+      <button class="touch-btn touch-b" id="touch-secondary" aria-label="Botón secundario">B</button>
+      <button class="touch-btn touch-a" id="touch-action" aria-label="Botón de acción">A</button>
+    </div>
+  </div>
+
+<script>
+
+const Input = (() => {
+  const keys = {};
+  window.addEventListener('keydown', e => { keys[e.key] = true; });
+  window.addEventListener('keyup', e => { keys[e.key] = false; });
+
+  function pad() {
+    const list = navigator.getGamepads ? navigator.getGamepads() : [];
+    for (const g of list) if (g) return g;
+    return null;
+  }
+
+  // Controles táctiles (D-pad + A/B en pantalla, ver __TOUCH_CSS__/.touch-controls
+  // en la plantilla). Se leen igual que el mando: un eje continuo + dos botones.
+  const touch = { dx: 0, dy: 0, action: false, secondary: false };
+  (function setupTouch() {
+    function bindDir(el, on, off) {
+      if (!el) return;
+      el.addEventListener('touchstart', e => { e.preventDefault(); on(); }, { passive: false });
+      el.addEventListener('touchend', e => { e.preventDefault(); off(); }, { passive: false });
+      el.addEventListener('touchcancel', () => off());
+      el.addEventListener('mousedown', e => { e.preventDefault(); on(); });
+      el.addEventListener('mouseup', () => off());
+      el.addEventListener('mouseleave', () => off());
+    }
+    bindDir(document.querySelector('.dpad-up'), () => { touch.dy = -1; }, () => { if (touch.dy < 0) touch.dy = 0; });
+    bindDir(document.querySelector('.dpad-down'), () => { touch.dy = 1; }, () => { if (touch.dy > 0) touch.dy = 0; });
+    bindDir(document.querySelector('.dpad-left'), () => { touch.dx = -1; }, () => { if (touch.dx < 0) touch.dx = 0; });
+    bindDir(document.querySelector('.dpad-right'), () => { touch.dx = 1; }, () => { if (touch.dx > 0) touch.dx = 0; });
+    bindDir(document.getElementById('touch-action'), () => { touch.action = true; }, () => { touch.action = false; });
+    bindDir(document.getElementById('touch-secondary'), () => { touch.secondary = true; }, () => { touch.secondary = false; });
+  })();
+
+  // Si el navegador reconoce el mando como "standard" (W3C Gamepad spec),
+  // usamos los índices oficiales: D-pad = botones 12/13/14/15, stick = ejes 0/1.
+  // Si no, caemos al heurístico adaptativo (sigue el eje que más se desvíe de su reposo).
+  let axisBase = [];
+  function axisDeviations(gp) {
+    const axes = gp.axes;
+    if (axisBase.length !== axes.length) axisBase = axes.slice();
+    const out = axes.map((v, i) => v - axisBase[i]);
+    for (let i = 0; i < axes.length; i++) {
+      if (Math.abs(out[i]) < 0.05) axisBase[i] += (axes[i] - axisBase[i]) * 0.02;
+    }
+    return out;
+  }
+  function bestAxisPair(gp) {
+    const dev = axisDeviations(gp);
+    let best = { dx: 0, dy: 0, mag: 0 };
+    for (let i = 0; i + 1 < dev.length; i += 2) {
+      const mag = Math.hypot(dev[i], dev[i + 1]);
+      if (mag > best.mag) best = { dx: dev[i], dy: dev[i + 1], mag };
+    }
+    return best;
+  }
+
+  function padDirection(gp) {
+    if (gp.mapping === 'standard') {
+      const dpad = [
+        { i: 12, dx: 0, dy: -1 }, { i: 13, dx: 0, dy: 1 },
+        { i: 14, dx: -1, dy: 0 }, { i: 15, dx: 1, dy: 0 },
+      ];
+      for (const d of dpad) {
+        const b = gp.buttons[d.i];
+        if (b && b.pressed) return { dx: d.dx, dy: d.dy, mag: 1 };
+      }
+      const ax = gp.axes[0] || 0, ay = gp.axes[1] || 0;
+      const mag = Math.hypot(ax, ay);
+      return { dx: ax, dy: ay, mag };
+    }
+    return bestAxisPair(gp);
+  }
+
+  function axisX() {
+    const g = pad();
+    if (g) {
+      const d = padDirection(g);
+      if (d.mag > 0.35) return Math.max(-1, Math.min(1, d.dx));
+    }
+    if (touch.dx !== 0) return touch.dx;
+    if (keys['ArrowLeft'] || keys['a'] || keys['A']) return -1;
+    if (keys['ArrowRight'] || keys['d'] || keys['D']) return 1;
+    return 0;
+  }
+
+  function axisY() {
+    const g = pad();
+    if (g) {
+      const d = padDirection(g);
+      if (d.mag > 0.35) return Math.max(-1, Math.min(1, d.dy));
+    }
+    if (touch.dy !== 0) return touch.dy;
+    if (keys['ArrowUp'] || keys['w'] || keys['W']) return -1;
+    if (keys['ArrowDown'] || keys['s'] || keys['S']) return 1;
+    return 0;
+  }
+
+  // Botón de acción: exige 2 fotogramas seguidos pulsado para contar como
+  // pulsación real (filtra ruido de botones con sensor de presión).
+  const btnHold = {};
+  function actionHeld() {
+    const g = pad();
+    if (g) {
+      const indices = g.mapping === 'standard' ? [0] : [0, 1, 2, 3];
+      for (const i of indices) {
+        const b = g.buttons[i];
+        const pressedNow = !!(b && (b.pressed || b.value > 0.6));
+        btnHold[i] = pressedNow ? (btnHold[i] || 0) + 1 : 0;
+        if (btnHold[i] >= 2) return true;
+      }
+    }
+    if (touch.action) return true;
+    return !!(keys[' '] || keys['Enter']);
+  }
+
+  // Bloqueo de entrada tras cargar la página: si el botón seguía físicamente
+  // pulsado al cambiar de pantalla (muy normal, el ser humano no lo suelta al
+  // instante), se ignora hasta que se suelte una vez — así no "salta" solo al
+  // entrar en un menú o en un juego nuevo.
+  const LOAD_TIME = performance.now();
+  const LOCKOUT_MS = 350;
+  function locked() { return performance.now() - LOAD_TIME < LOCKOUT_MS; }
+
+  function makeEdgeDetector(heldFn) {
+    let prev = false;
+    let seenRelease = false;
+    return function() {
+      if (locked()) { prev = heldFn(); return false; }
+      const now = heldFn();
+      if (!seenRelease) {
+        if (!now) seenRelease = true;
+        prev = now;
+        return false;
+      }
+      const edge = now && !prev;
+      prev = now;
+      return edge;
+    };
+  }
+
+  const actionEdge = makeEdgeDetector(actionHeld);
+
+  // Botón secundario (Círculo/B, índice 1) — para "pasar turno", cancelar, etc.
+  // (contador de fotogramas propio, independiente del de actionHeld)
+  const btnHold2 = {};
+  function secondaryHeld() {
+    const g = pad();
+    if (g) {
+      const b = g.buttons[1];
+      const pressedNow = !!(b && (b.pressed || b.value > 0.6));
+      btnHold2[1] = pressedNow ? (btnHold2[1] || 0) + 1 : 0;
+      if (btnHold2[1] >= 2) return true;
+    }
+    if (touch.secondary) return true;
+    return !!(keys['x'] || keys['X'] || keys['Backspace']);
+  }
+  const secondaryEdge = makeEdgeDetector(secondaryHeld);
+
+  function connected() { return !!pad(); }
+
+  return { axisX, axisY, actionHeld, actionEdge, secondaryEdge, connected };
+})();
+
+
+const IS_TOUCH = window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+function updatePadStatus() {
+  const on = Input.connected();
+  document.getElementById('pad-dot').classList.toggle('on', on);
+  const label = on ? 'Mando conectado' : (IS_TOUCH ? 'Controles táctiles' : 'Teclado (WASD/flechas + espacio)');
+  document.getElementById('pad-label').textContent = label;
+}
+setInterval(updatePadStatus, 500);
+updatePadStatus();
+
+function setScore(v) { document.getElementById('score').textContent = v; }
+function showOverlay(title, sub) {
+  document.getElementById('overlay-title').textContent = title;
+  document.getElementById('overlay-sub').textContent = sub || '';
+  document.getElementById('overlay').classList.add('show');
+}
+function hideOverlay() { document.getElementById('overlay').classList.remove('show'); }
+
+let paused = false;
+window.__PAUSED__ = false;
+let pauseMenuIndex = 0;
+const pauseItems = ['resume', 'restart', 'exit'];
+
+function renderPauseMenu() {
+  document.querySelectorAll('.pause-item').forEach((el, i) => {
+    el.classList.toggle('sel', i === pauseMenuIndex);
+  });
+}
+
+function togglePause() {
+  paused = !paused;
+  window.__PAUSED__ = paused;
+  document.getElementById('pause-overlay').classList.toggle('show', paused);
+  if (paused) { pauseMenuIndex = 0; renderPauseMenu(); }
+}
+
+function activatePauseItem() {
+  const item = pauseItems[pauseMenuIndex];
+  if (item === 'resume') {
+    togglePause();
+  } else if (item === 'restart') {
+    paused = false;
+    window.__PAUSED__ = false;
+    document.getElementById('pause-overlay').classList.remove('show');
+    if (window.restartGame) window.restartGame();
+  } else if (item === 'exit') {
+    window.location.href = '/arcade';
+  }
+}
+
+document.querySelectorAll('.pause-item').forEach((el, i) => {
+  el.addEventListener('click', () => { pauseMenuIndex = i; activatePauseItem(); });
+});
+
+window.addEventListener('keydown', e => {
+  if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') { e.preventDefault(); togglePause(); }
+  if (paused) {
+    if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
+      e.preventDefault();
+      pauseMenuIndex = (pauseMenuIndex + 1) % pauseItems.length;
+      renderPauseMenu();
+    }
+    if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
+      e.preventDefault();
+      pauseMenuIndex = (pauseMenuIndex - 1 + pauseItems.length) % pauseItems.length;
+      renderPauseMenu();
+    }
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activatePauseItem(); }
+  }
+});
+
+(function pauseGamepadLoop() {
+  const LOAD_TIME = performance.now();
+  const LOCKOUT_MS = 350;
+  function locked() { return performance.now() - LOAD_TIME < LOCKOUT_MS; }
+
+  let startPrev = false, dirPrev = 0, actionPrev = false;
+  const btnHold = {};
+  function debounced(gp, i) {
+    const b = gp.buttons[i];
+    const now = !!(b && (b.pressed || b.value > 0.6));
+    btnHold[i] = now ? (btnHold[i] || 0) + 1 : 0;
+    return btnHold[i] >= 2;
+  }
+
+  let axisBase = [];
+  function bestAxisPair(gp) {
+    const axes = gp.axes;
+    if (axisBase.length !== axes.length) axisBase = axes.slice();
+    const dev = axes.map((v, i) => v - axisBase[i]);
+    for (let i = 0; i < axes.length; i++) {
+      if (Math.abs(dev[i]) < 0.05) axisBase[i] += (axes[i] - axisBase[i]) * 0.02;
+    }
+    let best = { dx: 0, dy: 0, mag: 0 };
+    for (let i = 0; i + 1 < dev.length; i += 2) {
+      const mag = Math.hypot(dev[i], dev[i + 1]);
+      if (mag > best.mag) best = { dx: dev[i], dy: dev[i + 1], mag };
+    }
+    return best;
+  }
+
+  function padVertical(gp) {
+    if (gp.mapping === 'standard') {
+      const up = gp.buttons[12], down = gp.buttons[13];
+      if (up && up.pressed) return -1;
+      if (down && down.pressed) return 1;
+      const ay = gp.axes[1] || 0;
+      if (Math.abs(ay) > 0.5) return ay > 0 ? 1 : -1;
+      return 0;
+    }
+    const b = bestAxisPair(gp);
+    if (b.mag > 0.4 && Math.abs(b.dy) > Math.abs(b.dx)) return b.dy > 0 ? 1 : -1;
+    return 0;
+  }
+
+  function tick() {
+    const list = navigator.getGamepads ? navigator.getGamepads() : [];
+    let gp = null;
+    for (const g of list) if (g) { gp = g; break; }
+    if (gp) {
+      // Start: índice 9 en mapeo estándar; si no hay mapeo estándar, se prueban 8 y 9.
+      const startNow = gp.mapping === 'standard' ? debounced(gp, 9) : (debounced(gp, 8) || debounced(gp, 9));
+      if (startNow && !startPrev && !locked()) togglePause();
+      startPrev = startNow;
+
+      if (paused) {
+        const dir = padVertical(gp);
+        if (dir !== 0 && dir !== dirPrev) {
+          pauseMenuIndex = (pauseMenuIndex + dir + pauseItems.length) % pauseItems.length;
+          renderPauseMenu();
+        }
+        dirPrev = dir;
+
+        const aNow = debounced(gp, 0);
+        if (aNow && !actionPrev) activatePauseItem();
+        actionPrev = aNow;
+      }
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+
+
+(function() {
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const PW = 10, PH = 80;
+  let player, cpu, ball, running;
+
+  function reset() {
+    player = { x: 16, y: H/2 - PH/2, score: 0 };
+    cpu = { x: W - 16 - PW, y: H/2 - PH/2, score: 0 };
+    ball = { x: W/2, y: H/2, vx: 260, vy: 160, r: 7 };
+    running = true;
+    hideOverlay();
+    updateScore();
+  }
+  function updateScore() { setScore(player.score + ' : ' + cpu.score); }
+
+  function restartGame() { reset(); }
+  window.restartGame = restartGame;
+
+  let last = performance.now();
+  function loop(now) {
+    const dt = Math.min(0.033, (now - last) / 1000);
+    last = now;
+    if (running && !window.__PAUSED__) update(dt);
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  function update(dt) {
+    const ay = Input.axisY();
+    player.y += ay * 340 * dt;
+    player.y = Math.max(0, Math.min(H - PH, player.y));
+
+    const target = ball.y - PH/2 + (Math.random()-0.5)*10;
+    cpu.y += Math.max(-260*dt, Math.min(260*dt, target - cpu.y));
+    cpu.y = Math.max(0, Math.min(H - PH, cpu.y));
+
+    ball.x += ball.vx * dt;
+    ball.y += ball.vy * dt;
+
+    if (ball.y - ball.r < 0) { ball.y = ball.r; ball.vy *= -1; }
+    if (ball.y + ball.r > H) { ball.y = H - ball.r; ball.vy *= -1; }
+
+    if (ball.vx < 0 && ball.x - ball.r < player.x + PW && ball.x - ball.r > player.x &&
+        ball.y > player.y && ball.y < player.y + PH) {
+      ball.vx *= -1.06;
+      ball.vy += (ball.y - (player.y + PH/2)) * 4;
+      ball.x = player.x + PW + ball.r;
+    }
+    if (ball.vx > 0 && ball.x + ball.r > cpu.x && ball.x + ball.r < cpu.x + PW &&
+        ball.y > cpu.y && ball.y < cpu.y + PH) {
+      ball.vx *= -1.06;
+      ball.vy += (ball.y - (cpu.y + PH/2)) * 4;
+      ball.x = cpu.x - ball.r;
+    }
+
+    if (ball.x < -20) { cpu.score++; updateScore(); scorePoint(); }
+    if (ball.x > W + 20) { player.score++; updateScore(); scorePoint(); }
+  }
+
+  function scorePoint() {
+    if (player.score >= 5 || cpu.score >= 5) {
+      running = false;
+      showOverlay(player.score > cpu.score ? '¡Ganaste!' : 'Perdiste', 'Pulsa Reiniciar para jugar otra vez');
+      return;
+    }
+    ball.x = W/2; ball.y = H/2;
+    ball.vx = (Math.random() > 0.5 ? 1 : -1) * 260;
+    ball.vy = (Math.random()*2-1) * 180;
+  }
+
+  function draw() {
+    ctx.fillStyle = '#0c0d0f'; ctx.fillRect(0,0,W,H);
+    ctx.strokeStyle = 'rgba(255,255,255,.08)'; ctx.setLineDash([6,10]);
+    ctx.beginPath(); ctx.moveTo(W/2,0); ctx.lineTo(W/2,H); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = '#78a9ff';
+    ctx.fillRect(player.x, player.y, PW, PH);
+    ctx.fillStyle = '#ff6b67';
+    ctx.fillRect(cpu.x, cpu.y, PW, PH);
+    ctx.fillStyle = '#f0f1f3';
+    ctx.beginPath(); ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI*2); ctx.fill();
+  }
+
+  reset();
+  requestAnimationFrame(loop);
+})();
+
+</script>
+</body>
+</html>
