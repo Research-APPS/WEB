@@ -28,7 +28,7 @@ from ontology_data import CATEGORIES, CONCEPTS, concepts_by_id, concepts_by_cate
 from arcade_data import ARCADE_DECADES, GAMES as ARCADE_GAMES, GAME_SCRIPTS, render_game
 
 SITE_NAME = "Microfonía — Radio Micelio"
-SITE_URL = "https://microfonia.radiomicelio.com"
+SITE_URL = "https://www.radiomicelio.es"
 SITE_DESCRIPTION = (
     "Ontología abierta de microfonía: tipos de micrófono, patrones polares, "
     "técnicas estéreo y colocación por instrumento."
@@ -979,7 +979,7 @@ def build():
 
     write_text(DOCS / "assets" / "style.css", STYLE_CSS)
     write_text(DOCS / "assets" / "graph.js", GRAPH_JS)
-    write_text(DOCS / "CNAME", "microfonia.radiomicelio.com\n")
+    write_text(DOCS / "CNAME", "www.radiomicelio.es\n")
 
     img_src = ROOT / "assets_src"
     img_dst = DOCS / "assets" / "img"
