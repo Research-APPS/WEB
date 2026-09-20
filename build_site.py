@@ -860,6 +860,39 @@ GRAPH_JS = """
 """
 
 
+def build_404():
+    body = """
+<div class="hero">
+  <div class="hero-img-wrap">
+    <picture>
+      <source srcset="/assets/img/404.webp" type="image/webp">
+      <img class="hero-img" src="/assets/img/404.png" alt="Página no encontrada" width="641" height="700">
+    </picture>
+  </div>
+  <h1>404</h1>
+  <p class="hero-sub">Esta página no existe (o todavía no la hemos publicado).</p>
+</div>
+<div class="hero-actions">
+  <a class="btn primary" href="/">Volver al inicio</a>
+  <a class="btn ghost" href="/arcade/">Ir al arcade</a>
+</div>
+"""
+    jsonld = {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": f"404 · {SITE_NAME}",
+        "url": f"{SITE_URL}/404.html",
+    }
+    html = page_shell(
+        title=f"404 · {SITE_NAME}",
+        description="Página no encontrada.",
+        canonical=f"{SITE_URL}/404.html",
+        body_html=body,
+        jsonld_obj=jsonld,
+    )
+    write_text(DOCS / "404.html", html)
+
+
 def build_sitemap():
     urls = [f"{SITE_URL}/", f"{SITE_URL}/grafo/", f"{SITE_URL}/arcade/"]
     urls += [f"{SITE_URL}/{cat['key']}/" for cat in CATEGORIES]
@@ -907,7 +940,7 @@ def build():
     img_src = ROOT / "assets_src"
     img_dst = DOCS / "assets" / "img"
     img_dst.mkdir(parents=True, exist_ok=True)
-    for name in ("sismico.png", "sismico.webp"):
+    for name in ("sismico.png", "sismico.webp", "404.png", "404.webp"):
         src = img_src / name
         if src.exists():
             (img_dst / name).write_bytes(src.read_bytes())
@@ -920,6 +953,7 @@ def build():
     build_arcade_decade_pages()
     build_arcade_game_pages()
     build_upcoming_pages()
+    build_404()
     build_graph_data()
     build_ontology_jsonld()
     build_sitemap()
