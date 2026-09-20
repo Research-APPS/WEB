@@ -19,8 +19,6 @@
     svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
     nodes.forEach(n => { n.x = Math.random() * W; n.y = Math.random() * H; });
 
-    // Repulsión ~1/dist^2 entre TODOS los pares (no solo los cercanos) +
-    // muelles en las aristas + gravedad suave hacia el centro.
     function tick() {
       for (const n of nodes) { n.vx *= 0.85; n.vy *= 0.85; }
       const REPEL = 2200;

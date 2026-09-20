@@ -1,87 +1,48 @@
 """
-Genera el sitio estático completo en docs/ a partir de ontology_data.py.
+Genera el sitio estático completo en docs/ (GitHub Pages).
 
     python3 build_site.py
 
-Produce:
-  docs/index.html                      página de inicio
-  docs/<categoria>/index.html          índice de cada categoría
-  docs/<categoria>/<slug>.html         ficha de cada concepto (con JSON-LD
-                                        schema.org incrustado, para SEO)
-  docs/grafo.html                      vista interactiva del grafo completo
-  docs/data.json                       grafo nodes/edges (mismo patrón que
-  docs/config.json                     usa teatrero_core/_static_export:
-  docs/manifest.json                   data+config con hash de integridad)
-  docs/ontology.jsonld                 ontología formal (SKOS) reutilizable
-  docs/assets/style.css
-  docs/assets/graph.js
-  docs/CNAME                           dominio propio para GitHub Pages
+Fase 1: home Radio Micelio, hubs Wiki/Escena/Productora/Universo/Lab,
+capa entities, breadcrumbs conceptuales. URLs legacy de conceptos y arcade
+se conservan; /id/... solo existe como @id en JSON-LD.
 """
 
 import hashlib
 import json
+import re
 import urllib.parse
 from datetime import datetime, timezone
 from pathlib import Path
 
 from ontology_data import CATEGORIES, CONCEPTS, concepts_by_id, concepts_by_category
 from arcade_data import ARCADE_DECADES, GAMES as ARCADE_GAMES, GAME_SCRIPTS, render_game
-
-SITE_NAME = "Microfonía — Radio Micelio"
-SITE_URL = "https://www.radiomicelio.es"
-SITE_DESCRIPTION = (
-    "Ontología abierta de microfonía: tipos de micrófono, patrones polares, "
-    "técnicas estéreo y colocación por instrumento."
+from entities import (
+    SITE_URL,
+    SITE_NAME,
+    SITE_DESCRIPTION,
+    SCHEMA_CONTEXT,
+    NAV_SECTIONS,
+    DOMAINS,
+    CHARACTERS,
+    LAB_SECTIONS,
+    GAME_ENTITIES,
+    domains_by_id,
+    characters_by_id,
+    concept_entities_by_id,
+    upcoming_characters,
+    abs_url,
 )
+
 ONTOLOGY_NS = f"{SITE_URL}/ontology#"
 ROOT = Path(__file__).parent
 DOCS = ROOT / "docs"
 
-FAVICON_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🎙️</text></svg>'
+FAVICON_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🍄</text></svg>'
 FAVICON_HREF = "data:image/svg+xml," + urllib.parse.quote(FAVICON_SVG)
 
-# Universo de ontologías de Radio Micelio: un personaje, un dominio de
-# conocimiento. Solo Sísmico está publicado; el resto son adelantos.
-ONTOLOGY_AVAILABLE = {
-    "character": "Sísmico",
-    "topic": "Microfonía y otra sensórica",
-    "href": "/",
-}
-ONTOLOGY_UPCOMING = sorted(
-    [
-        {"character": "Atómico", "topic": "Evolución"},
-        {"character": "Marza", "topic": "Naturaleza y tecnología"},
-        {"character": "Tamen", "topic": "Nuevas redes"},
-        {"character": "Amethystos", "topic": "Botánica"},
-        {"character": "Daphne Rockmore", "topic": "Electricidad y electrónica"},
-        {"character": "Sirius", "topic": "Exploración espacial"},
-        {"character": "Basscolgado", "topic": "España vaciada"},
-        {"character": "Musitoxic", "topic": "IMT"},
-        {"character": "Jhonny", "topic": "Energía"},
-        {"character": "Miguel Mafias, el Muso", "topic": "Demonios internos"},
-    ],
-    key=lambda o: o["character"],
-)
-
-
-def slugify(text):
-    import unicodedata
-
-    text = unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode("ascii")
-    text = text.lower().replace(",", "")
-    out, prev_dash = [], False
-    for ch in text:
-        if ch.isalnum():
-            out.append(ch)
-            prev_dash = False
-        elif not prev_dash:
-            out.append("-")
-            prev_dash = True
-    return "".join(out).strip("-")
-
-
-for _o in ONTOLOGY_UPCOMING:
-    _o["slug"] = slugify(_o["character"])
+MICROFONIA = domains_by_id()["microfonia"]
+SISMICO = characters_by_id()["sismico"]
 
 
 # ---------------------------------------------------------------- helpers
@@ -109,7 +70,44 @@ def category_of(key):
 
 
 def url_for(concept):
-    return f"{SITE_URL}/{concept['category']}/{concept['id']}/"
+    return abs_url(f"/{concept['category']}/{concept['id']}/")
+
+
+def jsonld_dumps(obj) -> str:
+    return json.dumps(obj, ensure_ascii=False, indent=2)
+
+
+def with_context(obj):
+    """Adjunta @context mixto Schema.org + vocab RM."""
+    if isinstance(obj, list):
+        return {"@context": SCHEMA_CONTEXT, "@graph": obj}
+    out = dict(obj)
+    out["@context"] = SCHEMA_CONTEXT
+    return out
+
+
+def crumbs_html(items):
+    """items: list of (label, href|None). Last item has href=None."""
+    parts = []
+    for i, (label, href) in enumerate(items):
+        if i:
+            parts.append(" › ")
+        if href:
+            parts.append(f'<a href="{href}">{label}</a>')
+        else:
+            parts.append(label)
+    return f'<div class="crumbs">{"".join(parts)}</div>'
+
+
+def crumbs_jsonld(items):
+    """BreadcrumbList; hrefs must be absolute or site-relative paths."""
+    elements = []
+    for i, (label, href) in enumerate(items, start=1):
+        item = {"@type": "ListItem", "position": i, "name": label}
+        if href:
+            item["item"] = abs_url(href)
+        elements.append(item)
+    return {"@type": "BreadcrumbList", "itemListElement": elements}
 
 
 # ------------------------------------------------------------- HTML shell
@@ -125,13 +123,12 @@ STYLE_CSS = """
 html { scroll-behavior: smooth; overflow-x: hidden; }
 body {
   margin: 0; background: var(--bg); color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
   line-height: 1.6;
   overflow-x: hidden;
 }
 a { color: var(--accent-2); }
 
-/* app shell: sidebar persistente + columna de contenido */
 .app-shell { display: flex; align-items: flex-start; min-height: 100vh; position: relative; }
 .sidebar {
   width: 250px; flex-shrink: 0; background: var(--panel); border-right: 1px solid var(--line);
@@ -140,15 +137,8 @@ a { color: var(--accent-2); }
 }
 .sidebar.collapsed { width: 0; margin-left: -250px; }
 .sidebar-inner { width: 250px; padding: 18px 12px 30px; }
-.side-arcade {
-  display: flex; align-items: center; gap: 9px; padding: 11px 12px; border-radius: 9px;
-  background: linear-gradient(135deg, rgba(239,43,43,.18), rgba(239,43,43,.02));
-  border: 1px solid rgba(239,43,43,.35); color: var(--text); text-decoration: none;
-  font-weight: 800; font-size: 14px; margin-bottom: 18px;
-}
-.side-arcade:hover { border-color: var(--accent); }
-.side-icon { font-size: 16px; }
 .side-section-label {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted);
   font-weight: 700; padding: 6px 10px 6px;
 }
@@ -157,6 +147,7 @@ a { color: var(--accent-2); }
 .side-onto {
   display: block; padding: 8px 10px; border-radius: 8px; text-decoration: none;
   color: var(--text-2); border: 1px solid transparent;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 .side-onto:hover { background: var(--panel-2); }
 .side-onto b { display: block; font-size: 12.5px; color: var(--text); font-weight: 650; }
@@ -168,17 +159,21 @@ a { color: var(--accent-2); }
 .side-onto.soon b::after { content: " · pronto"; font-size: 9px; color: var(--muted); font-weight: 400; text-transform: uppercase; letter-spacing: .04em; }
 .sidebar-backdrop { display: none; }
 .content-col { flex: 1; min-width: 0; }
-.sidebar-toggle { font-size: 15px; padding: 6px 10px; }
+.sidebar-toggle {
+  font-size: 15px; padding: 6px 10px; background: transparent; border: 1px solid var(--line);
+  color: var(--text-2); border-radius: 6px; cursor: pointer;
+}
 
 header.site {
   padding: 16px 20px; border-bottom: 1px solid var(--line);
   display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
   position: sticky; top: 0; background: rgba(17,18,20,.92); backdrop-filter: blur(6px); z-index: 10;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
-header.site .brand { font-weight: 700; text-decoration: none; color: var(--text); font-size: 15px; }
+header.site .brand { font-weight: 800; text-decoration: none; color: var(--text); font-size: 15px; letter-spacing: .02em; }
 header.site nav { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13.5px; margin-left: auto; }
 header.site nav a { color: var(--text-2); text-decoration: none; }
-header.site nav a:hover { color: var(--accent-2); }
+header.site nav a:hover, header.site nav a.active { color: var(--accent-2); }
 
 @media (max-width: 860px) {
   .sidebar { position: fixed; top: 0; left: 0; z-index: 30; box-shadow: 0 0 40px rgba(0,0,0,.5); }
@@ -189,24 +184,47 @@ header.site nav a:hover { color: var(--accent-2); }
 }
 
 main { max-width: 880px; margin: 0 auto; padding: 28px 18px 60px; }
-h1 { font-size: clamp(22px, 5vw, 30px); margin: 0 0 6px; }
-h2 { font-size: 18px; margin: 28px 0 10px; }
-p.lead { color: var(--text-2); font-size: 15px; max-width: 60ch; }
-.crumbs { font-size: 12.5px; color: var(--muted); margin-bottom: 14px; }
-.crumbs a { color: var(--muted); }
+h1 { font-size: clamp(26px, 5.5vw, 38px); margin: 0 0 8px; font-weight: 700; letter-spacing: -.02em; }
+h2 { font-size: 18px; margin: 28px 0 10px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+p.lead { color: var(--text-2); font-size: 15.5px; max-width: 58ch; }
+.crumbs {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 12.5px; color: var(--muted); margin-bottom: 14px;
+}
+.crumbs a { color: var(--muted); text-decoration: none; }
+.crumbs a:hover { color: var(--accent-2); }
+
+.hub-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 22px; }
+.hub-card {
+  display: block; background: linear-gradient(160deg, #1a1214 0%, var(--panel) 55%);
+  border: 1px solid var(--line); border-radius: 4px; padding: 18px 16px;
+  text-decoration: none; color: inherit; transition: border-color .15s, transform .15s;
+}
+.hub-card:hover { border-color: rgba(239,43,43,.45); transform: translateY(-2px); }
+.hub-card .hub-kicker {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--accent-2); font-weight: 700;
+}
+.hub-card h3 { margin: 8px 0 6px; font-size: 18px; color: var(--text); }
+.hub-card p { margin: 0; font-size: 13px; color: var(--muted); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+
 .cat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; margin-top: 18px; }
 .cat-card {
-  display: block; background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+  display: block; background: var(--panel); border: 1px solid var(--line); border-radius: 4px;
   padding: 16px; text-decoration: none; color: inherit; transition: border-color .15s, transform .15s;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 .cat-card:hover { border-color: #454a54; transform: translateY(-2px); }
 .cat-card .icon { font-size: 24px; }
 .cat-card h3 { margin: 8px 0 4px; font-size: 15px; color: var(--text); }
+.cat-card p { margin: 0; font-size: 12.5px; color: var(--muted); }
+.cat-card.soon { opacity: .55; }
 .char-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin-top: 18px; }
 .char-card {
-  display: block; background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+  display: block; background: var(--panel); border: 1px solid var(--line); border-radius: 4px;
   padding: 16px 12px; text-decoration: none; color: inherit; text-align: center;
   transition: border-color .15s, transform .15s;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 .char-card:hover { border-color: #454a54; transform: translateY(-2px); }
 .char-img-wrap { width: 74px; height: 74px; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; }
@@ -217,33 +235,52 @@ p.lead { color: var(--text-2); font-size: 15px; max-width: 60ch; }
 .char-card.soon { opacity: .6; }
 .char-card.soon:hover { opacity: .9; }
 .char-card.soon h3::after { content: " · pronto"; font-size: 9px; color: var(--muted); font-weight: 400; text-transform: uppercase; letter-spacing: .04em; }
-.char-card.arcade-card { border-color: rgba(239,43,43,.35); }
-.char-card.arcade-card .char-placeholder { background: rgba(239,43,43,.13); border-color: rgba(239,43,43,.35); opacity: 1; }
-.cat-card p { margin: 0; font-size: 12.5px; color: var(--muted); }
 .concept-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 14px; }
 .concept-card {
-  display: block; background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+  display: block; background: var(--panel); border: 1px solid var(--line); border-radius: 4px;
   padding: 12px 14px; text-decoration: none; color: inherit; font-size: 13.5px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 .concept-card:hover { border-color: #454a54; }
+.concept-card.soon { opacity: .55; }
 .concept-card b { display: block; color: var(--text); font-size: 14px; margin-bottom: 2px; }
 .concept-card span { color: var(--muted); font-size: 12px; }
-table.props { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 13.5px; }
+table.props { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 13.5px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
 table.props th, table.props td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); }
 table.props th { color: var(--muted); font-weight: 600; width: 40%; }
-.relations { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.relations { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
 .relation-group { font-size: 13.5px; }
 .relation-group .pred { color: var(--muted); margin-right: 6px; }
 .relation-group a { margin-right: 10px; }
-.pill { display: inline-block; font-size: 11px; color: var(--muted); border: 1px solid var(--line); border-radius: 20px; padding: 2px 9px; margin-bottom: 8px; }
-footer.site { max-width: 880px; margin: 0 auto; padding: 20px 18px 50px; color: var(--muted); font-size: 12px; border-top: 1px solid var(--line); }
+.pill {
+  display: inline-block; font-size: 11px; color: var(--muted); border: 1px solid var(--line);
+  border-radius: 2px; padding: 2px 9px; margin-bottom: 8px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+footer.site {
+  max-width: 880px; margin: 0 auto; padding: 20px 18px 50px; color: var(--muted); font-size: 12px;
+  border-top: 1px solid var(--line);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
 footer.site a { color: var(--muted); }
-.hero {
-  text-align: center; padding: 18px 0 6px;
+
+.home-hero {
+  padding: 36px 0 10px;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 0%, rgba(239,43,43,.14), transparent 55%),
+    radial-gradient(ellipse 60% 50% at 90% 30%, rgba(80,40,40,.25), transparent 50%);
+  margin: -28px -18px 0; padding-left: 18px; padding-right: 18px; padding-bottom: 8px;
 }
-.hero-img-wrap {
-  width: min(340px, 70vw); margin: 0 auto; position: relative;
+.home-brand {
+  font-size: clamp(34px, 8vw, 56px); margin: 0 0 10px; font-weight: 800;
+  letter-spacing: -.03em; line-height: 1.05;
 }
+.home-tagline { color: var(--text-2); font-size: clamp(15px, 2.8vw, 18px); max-width: 36ch; margin: 0 0 8px; }
+.home-sub { color: var(--muted); font-size: 13.5px; max-width: 48ch; margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+
+.hero { text-align: center; padding: 18px 0 6px; }
+.hero-img-wrap { width: min(280px, 60vw); margin: 0 auto; position: relative; }
 .hero-img {
   width: 100%; height: auto; display: block; filter: url(#sismico-wave) drop-shadow(0 0 40px rgba(239,43,43,.18));
   animation: hero-breathe 7s ease-in-out infinite;
@@ -252,23 +289,26 @@ footer.site a { color: var(--muted); }
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.015); }
 }
-.hero-link {
-  display: inline-block; margin-top: 4px; font-size: 15px; font-weight: 800;
-  letter-spacing: .02em; text-decoration: none; color: var(--text);
-  border-bottom: 2px solid var(--accent); padding-bottom: 2px;
-}
-.hero-link:hover { color: var(--accent-2); }
-.hero-sub { color: var(--muted); font-size: 12px; margin: 6px 0 0; }
-.hero-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; justify-content: center; }
+.hero-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
 .btn {
-  display: inline-block; padding: 9px 16px; border-radius: 7px; text-decoration: none;
+  display: inline-block; padding: 9px 16px; border-radius: 2px; text-decoration: none;
   font-size: 13.5px; font-weight: 600; border: 1px solid var(--line);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 700; }
 .btn.ghost { color: var(--text-2); }
-#graph-wrap { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; margin-top: 16px; }
+.split-block {
+  display: grid; gap: 18px; margin-top: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+@media (min-width: 700px) { .split-block.two { grid-template-columns: 1fr 1fr; } }
+.split-panel { background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 16px; }
+.split-panel h3 { margin: 0 0 8px; font-size: 14px; }
+.split-panel p { margin: 0; font-size: 13px; color: var(--text-2); }
+
+#graph-wrap { background: var(--panel); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; margin-top: 16px; }
 #graph-svg { width: 100%; height: 70vh; min-height: 420px; display: block; touch-action: pan-x pan-y; }
-.graph-legend { display: flex; gap: 14px; flex-wrap: wrap; padding: 10px 14px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); }
+.graph-legend { display: flex; gap: 14px; flex-wrap: wrap; padding: 10px 14px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
 .graph-legend .sw { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; }
 table.props th, table.props td { word-break: break-word; }
 @media (max-width: 560px) {
@@ -278,40 +318,70 @@ table.props th, table.props td { word-break: break-word; }
 """
 
 
-def build_sidebar_html():
-    upcoming_items = "\n".join(
-        f"""<a class="side-onto soon" href="/proximamente/{o['slug']}/">
-              <b>{o['character']}</b><span>{o['topic']}</span>
-            </a>"""
-        for o in ONTOLOGY_UPCOMING
-    )
+def build_sidebar_html(active_section=None):
+    """Sidebar contextual: no expone topología legacy como nav principal."""
+    wiki_domains = []
+    for d in DOMAINS:
+        if d["status"] == "published":
+            wiki_domains.append(
+                f'<a class="side-onto{" active-onto" if active_section == "wiki" else ""}" href="{d["current_url"]}">'
+                f'<b>{d["label"]}</b><span>{d["short"]}</span></a>'
+            )
+        else:
+            wiki_domains.append(
+                f'<a class="side-onto soon" href="#"><b>{d["label"]}</b><span>{d["short"]}</span></a>'
+            )
+
+    chars = []
+    for c in CHARACTERS:
+        cls = "side-onto" + (" soon" if c["status"] != "published" else "")
+        if active_section == "universo" and c["status"] == "published":
+            cls += " active-onto"
+        chars.append(
+            f'<a class="{cls}" href="{c["current_url"]}">'
+            f'<b>{c["label"]}</b><span>{c["topic"]}</span></a>'
+        )
+
+    lab_items = []
+    for s in LAB_SECTIONS:
+        if s["status"] == "published" and s["current_url"]:
+            lab_items.append(
+                f'<a class="side-onto{" active-onto" if active_section == "lab" else ""}" href="{s["current_url"]}">'
+                f'<b>{s["label"]}</b><span>{s["short"]}</span></a>'
+            )
+        else:
+            lab_items.append(
+                f'<a class="side-onto soon" href="#"><b>{s["label"]}</b><span>{s["short"]}</span></a>'
+            )
+
     return f"""
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-inner">
-    <a class="side-arcade" href="/arcade/"><span class="side-icon">🕹️</span> Arcade</a>
-    <div class="side-section-label">Ontologías</div>
+    <div class="side-section-label">Wiki</div>
     <nav class="side-onto-list">
-      <a class="side-onto active-onto" href="{ONTOLOGY_AVAILABLE['href']}">
-        <b>{ONTOLOGY_AVAILABLE['character']}</b><span>{ONTOLOGY_AVAILABLE['topic']}</span>
-      </a>
+{"".join(wiki_domains)}
+      <a class="side-onto" href="/grafo/"><b>Grafo</b><span>Microfonía · local</span></a>
     </nav>
-    <div class="side-section-label sub">Próximamente</div>
-    <nav class="side-onto-list upcoming">
-{upcoming_items}
+    <div class="side-section-label sub">Universo</div>
+    <nav class="side-onto-list">
+{"".join(chars)}
+    </nav>
+    <div class="side-section-label sub">Laboratorio</div>
+    <nav class="side-onto-list">
+{"".join(lab_items)}
     </nav>
   </div>
 </aside>
 """
 
 
-def page_shell(*, title, description, canonical, body_html, jsonld_obj, active_nav=None):
-    jsonld = json.dumps(jsonld_obj, ensure_ascii=False, indent=2)
-    nav_items = [("/", "Inicio"), ("/grafo/", "Grafo"), ("/ontology.jsonld", "Ontología (JSON-LD)")]
+def page_shell(*, title, description, canonical, body_html, jsonld_obj, active_nav=None, active_section=None):
+    jsonld = jsonld_dumps(jsonld_obj)
     nav_html = "".join(
-        f'<a href="{href}"{" style=\"color:var(--accent-2)\"" if href == active_nav else ""}>{label}</a>'
-        for href, label in nav_items
+        f'<a href="{s["href"]}" class="{"active" if s["href"] == active_nav else ""}">{s["label"]}</a>'
+        for s in NAV_SECTIONS
     )
-    sidebar_html = build_sidebar_html()
+    sidebar_html = build_sidebar_html(active_section)
     return f"""<!doctype html>
 <html lang="es">
 <head>
@@ -337,16 +407,18 @@ def page_shell(*, title, description, canonical, body_html, jsonld_obj, active_n
   <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
   <div class="content-col">
     <header class="site">
-      <button class="mini-btn sidebar-toggle" id="sidebar-toggle" aria-label="Mostrar/ocultar menú">☰</button>
-      <a class="brand" href="/">🎙️ Microfonía</a>
+      <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Mostrar/ocultar menú">☰</button>
+      <a class="brand" href="/">Radio Micelio</a>
       <nav>{nav_html}</nav>
     </header>
     <main>
 {body_html}
     </main>
     <footer class="site">
-      Parte de <a href="https://radiomicelio.com">Radio Micelio</a> · Ontología libre, contenido bajo CC BY 4.0 ·
-      <a href="/ontology.jsonld">datos en JSON-LD</a>
+      <a href="https://www.radiomicelio.es">Radio Micelio</a> ·
+      Wiki musical, escena, productora, universo y laboratorio ·
+      Contenido bajo CC BY 4.0 ·
+      <a href="/ontology.jsonld">datos Microfonía (JSON-LD)</a>
     </footer>
   </div>
 </div>
@@ -361,12 +433,12 @@ def page_shell(*, title, description, canonical, body_html, jsonld_obj, active_n
     document.body.classList.toggle('sidebar-open', !collapsed && isMobile());
   }}
   var saved = null;
-  try {{ saved = localStorage.getItem('mf-sidebar-collapsed'); }} catch (e) {{}}
+  try {{ saved = localStorage.getItem('rm-sidebar-collapsed'); }} catch (e) {{}}
   apply(isMobile() ? true : saved === '1');
   toggle.addEventListener('click', function() {{
     var collapsed = !sidebar.classList.contains('collapsed');
     apply(collapsed);
-    if (!isMobile()) {{ try {{ localStorage.setItem('mf-sidebar-collapsed', collapsed ? '1' : '0'); }} catch (e) {{}} }}
+    if (!isMobile()) {{ try {{ localStorage.setItem('rm-sidebar-collapsed', collapsed ? '1' : '0'); }} catch (e) {{}} }}
   }});
   backdrop.addEventListener('click', function() {{ apply(true); }});
 }})();
@@ -378,8 +450,122 @@ def page_shell(*, title, description, canonical, body_html, jsonld_obj, active_n
 
 # ------------------------------------------------------------------ pages
 
+HUB_BLURBS = [
+    ("Wiki", "/atlas/", "Aprender y explorar", "Ontologías y conceptos conectados — empieza por Microfonía."),
+    ("Escena", "/escena/", "Descubrir", "Bandas, conciertos, salas, entrevistas y reviews. Empieza cerca."),
+    ("Productora", "/productora/", "Quiénes hacemos", "Profesionales de la cultura a través de sus alter ego."),
+    ("Universo", "/universo/", "Ficción", "Personajes, historias y el mapa narrativo de Radio Micelio."),
+    ("Lab", "/lab/", "Experimentar", "Arcade, AIRAM, criaturas y el futuro videojuego RM."),
+]
+
+
 def build_home():
     cards = "\n".join(
+        f"""<a class="hub-card" href="{href}">
+              <div class="hub-kicker">{kicker}</div>
+              <h3>{label}</h3>
+              <p>{desc}</p>
+            </a>"""
+        for label, href, kicker, desc in HUB_BLURBS
+    )
+    body = f"""
+<section class="home-hero">
+  <h1 class="home-brand">Radio Micelio</h1>
+  <p class="home-tagline">Música, ficción, conocimiento y experimentación digital.</p>
+  <p class="home-sub">Estamos construyendo una wiki musical conectada: de una banda a un concierto, a una técnica, a un personaje. Un pequeño micelio.</p>
+</section>
+<div class="hub-grid">
+{cards}
+</div>
+"""
+    jsonld = with_context(
+        [
+            {
+                "@type": "WebSite",
+                "@id": f"{SITE_URL}/#website",
+                "url": f"{SITE_URL}/",
+                "name": SITE_NAME,
+                "description": SITE_DESCRIPTION,
+                "inLanguage": "es",
+                "publisher": {"@id": f"{SITE_URL}/#organization"},
+            },
+            {
+                "@type": "Organization",
+                "@id": f"{SITE_URL}/#organization",
+                "name": SITE_NAME,
+                "url": f"{SITE_URL}/",
+                "description": SITE_DESCRIPTION,
+            },
+        ]
+    )
+    html = page_shell(
+        title=f"{SITE_NAME} — Wiki musical, escena y laboratorio",
+        description=SITE_DESCRIPTION,
+        canonical=f"{SITE_URL}/",
+        body_html=body,
+        jsonld_obj=jsonld,
+        active_nav=None,
+    )
+    write_text(DOCS / "index.html", html)
+
+
+def build_atlas_hub():
+    cards = []
+    for d in DOMAINS:
+        if d["status"] == "published":
+            cards.append(
+                f"""<a class="cat-card" href="{d['current_url']}">
+              <div class="icon">{d['icon']}</div>
+              <h3>{d['label']}</h3>
+              <p>{d['short']}</p>
+            </a>"""
+            )
+        else:
+            cards.append(
+                f"""<div class="cat-card soon">
+              <div class="icon">{d['icon']}</div>
+              <h3>{d['label']}</h3>
+              <p>{d['short']} · en preparación</p>
+            </div>"""
+            )
+    crumbs = [("Radio Micelio", "/"), ("Wiki", None)]
+    body = f"""
+{crumbs_html(crumbs)}
+<p class="pill">Atlas · conocimiento</p>
+<h1>Wiki musical</h1>
+<p class="lead">
+  Ontologías abiertas del universo Radio Micelio. Empieza por lo publicado;
+  el resto irá creciendo alrededor de cada personaje y de la escena.
+</p>
+<div class="cat-grid">
+{"".join(cards)}
+</div>
+"""
+    jsonld = with_context(
+        {
+            "@type": "CollectionPage",
+            "@id": f"{SITE_URL}/atlas/#page",
+            "name": "Wiki · Radio Micelio",
+            "description": "Atlas de conocimiento: ontologías abiertas del universo Radio Micelio.",
+            "url": f"{SITE_URL}/atlas/",
+            "isPartOf": {"@id": f"{SITE_URL}/#website"},
+            "breadcrumb": crumbs_jsonld(crumbs),
+        }
+    )
+    html = page_shell(
+        title=f"Wiki · {SITE_NAME}",
+        description="Atlas de conocimiento: wiki musical de Radio Micelio.",
+        canonical=f"{SITE_URL}/atlas/",
+        body_html=body,
+        jsonld_obj=jsonld,
+        active_nav="/atlas/",
+        active_section="wiki",
+    )
+    write_text(DOCS / "atlas" / "index.html", html)
+
+
+def build_microfonia_landing():
+    cat_cards = "\n".join(
         f"""<a class="cat-card" href="/{c['key']}/">
               <div class="icon">{c['icon']}</div>
               <h3>{c['label']}</h3>
@@ -387,28 +573,156 @@ def build_home():
             </a>"""
         for c in CATEGORIES
     )
-    char_cards = ['''<a class="char-card arcade-card" href="/arcade/">
-              <div class="char-img-wrap"><div class="char-placeholder">🕹️</div></div>
-              <h3>Arcade</h3>
-              <p>Minijuegos clásicos</p>
-            </a>''']
-    char_cards.append(f'''<a class="char-card" href="{ONTOLOGY_AVAILABLE['href']}">
-              <div class="char-img-wrap">
+    crumbs = [("Radio Micelio", "/"), ("Wiki", "/atlas/"), ("Microfonía", None)]
+    body = f"""
+{crumbs_html(crumbs)}
+<p class="pill">DefinedTermSet · {len(CONCEPTS)} conceptos</p>
+<h1>Microfonía</h1>
+<p class="lead">{MICROFONIA['description']}</p>
+<div class="hero-actions">
+  <a class="btn primary" href="{SISMICO['current_url']}">Conocer a Sísmico →</a>
+  <a class="btn ghost" href="/grafo/">Explorar el grafo</a>
+  <a class="btn ghost" href="/ontology.jsonld">Descargar JSON-LD</a>
+</div>
+<h2>Categorías</h2>
+<div class="cat-grid">
+{cat_cards}
+</div>
+"""
+    term_refs = [
+        {"@id": concept_entities_by_id()[c["id"]]["entity_id"]}
+        for c in CONCEPTS
+    ]
+    jsonld = with_context(
+        [
+            {
+                "@type": "DefinedTermSet",
+                "@id": MICROFONIA["entity_id"],
+                "name": "Microfonía",
+                "description": MICROFONIA["description"],
+                "url": abs_url(MICROFONIA["current_url"]),
+                "hasDefinedTerm": term_refs,
+                "rm:associatedCharacter": {"@id": SISMICO["entity_id"]},
+            },
+            crumbs_jsonld(crumbs),
+        ]
+    )
+    html = page_shell(
+        title=f"Microfonía | Wiki · {SITE_NAME}",
+        description=MICROFONIA["description"],
+        canonical=abs_url(MICROFONIA["canonical_url"]),
+        body_html=body,
+        jsonld_obj=jsonld,
+        active_nav="/atlas/",
+        active_section="wiki",
+    )
+    write_text(DOCS / "atlas" / "microfonia" / "index.html", html)
+
+
+def build_universo_hub():
+    char_cards = []
+    for c in CHARACTERS:
+        soon = " soon" if c["status"] != "published" else ""
+        if c.get("image"):
+            img = f"""<div class="char-img-wrap">
                 <picture>
                   <source srcset="/assets/img/sismico.webp" type="image/webp">
-                  <img class="char-img" src="/assets/img/sismico.png" alt="{ONTOLOGY_AVAILABLE['character']}" width="80" height="80" loading="lazy">
+                  <img class="char-img" src="{c['image']}" alt="{c['label']}" width="80" height="80" loading="lazy">
                 </picture>
-              </div>
-              <h3>{ONTOLOGY_AVAILABLE['character']}</h3>
-              <p>{ONTOLOGY_AVAILABLE['topic']}</p>
-            </a>''')
-    char_cards += [
-        f'''<a class="char-card soon" href="/proximamente/{o['slug']}/">
-              <div class="char-img-wrap"><div class="char-placeholder">🎙️</div></div>
-              <h3>{o['character']}</h3>
-              <p>{o['topic']}</p>
-            </a>'''
-        for o in ONTOLOGY_UPCOMING
+              </div>"""
+        else:
+            img = '<div class="char-img-wrap"><div class="char-placeholder">🍄</div></div>'
+        char_cards.append(
+            f"""<a class="char-card{soon}" href="{c['current_url']}">
+              {img}
+              <h3>{c['label']}</h3>
+              <p>{c['topic']}</p>
+            </a>"""
+        )
+    crumbs = [("Radio Micelio", "/"), ("Universo", None)]
+    body = f"""
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="sismico-wave" x="-20%" y="-20%" width="140%" height="140%">
+    <feTurbulence type="fractalNoise" numOctaves="2" baseFrequency="0.009 0.014" seed="7" result="noise">
+      <animate attributeName="baseFrequency" values="0.009 0.014;0.013 0.010;0.009 0.014" dur="14s" repeatCount="indefinite"/>
+    </feTurbulence>
+    <feDisplacementMap in="SourceGraphic" in2="noise" scale="22" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</svg>
+{crumbs_html(crumbs)}
+<p class="pill">Ficción</p>
+<h1>Universo</h1>
+<p class="lead">
+  Personajes, relaciones y mundo de Radio Micelio. Cada personaje es una interfaz
+  hacia un campo de conocimiento — y hacia la productora.
+</p>
+<div class="char-grid">
+{"".join(char_cards)}
+</div>
+<p class="lead" style="margin-top:20px"><a href="/universo/personajes/">Ver índice de personajes →</a></p>
+"""
+    jsonld = with_context(
+        {
+            "@type": "CollectionPage",
+            "name": f"Universo · {SITE_NAME}",
+            "url": f"{SITE_URL}/universo/",
+            "description": "Personajes y mundo narrativo de Radio Micelio.",
+            "breadcrumb": crumbs_jsonld(crumbs),
+        }
+    )
+    html = page_shell(
+        title=f"Universo · {SITE_NAME}",
+        description="Personajes y mundo narrativo de Radio Micelio.",
+        canonical=f"{SITE_URL}/universo/",
+        body_html=body,
+        jsonld_obj=jsonld,
+        active_nav="/universo/",
+        active_section="universo",
+    )
+    write_text(DOCS / "universo" / "index.html", html)
+
+
+def build_personajes_index():
+    rows = "\n".join(
+        f'<a class="concept-card{" soon" if c["status"] != "published" else ""}" href="{c["current_url"]}">'
+        f'<b>{c["label"]}</b><span>{c["topic"]}</span></a>'
+        for c in CHARACTERS
+    )
+    crumbs = [("Radio Micelio", "/"), ("Universo", "/universo/"), ("Personajes", None)]
+    body = f"""
+{crumbs_html(crumbs)}
+<h1>Personajes</h1>
+<p class="lead">Interfaces narrativas hacia campos de conocimiento y hacia la productora.</p>
+<div class="concept-list">
+{rows}
+</div>
+"""
+    jsonld = with_context(
+        {
+            "@type": "CollectionPage",
+            "name": f"Personajes · {SITE_NAME}",
+            "url": f"{SITE_URL}/universo/personajes/",
+            "breadcrumb": crumbs_jsonld(crumbs),
+        }
+    )
+    html = page_shell(
+        title=f"Personajes · Universo · {SITE_NAME}",
+        description="Personajes del universo Radio Micelio.",
+        canonical=f"{SITE_URL}/universo/personajes/",
+        body_html=body,
+        jsonld_obj=jsonld,
+        active_nav="/universo/",
+        active_section="universo",
+    )
+    write_text(DOCS / "universo" / "personajes" / "index.html", html)
+
+
+def build_sismico_page():
+    crumbs = [
+        ("Radio Micelio", "/"),
+        ("Universo", "/universo/"),
+        ("Personajes", "/universo/personajes/"),
+        ("Sísmico", None),
     ]
     body = f"""
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -419,48 +733,201 @@ def build_home():
     <feDisplacementMap in="SourceGraphic" in2="noise" scale="22" xChannelSelector="R" yChannelSelector="G"/>
   </filter>
 </svg>
+{crumbs_html(crumbs)}
 <div class="hero">
   <div class="hero-img-wrap">
     <picture>
       <source srcset="/assets/img/sismico.webp" type="image/webp">
-      <img class="hero-img" src="/assets/img/sismico.png" alt="Sísmico — Radio Micelio" width="1000" height="1000" fetchpriority="high">
+      <img class="hero-img" src="/assets/img/sismico.png" alt="Sísmico" width="1000" height="1000" fetchpriority="high">
     </picture>
   </div>
-  <h1><a class="hero-link" href="/grafo/">🎙️ Microfonía</a></h1>
-  <p class="hero-sub">Parte del universo Radio Micelio</p>
 </div>
-<p class="pill" style="display:block; text-align:center; margin: 18px auto 0; width:fit-content;">Ontología abierta · {len(CONCEPTS)} conceptos</p>
-<p class="lead" style="margin-left:auto; margin-right:auto; text-align:center;">{SITE_DESCRIPTION}</p>
+<p class="pill">Personaje · Universo Radio Micelio</p>
+<h1>Sísmico</h1>
+<p class="lead">{SISMICO['description']}</p>
+<h2>Campo de investigación</h2>
+<p class="lead">
+  <strong>Microfonía y sensórica.</strong> El extraordinario sistema auditivo de Sísmico
+  conecta su historia con el estudio del sonido, los sensores y la captación acústica.
+</p>
 <div class="hero-actions">
-  <a class="btn primary" href="/grafo/">Explorar el grafo →</a>
-  <a class="btn ghost" href="/ontology.jsonld">Descargar ontología (JSON-LD)</a>
-</div>
-<h2>Universo Radio Micelio</h2>
-<div class="char-grid">
-{"".join(char_cards)}
-</div>
-<h2>Categorías de esta ontología</h2>
-<div class="cat-grid">
-{cards}
+  <a class="btn primary" href="/atlas/microfonia/">Explorar conocimiento →</a>
+  <a class="btn ghost" href="/universo/">Volver al universo</a>
 </div>
 """
-    jsonld = {
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        "name": SITE_NAME,
-        "url": SITE_URL,
-        "description": SITE_DESCRIPTION,
-        "inLanguage": "es",
-    }
+    jsonld = with_context(
+        [
+            {
+                "@type": "Person",
+                "@id": SISMICO["entity_id"],
+                "name": "Sísmico",
+                "url": abs_url(SISMICO["current_url"]),
+                "image": abs_url(SISMICO["image"]),
+                "description": SISMICO["description"],
+                "knowsAbout": {"@id": MICROFONIA["entity_id"]},
+                "rm:knowsDomain": {"@id": MICROFONIA["entity_id"]},
+            },
+            crumbs_jsonld(crumbs),
+        ]
+    )
     html = page_shell(
-        title=SITE_NAME,
-        description=SITE_DESCRIPTION,
-        canonical=f"{SITE_URL}/",
+        title=f"Sísmico · Universo · {SITE_NAME}",
+        description=SISMICO["description"],
+        canonical=abs_url(SISMICO["canonical_url"]),
         body_html=body,
         jsonld_obj=jsonld,
-        active_nav="/",
+        active_nav="/universo/",
+        active_section="universo",
     )
-    write_text(DOCS / "index.html", html)
+    write_text(DOCS / "universo" / "personajes" / "sismico" / "index.html", html)
+
+
+def build_escena_hub():
+    crumbs = [("Radio Micelio", "/"), ("Escena", None)]
+    body = f"""
+{crumbs_html(crumbs)}
+<p class="pill">Cultura real</p>
+<h1>Escena</h1>
+<p class="lead">
+  Bandas, conciertos, salas, entrevistas, reviews y lanzamientos.
+  Empezaremos cerca: nuestra música, la gente con la que compartimos escena
+  y las bandas locales que merece la pena conocer.
+</p>
+<p class="lead">
+  Cuando publiquemos la primera banda, concierto o entrevista, aparecerán aquí
+  como páginas propias — conectadas entre sí y con la wiki.
+</p>
+<p class="pill">Próximamente: bandas · conciertos · salas · entrevistas · reviews · lanzamientos</p>
+<div class="hero-actions">
+  <a class="btn ghost" href="/atlas/">Ir a la Wiki →</a>
+</div>
+"""
+    jsonld = with_context(
+        {
+            "@type": "CollectionPage",
+            "name": f"Escena · {SITE_NAME}",
+            "description": "Escena cultural de Radio Micelio: bandas, conciertos, entrevistas y reviews.",
+            "url": f"{SITE_URL}/escena/",
+            "breadcrumb": crumbs_jsonld(crumbs),
+        }
+    )
+    html = page_shell(
+        title=f"Escena · {SITE_NAME}",
+        description="Escena cultural: bandas, conciertos, salas, entrevistas y reviews.",
+        canonical=f"{SITE_URL}/escena/",
+        body_html=body,
+        jsonld_obj=jsonld,
+        active_nav="/escena/",
+    )
+    write_text(DOCS / "escena" / "index.html", html)
+
+
+def build_productora_hub():
+    cards = []
+    for c in CHARACTERS:
+        soon = " soon" if c["status"] != "published" else ""
+        cards.append(
+            f"""<a class="concept-card{soon}" href="{c['current_url']}">
+              <b>{c['label']}</b><span>{c['producer_role']}</span>
+            </a>"""
+        )
+    crumbs = [("Radio Micelio", "/"), ("Productora", None)]
+    body = f"""
+{crumbs_html(crumbs)}
+<p class="pill">Productora cultural</p>
+<h1>Productora</h1>
+<p class="lead">
+  Radio Micelio es también una productora cultural formada por profesionales
+  de distintas disciplinas. Sus alter ego del universo son la interfaz pública —
+  sin fingir que ficción y realidad son lo mismo.
+</p>
+<div class="split-block two">
+  <div class="split-panel">
+    <h3>En la productora</h3>
+    <p>Producción musical, fotografía de directo, comunicación, técnica de escenario y más. Portfolios y trabajos irán apareciendo aquí.</p>
+  </div>
+  <div class="split-panel">
+    <h3>En el universo</h3>
+    <p>Los mismos nombres existen como personajes ficticios con historias, poderes y campos de investigación propios.</p>
+  </div>
+</div>
+<h2>Alter ego</h2>
+<div class="concept-list">
+{"".join(cards)}
+</div>
+"""
+    jsonld = with_context(
+        {
+            "@type": "Organization",
+            "@id": f"{SITE_URL}/#organization",
+            "name": SITE_NAME,
+            "url": f"{SITE_URL}/productora/",
+            "description": "Productora cultural Radio Micelio.",
+            "breadcrumb": crumbs_jsonld(crumbs),
+        }
+    )
+    html = page_shell(
+        title=f"Productora · {SITE_NAME}",
+        description="Productora cultural Radio Micelio: profesionales a través de sus alter ego.",
+        canonical=f"{SITE_URL}/productora/",
+        body_html=body,
+        jsonld_obj=jsonld,
+        active_nav="/productora/",
+    )
+    write_text(DOCS / "productora" / "index.html", html)
+
+
+def build_lab_hub():
+    cards = []
+    for s in LAB_SECTIONS:
+        if s["status"] == "published" and s["current_url"]:
+            cards.append(
+                f"""<a class="cat-card" href="{s['current_url']}">
+              <div class="icon">{s['icon']}</div>
+              <h3>{s['label']}</h3>
+              <p>{s['short']}</p>
+            </a>"""
+            )
+        else:
+            cards.append(
+                f"""<div class="cat-card soon">
+              <div class="icon">{s['icon']}</div>
+              <h3>{s['label']}</h3>
+              <p>{s['short']} · en preparación</p>
+            </div>"""
+            )
+    crumbs = [("Radio Micelio", "/"), ("Lab", None)]
+    body = f"""
+{crumbs_html(crumbs)}
+<p class="pill">I+D · videojuego RM</p>
+<h1>Laboratorio</h1>
+<p class="lead">
+  Cuaderno de laboratorio del videojuego Radio Micelio: mecánicas en minijuegos,
+  agentes AIRAM, criaturas y prototipos. Lo que se experimenta aquí alimenta el juego.
+</p>
+<div class="cat-grid">
+{"".join(cards)}
+</div>
+"""
+    jsonld = with_context(
+        {
+            "@type": "CollectionPage",
+            "name": f"Laboratorio · {SITE_NAME}",
+            "url": f"{SITE_URL}/lab/",
+            "description": "Laboratorio de Radio Micelio: Arcade, AIRAM, criaturas y RM Game.",
+            "breadcrumb": crumbs_jsonld(crumbs),
+        }
+    )
+    html = page_shell(
+        title=f"Lab · {SITE_NAME}",
+        description="Laboratorio: Arcade, AIRAM, criaturas y prototipos del videojuego Radio Micelio.",
+        canonical=f"{SITE_URL}/lab/",
+        body_html=body,
+        jsonld_obj=jsonld,
+        active_nav="/lab/",
+        active_section="lab",
+    )
+    write_text(DOCS / "lab" / "index.html", html)
 
 
 def build_category_pages():
@@ -472,53 +939,72 @@ def build_category_pages():
                 </a>"""
             for c in items
         )
+        crumbs = [
+            ("Radio Micelio", "/"),
+            ("Wiki", "/atlas/"),
+            ("Microfonía", "/atlas/microfonia/"),
+            (cat["label"], None),
+        ]
         body = f"""
-<div class="crumbs"><a href="/">Inicio</a> / {cat['label']}</div>
-<p class="pill">{cat['icon']} Categoría</p>
+{crumbs_html(crumbs)}
+<p class="pill">{cat['icon']} Microfonía</p>
 <h1>{cat['label']}</h1>
 <p class="lead">{cat['desc']}</p>
 <div class="concept-list">
 {cards}
 </div>
 """
-        jsonld = {
-            "@context": "https://schema.org",
-            "@type": "DefinedTermSet",
-            "name": cat["label"],
-            "description": cat["desc"],
-            "url": f"{SITE_URL}/{cat['key']}/",
-            "hasDefinedTerm": [
-                {"@type": "DefinedTerm", "name": c["label"], "url": url_for(c)}
-                for c in items
-            ],
-        }
+        jsonld = with_context(
+            {
+                "@type": "CollectionPage",
+                "name": f"{cat['label']} | Wiki · {SITE_NAME}",
+                "description": cat["desc"],
+                "url": f"{SITE_URL}/{cat['key']}/",
+                "isPartOf": {"@id": MICROFONIA["entity_id"]},
+                "breadcrumb": crumbs_jsonld(crumbs),
+            }
+        )
         html = page_shell(
-            title=f"{cat['label']} · {SITE_NAME}",
+            title=f"{cat['label']} | Wiki · {SITE_NAME}",
             description=cat["desc"],
             canonical=f"{SITE_URL}/{cat['key']}/",
             body_html=body,
             jsonld_obj=jsonld,
+            active_nav="/atlas/",
+            active_section="wiki",
         )
         write_text(DOCS / cat["key"] / "index.html", html)
 
 
 def build_concept_pages():
     by_id = concepts_by_id()
+    ent_by_id = concept_entities_by_id()
     for c in CONCEPTS:
         cat = category_of(c["category"])
+        ent = ent_by_id[c["id"]]
         rows = "\n".join(
             f"<tr><th>{k}</th><td>{v if not isinstance(v, bool) else ('Sí' if v else 'No')}</td></tr>"
             for k, v in c["properties"].items()
         )
         rel_groups = []
         for pred, ids in c.get("relations", {}).items():
-            links = " ".join(f'<a href="/{by_id[i]["category"]}/{i}/">{by_id[i]["label"]}</a>' for i in ids if i in by_id)
+            links = " ".join(
+                f'<a href="/{by_id[i]["category"]}/{i}/">{by_id[i]["label"]}</a>'
+                for i in ids if i in by_id
+            )
             if links:
                 rel_groups.append(f'<div class="relation-group"><span class="pred">{pred}:</span>{links}</div>')
         relations_html = f'<div class="relations">{"".join(rel_groups)}</div>' if rel_groups else ""
 
+        crumbs = [
+            ("Radio Micelio", "/"),
+            ("Wiki", "/atlas/"),
+            ("Microfonía", "/atlas/microfonia/"),
+            (cat["label"], f"/{cat['key']}/"),
+            (c["label"], None),
+        ]
         body = f"""
-<div class="crumbs"><a href="/">Inicio</a> / <a href="/{cat['key']}/">{cat['label']}</a> / {c['label']}</div>
+{crumbs_html(crumbs)}
 <p class="pill">{cat['icon']} {cat['label']}</p>
 <h1>{c['label']}</h1>
 <p class="lead">{c['definition']}</p>
@@ -526,54 +1012,75 @@ def build_concept_pages():
 {rows}
 </table>
 {f'<h2>Relacionado</h2>{relations_html}' if rel_groups else ''}
+<p class="lead" style="margin-top:24px"><a href="{SISMICO['current_url']}">← Sísmico</a> · <a href="/atlas/microfonia/">Microfonía</a></p>
 """
-        jsonld = {
-            "@context": "https://schema.org",
-            "@type": "DefinedTerm",
-            "name": c["label"],
-            "alternateName": c["en_label"],
-            "description": c["definition"],
-            "url": url_for(c),
-            "inDefinedTermSet": {"@type": "DefinedTermSet", "name": cat["label"], "url": f"{SITE_URL}/{cat['key']}/"},
-            "additionalProperty": [
-                {"@type": "PropertyValue", "name": k, "value": (("Sí" if v else "No") if isinstance(v, bool) else v)}
-                for k, v in c["properties"].items()
-            ],
-        }
+        jsonld = with_context(
+            [
+                {
+                    "@type": "DefinedTerm",
+                    "@id": ent["entity_id"],
+                    "name": c["label"],
+                    "alternateName": c["en_label"],
+                    "description": c["definition"],
+                    "url": abs_url(ent["canonical_url"]),
+                    "inDefinedTermSet": {"@id": MICROFONIA["entity_id"]},
+                    "additionalProperty": [
+                        {
+                            "@type": "PropertyValue",
+                            "name": k,
+                            "value": (("Sí" if v else "No") if isinstance(v, bool) else v),
+                        }
+                        for k, v in c["properties"].items()
+                    ],
+                },
+                crumbs_jsonld(crumbs),
+            ]
+        )
         html = page_shell(
-            title=f"{c['label']} · {SITE_NAME}",
+            title=f"{c['label']} | Wiki · {SITE_NAME}",
             description=c["definition"][:155],
-            canonical=url_for(c),
+            canonical=abs_url(ent["canonical_url"]),
             body_html=body,
             jsonld_obj=jsonld,
+            active_nav="/atlas/",
+            active_section="wiki",
         )
         write_text(DOCS / c["category"] / c["id"] / "index.html", html)
 
 
 def build_graph_page():
-    body = """
-<div class="crumbs"><a href="/">Inicio</a> / Grafo</div>
-<h1>Grafo de la ontología</h1>
-<p class="lead">Cada nodo es un concepto; cada línea, una relación. Arrastra para mover, toca un nodo para ir a su ficha.</p>
+    crumbs = [
+        ("Radio Micelio", "/"),
+        ("Wiki", "/atlas/"),
+        ("Microfonía", "/atlas/microfonia/"),
+        ("Grafo", None),
+    ]
+    body = f"""
+{crumbs_html(crumbs)}
+<h1>Grafo · Microfonía</h1>
+<p class="lead">Grafo local del dominio Microfonía. Cada nodo es un concepto; cada línea, una relación.</p>
 <div id="graph-wrap">
   <svg id="graph-svg"></svg>
   <div class="graph-legend" id="graph-legend"></div>
 </div>
 <script src="/assets/graph.js"></script>
 """
-    jsonld = {
-        "@context": "https://schema.org",
-        "@type": "WebPage",
-        "name": f"Grafo de la ontología · {SITE_NAME}",
-        "url": f"{SITE_URL}/grafo/",
-    }
+    jsonld = with_context(
+        {
+            "@type": "WebPage",
+            "name": f"Grafo · Microfonía · {SITE_NAME}",
+            "url": f"{SITE_URL}/grafo/",
+            "breadcrumb": crumbs_jsonld(crumbs),
+        }
+    )
     html = page_shell(
-        title=f"Grafo · {SITE_NAME}",
-        description="Vista interactiva del grafo completo de la ontología de microfonía.",
+        title=f"Grafo · Microfonía · {SITE_NAME}",
+        description="Vista interactiva del grafo local de Microfonía.",
         canonical=f"{SITE_URL}/grafo/",
         body_html=body,
         jsonld_obj=jsonld,
-        active_nav="/grafo/",
+        active_nav="/atlas/",
+        active_section="wiki",
     )
     write_text(DOCS / "grafo" / "index.html", html)
 
@@ -593,32 +1100,38 @@ def build_arcade_hub():
             </a>"""
         for d in ARCADE_DECADES
     )
+    crumbs = [("Radio Micelio", "/"), ("Lab", "/lab/"), ("Arcade", None)]
     body = f"""
-<div class="crumbs"><a href="/">Inicio</a> / Arcade</div>
-<p class="pill">🕹️ Radio Micelio</p>
+{crumbs_html(crumbs)}
+<p class="pill">🕹️ Laboratorio</p>
 <h1>Arcade</h1>
 <p class="lead">
-  {len(ARCADE_GAMES)} juegos sencillos y clásicos milenarios (ajedrez, Go), jugables con mando —
-  navegación completa por gamepad, IA propia por minimax y comentaristas por reglas, nada generativo.
-  Organizados por décadas, tal y como viven en <strong>MCI MIDI Studio</strong>.
+  {len(ARCADE_GAMES)} juegos sencillos y clásicos, jugables con mando —
+  navegación por gamepad, IA propia por minimax y comentaristas por reglas.
+  Cuaderno de mecánicas antes del videojuego Radio Micelio.
 </p>
 <div class="cat-grid">
 {cards}
 </div>
 """
-    jsonld = {
-        "@context": "https://schema.org",
-        "@type": "CollectionPage",
-        "name": f"Arcade · {SITE_NAME}",
-        "description": "Colección de juegos jugables con mando, parte de Radio Micelio / MCI.",
-        "url": f"{SITE_URL}/arcade/",
-    }
+    jsonld = with_context(
+        {
+            "@type": "CollectionPage",
+            "name": f"Arcade | Lab · {SITE_NAME}",
+            "description": "Arcade de Radio Micelio: experimentos de mecánicas e IA.",
+            "url": f"{SITE_URL}/arcade/",
+            "isPartOf": {"@id": f"{SITE_URL}/lab/"},
+            "breadcrumb": crumbs_jsonld(crumbs),
+        }
+    )
     html = page_shell(
-        title=f"Arcade · {SITE_NAME}",
-        description="Arcade de Radio Micelio: juegos clásicos y milenarios jugables con mando.",
+        title=f"Arcade | Lab · {SITE_NAME}",
+        description="Arcade de Radio Micelio: juegos clásicos como cuaderno de laboratorio.",
         canonical=f"{SITE_URL}/arcade/",
         body_html=body,
         jsonld_obj=jsonld,
+        active_nav="/lab/",
+        active_section="lab",
     )
     write_text(DOCS / "arcade" / "index.html", html)
 
@@ -632,8 +1145,14 @@ def build_arcade_decade_pages():
                 </a>"""
             for g in games
         )
+        crumbs = [
+            ("Radio Micelio", "/"),
+            ("Lab", "/lab/"),
+            ("Arcade", "/arcade/"),
+            (d["label"], None),
+        ]
         body = f"""
-<div class="crumbs"><a href="/">Inicio</a> / <a href="/arcade/">Arcade</a> / {d['label']}</div>
+{crumbs_html(crumbs)}
 <p class="pill">{d['icon']} Arcade</p>
 <h1>{d['label']}</h1>
 <p class="lead">{d['desc']}</p>
@@ -641,92 +1160,121 @@ def build_arcade_decade_pages():
 {cards}
 </div>
 """
-        jsonld = {
-            "@context": "https://schema.org",
-            "@type": "CollectionPage",
-            "name": f"{d['label']} · Arcade · {SITE_NAME}",
-            "description": d["desc"],
-            "url": f"{SITE_URL}/arcade/decade/{d['key']}/",
-        }
+        jsonld = with_context(
+            {
+                "@type": "CollectionPage",
+                "name": f"{d['label']} | Lab · {SITE_NAME}",
+                "description": d["desc"],
+                "url": f"{SITE_URL}/arcade/decade/{d['key']}/",
+                "breadcrumb": crumbs_jsonld(crumbs),
+            }
+        )
         html = page_shell(
-            title=f"{d['label']} · Arcade · {SITE_NAME}",
+            title=f"{d['label']} | Lab · {SITE_NAME}",
             description=d["desc"],
             canonical=f"{SITE_URL}/arcade/decade/{d['key']}/",
             body_html=body,
             jsonld_obj=jsonld,
+            active_nav="/lab/",
+            active_section="lab",
         )
         write_text(DOCS / "arcade" / "decade" / d["key"] / "index.html", html)
 
 
-def _inject_seo_head(html, *, description, canonical, jsonld_obj):
-    """render_game() no lleva metadatos SEO (venía de una app local) — se
-    los añadimos aquí sin tocar la plantilla original."""
-    jsonld = json.dumps(jsonld_obj, ensure_ascii=False, indent=2)
+def _inject_seo_head(html, *, title, description, canonical, jsonld_obj):
+    jsonld = jsonld_dumps(jsonld_obj)
     extra = (
         f'<link rel="icon" href="{FAVICON_HREF}">\n'
         f'<meta name="description" content="{description}">\n'
         f'<link rel="canonical" href="{canonical}">\n'
+        f'<meta property="og:title" content="{title}">\n'
         f'<meta property="og:description" content="{description}">\n'
         f'<meta property="og:url" content="{canonical}">\n'
         f'<script type="application/ld+json">\n{jsonld}\n</script>\n'
     )
-    return html.replace('<meta charset="utf-8">', '<meta charset="utf-8">\n' + extra, 1)
+    html = re.sub(r"<title>.*?</title>", f"<title>{title}</title>", html, count=1)
+    return html.replace('<meta charset="utf-8">', f'<meta charset="utf-8">\n{extra}', 1)
 
 
 def build_arcade_game_pages():
+    ent_by_id = {e["id"]: e for e in GAME_ENTITIES}
     for g in ARCADE_GAMES:
         decade = next(d for d in ARCADE_DECADES if d["key"] == g["decade"])
+        ent = ent_by_id[g["slug"]]
         html = render_game(
-            g["title"], g["icon"], g["instructions"], GAME_SCRIPTS[g["slug"]],
-            back_href=f"/arcade/decade/{g['decade']}/", back_label=f"← {decade['label']}",
+            g["title"],
+            g["icon"],
+            g["instructions"],
+            GAME_SCRIPTS[g["slug"]],
+            back_href=f"/arcade/decade/{g['decade']}/",
+            back_label=f"← {decade['label']}",
         )
-        canonical = f"{SITE_URL}/arcade/{g['slug']}/"
-        jsonld = {
-            "@context": "https://schema.org",
-            "@type": "VideoGame",
-            "name": g["title"],
-            "description": g["desc"],
-            "url": canonical,
-            "genre": decade["label"],
-            "playMode": "SinglePlayer",
-            "applicationCategory": "Game",
-            "isAccessibleForFree": True,
-            "gamePlatform": "Web browser",
-        }
-        html = _inject_seo_head(html, description=g["desc"], canonical=canonical, jsonld_obj=jsonld)
+        canonical = abs_url(ent["canonical_url"])
+        title = f"{g['title']} | Lab · {SITE_NAME}"
+        jsonld = with_context(
+            {
+                "@type": "VideoGame",
+                "@id": ent["entity_id"],
+                "name": g["title"],
+                "description": g["desc"],
+                "url": canonical,
+                "genre": decade["label"],
+                "playMode": "SinglePlayer",
+                "applicationCategory": "Game",
+                "isAccessibleForFree": True,
+                "gamePlatform": "Web browser",
+                "isPartOf": {"@id": f"{SITE_URL}/arcade/"},
+            }
+        )
+        html = _inject_seo_head(
+            html, title=title, description=g["desc"], canonical=canonical, jsonld_obj=jsonld
+        )
         write_text(DOCS / "arcade" / g["slug"] / "index.html", html)
 
 
 def build_upcoming_pages():
-    for o in ONTOLOGY_UPCOMING:
+    for c in upcoming_characters():
+        crumbs = [
+            ("Radio Micelio", "/"),
+            ("Universo", "/universo/"),
+            ("Personajes", "/universo/personajes/"),
+            (c["label"], None),
+        ]
         body = f"""
-<div class="crumbs"><a href="/">Inicio</a> / Próximamente / {o['character']}</div>
-<p class="pill">Próximamente</p>
-<h1>{o['character']}</h1>
-<p class="lead">Ontología en preparación: <strong>{o['topic']}</strong>.</p>
-<p class="lead">Todavía no hay contenido publicado aquí — vuelve más adelante, o
-  explora mientras tanto la ontología ya disponible de <a href="/">Sísmico — Microfonía y otra sensórica</a>.</p>
+{crumbs_html(crumbs)}
+<p class="pill">Personaje · en preparación</p>
+<h1>{c['label']}</h1>
+<p class="lead">{c['description']}</p>
+<p class="lead">
+  Mientras tanto puedes explorar a <a href="{SISMICO['current_url']}">Sísmico</a>
+  y su dominio de <a href="/atlas/microfonia/">Microfonía</a>.
+</p>
 """
-        jsonld = {
-            "@context": "https://schema.org",
-            "@type": "WebPage",
-            "name": f"{o['character']} — {o['topic']} · {SITE_NAME}",
-            "description": f"Ontología en preparación sobre {o['topic']}, personaje {o['character']}.",
-            "url": f"{SITE_URL}/proximamente/{o['slug']}/",
-        }
+        jsonld = with_context(
+            [
+                {
+                    "@type": "Person",
+                    "@id": c["entity_id"],
+                    "name": c["label"],
+                    "url": abs_url(c["canonical_url"]),
+                    "description": c["description"],
+                },
+                crumbs_jsonld(crumbs),
+            ]
+        )
         html = page_shell(
-            title=f"{o['character']} · Próximamente · {SITE_NAME}",
-            description=f"Ontología en preparación sobre {o['topic']}.",
-            canonical=f"{SITE_URL}/proximamente/{o['slug']}/",
+            title=f"{c['label']} · Universo · {SITE_NAME}",
+            description=c["description"],
+            canonical=abs_url(c["canonical_url"]),
             body_html=body,
             jsonld_obj=jsonld,
+            active_nav="/universo/",
+            active_section="universo",
         )
-        write_text(DOCS / "proximamente" / o["slug"] / "index.html", html)
+        # legacy path /proximamente/{slug}/
+        slug = c["current_url"].strip("/").split("/")[-1]
+        write_text(DOCS / "proximamente" / slug / "index.html", html)
 
-
-# --------------------------------------------------- grafo (nodes/edges)
-# Mismo patrón que teatrero_core/_static_export: data.json + config.json
-# + manifest.json con hash de integridad.
 
 def build_graph_data():
     cat_color = {"tipos": "#7aa2ff", "patrones": "#69d38b", "estereo": "#f0bf59", "instrumentos": "#ff6b67"}
@@ -751,7 +1299,7 @@ def build_graph_data():
     data = {"graph": graph, "summary": summary, "categories": CATEGORIES}
     config = {
         "id": "microfonia",
-        "title": SITE_NAME,
+        "title": "Microfonía · Radio Micelio",
         "tipo": "grafo",
         "data_file": "data.json",
     }
@@ -759,7 +1307,7 @@ def build_graph_data():
     data_path = write_json(DOCS / "data.json", data)
     config_path = write_json(DOCS / "config.json", config)
     manifest = {
-        "project": "microfonia",
+        "project": "radiomicelio",
         "generated_at": now_iso(),
         "data_sha256": sha256_of(data_path),
         "config_sha256": sha256_of(config_path),
@@ -767,15 +1315,13 @@ def build_graph_data():
     write_json(DOCS / "manifest.json", manifest)
 
 
-# ------------------------------------------------- ontología formal SKOS
-
 def build_ontology_jsonld():
     graph = [
         {
             "@id": "mf:MicrofoniaScheme",
             "@type": "skos:ConceptScheme",
             "rdfs:label": "Esquema de microfonía",
-            "dcterms:title": SITE_NAME,
+            "dcterms:title": "Microfonía · Radio Micelio",
         }
     ]
     for cat in CATEGORIES:
@@ -798,7 +1344,10 @@ def build_ontology_jsonld():
             "skos:inScheme": {"@id": "mf:MicrofoniaScheme"},
             "skos:member": {"@id": f"mf:cat-{c['category']}"},
             "mf:hasProperty": [
-                {"mf:propertyName": k, "mf:propertyValue": (("sí" if v else "no") if isinstance(v, bool) else v)}
+                {
+                    "mf:propertyName": k,
+                    "mf:propertyValue": (("sí" if v else "no") if isinstance(v, bool) else v),
+                }
                 for k, v in c["properties"].items()
             ],
         }
@@ -827,8 +1376,6 @@ def build_ontology_jsonld():
     write_json(DOCS / "ontology.jsonld", ontology)
 
 
-# ------------------------------------------------------------- graph.js
-
 GRAPH_JS = """
 (function() {
   const svg = document.getElementById('graph-svg');
@@ -850,8 +1397,6 @@ GRAPH_JS = """
     svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
     nodes.forEach(n => { n.x = Math.random() * W; n.y = Math.random() * H; });
 
-    // Repulsión ~1/dist^2 entre TODOS los pares (no solo los cercanos) +
-    // muelles en las aristas + gravedad suave hacia el centro.
     function tick() {
       for (const n of nodes) { n.vx *= 0.85; n.vy *= 0.85; }
       const REPEL = 2200;
@@ -914,19 +1459,16 @@ def build_404():
     </picture>
   </div>
   <h1>404</h1>
-  <p class="hero-sub">Esta página no existe (o todavía no la hemos publicado).</p>
+  <p class="hero-sub" style="color:var(--muted)">Esta página no existe (o todavía no la hemos publicado).</p>
 </div>
-<div class="hero-actions">
+<div class="hero-actions" style="justify-content:center">
   <a class="btn primary" href="/">Volver al inicio</a>
-  <a class="btn ghost" href="/arcade/">Ir al arcade</a>
+  <a class="btn ghost" href="/atlas/">Ir a la Wiki</a>
 </div>
 """
-    jsonld = {
-        "@context": "https://schema.org",
-        "@type": "WebPage",
-        "name": f"404 · {SITE_NAME}",
-        "url": f"{SITE_URL}/404.html",
-    }
+    jsonld = with_context(
+        {"@type": "WebPage", "name": f"404 · {SITE_NAME}", "url": f"{SITE_URL}/404.html"}
+    )
     html = page_shell(
         title=f"404 · {SITE_NAME}",
         description="Página no encontrada.",
@@ -938,17 +1480,27 @@ def build_404():
 
 
 def build_sitemap():
-    urls = [f"{SITE_URL}/", f"{SITE_URL}/grafo/", f"{SITE_URL}/arcade/"]
+    urls = [
+        f"{SITE_URL}/",
+        f"{SITE_URL}/atlas/",
+        f"{SITE_URL}/atlas/microfonia/",
+        f"{SITE_URL}/universo/",
+        f"{SITE_URL}/universo/personajes/",
+        f"{SITE_URL}/universo/personajes/sismico/",
+        f"{SITE_URL}/escena/",
+        f"{SITE_URL}/productora/",
+        f"{SITE_URL}/lab/",
+        f"{SITE_URL}/grafo/",
+        f"{SITE_URL}/arcade/",
+    ]
     urls += [f"{SITE_URL}/{cat['key']}/" for cat in CATEGORIES]
     urls += [f"{SITE_URL}/{c['category']}/{c['id']}/" for c in CONCEPTS]
     urls += [f"{SITE_URL}/arcade/decade/{d['key']}/" for d in ARCADE_DECADES]
     urls += [f"{SITE_URL}/arcade/{g['slug']}/" for g in ARCADE_GAMES]
-    urls += [f"{SITE_URL}/proximamente/{o['slug']}/" for o in ONTOLOGY_UPCOMING]
+    urls += [abs_url(c["canonical_url"]) for c in upcoming_characters()]
 
     today = datetime.now(timezone.utc).date().isoformat()
-    entries = "\n".join(
-        f"  <url><loc>{u}</loc><lastmod>{today}</lastmod></url>" for u in urls
-    )
+    entries = "\n".join(f"  <url><loc>{u}</loc><lastmod>{today}</lastmod></url>" for u in urls)
     xml = (
         '<?xml version="1.0" encoding="UTF-8"?>\n'
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
@@ -959,20 +1511,18 @@ def build_sitemap():
 
 
 def build_robots():
-    txt = (
-        "User-agent: *\n"
-        "Allow: /\n"
-        f"Sitemap: {SITE_URL}/sitemap.xml\n"
+    write_text(
+        DOCS / "robots.txt",
+        f"User-agent: *\nAllow: /\nSitemap: {SITE_URL}/sitemap.xml\n",
     )
-    write_text(DOCS / "robots.txt", txt)
 
 
 def build():
     if DOCS.exists():
-        for p in sorted(DOCS.rglob('*'), reverse=True):
+        for p in sorted(DOCS.rglob("*"), reverse=True):
             if p.is_file():
                 p.unlink()
-        for p in sorted(DOCS.rglob('*'), reverse=True):
+        for p in sorted(DOCS.rglob("*"), reverse=True):
             if p.is_dir():
                 p.rmdir()
     DOCS.mkdir(parents=True, exist_ok=True)
@@ -990,6 +1540,14 @@ def build():
             (img_dst / name).write_bytes(src.read_bytes())
 
     build_home()
+    build_atlas_hub()
+    build_microfonia_landing()
+    build_universo_hub()
+    build_personajes_index()
+    build_sismico_page()
+    build_escena_hub()
+    build_productora_hub()
+    build_lab_hub()
     build_category_pages()
     build_concept_pages()
     build_graph_page()
@@ -1003,12 +1561,8 @@ def build():
     build_sitemap()
     build_robots()
 
-    total_pages = (
-        1 + len(CATEGORIES) + len(CONCEPTS) + 1
-        + 1 + len(ARCADE_DECADES) + len(ARCADE_GAMES)
-        + len(ONTOLOGY_UPCOMING)
-    )
-    print(f"OK: {total_pages} páginas HTML + data.json + ontology.jsonld generadas en {DOCS}")
+    n_html = sum(1 for _ in DOCS.rglob("*.html"))
+    print(f"OK: {n_html} páginas HTML + data.json + ontology.jsonld en {DOCS}")
 
 
 if __name__ == "__main__":

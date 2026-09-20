@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://www.radiomicelio.es/</loc><lastmod>2026-09-20</lastmod></url>
+  <url><loc>https://www.radiomicelio.es/atlas/</loc><lastmod>2026-09-20</lastmod></url>
+  <url><loc>https://www.radiomicelio.es/atlas/microfonia/</loc><lastmod>2026-09-20</lastmod></url>
+  <url><loc>https://www.radiomicelio.es/universo/</loc><lastmod>2026-09-20</lastmod></url>
+  <url><loc>https://www.radiomicelio.es/universo/personajes/</loc><lastmod>2026-09-20</lastmod></url>
+  <url><loc>https://www.radiomicelio.es/universo/personajes/sismico/</loc><lastmod>2026-09-20</lastmod></url>
+  <url><loc>https://www.radiomicelio.es/escena/</loc><lastmod>2026-09-20</lastmod></url>
+  <url><loc>https://www.radiomicelio.es/productora/</loc><lastmod>2026-09-20</lastmod></url>
+  <url><loc>https://www.radiomicelio.es/lab/</loc><lastmod>2026-09-20</lastmod></url>
   <url><loc>https://www.radiomicelio.es/grafo/</loc><lastmod>2026-09-20</lastmod></url>
   <url><loc>https://www.radiomicelio.es/arcade/</loc><lastmod>2026-09-20</lastmod></url>
   <url><loc>https://www.radiomicelio.es/tipos/</loc><lastmod>2026-09-20</lastmod></url>
