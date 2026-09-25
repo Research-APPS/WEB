@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chess Lab · AIRAM · Radio Micelio</title>
+<meta name="description" content="Chess Lab H−2: siete variables expresivas, falsables, sin música.">
+<link rel="canonical" href="https://www.radiomicelio.es/chess-lab/">
+<meta property="og:title" content="Chess Lab · AIRAM · Radio Micelio">
+<meta property="og:description" content="Chess Lab H−2: siete variables expresivas, falsables, sin música.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.radiomicelio.es/chess-lab/">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Ctext%20y%3D%22.9em%22%20font-size%3D%2290%22%3E%F0%9F%8D%84%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="/assets/style.css">
+
+<script type="application/ld+json">
+{
+  "@type": "WebApplication",
+  "name": "AIRAM Chess Lab · Radio Micelio",
+  "description": "Laboratorio H−2 de semántica del juego sobre ajedrez.",
+  "url": "https://www.radiomicelio.es/chess-lab/",
+  "applicationCategory": "GameApplication",
+  "breadcrumb": {
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Radio Micelio",
+        "item": "https://www.radiomicelio.es/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Lab",
+        "item": "https://www.radiomicelio.es/lab/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Chess Lab"
+      }
+    ]
+  },
+  "isPartOf": {
+    "@id": "https://www.radiomicelio.es/lab/"
+  },
+  "@context": {
+    "@vocab": "https://schema.org/",
+    "rm": "https://www.radiomicelio.es/vocab/"
+  }
+}
+</script>
+</head>
+<body class="page-lab-focus">
+<div class="app-shell">
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-inner">
+    <div class="side-section-label">Wiki</div>
+    <nav class="side-onto-list">
+<a class="side-onto" href="/atlas/microfonia/"><b>Microfonía</b><span>Sonido, sensores y captación acústica</span></a><a class="side-onto soon" href="#" aria-disabled="true"><b>Evolución</b><span>Biología evolutiva y adaptación</span><span class="soon-tag">pronto</span></a><a class="side-onto soon" href="#" aria-disabled="true"><b>Botánica</b><span>Plantas, ecología y redes vegetales</span><span class="soon-tag">pronto</span></a><a class="side-onto soon" href="#" aria-disabled="true"><b>Electricidad y electrónica</b><span>Circuitos, energía y maquinaria</span><span class="soon-tag">pronto</span></a><a class="side-onto soon" href="#" aria-disabled="true"><b>Naturaleza y tecnología</b><span>Interfaces entre lo vivo y lo técnico</span><span class="soon-tag">pronto</span></a><a class="side-onto soon" href="#" aria-disabled="true"><b>Exploración espacial</b><span>Espacio, observación y viaje</span><span class="soon-tag">pronto</span></a>
+      <a class="side-onto" href="/grafo/"><b>Grafo</b><span>Microfonía · local</span></a>
+    </nav>
+    <div class="side-section-label sub">Universo</div>
+    <nav class="side-onto-list">
+<a class="side-onto soon" href="/proximamente/amethystos/"><b>Amethystos</b><span>Botánica</span><span class="soon-tag">pronto</span></a><a class="side-onto soon" href="/proximamente/atomico/"><b>Atómico</b><span>Evolución</span><span class="soon-tag">pronto</span></a><a class="side-onto soon" href="/proximamente/basscolgado/"><b>Basscolgado</b><span>España vaciada</span><span class="soon-tag">pronto</span></a><a class="side-onto soon" href="/proximamente/daphne-rockmore/"><b>Daphne Rockmore</b><span>Electricidad y electrónica</span><span class="soon-tag">pronto</span></a><a class="side-onto soon" href="/proximamente/jhonny/"><b>Jhonny</b><span>Energía</span><span class="soon-tag">pronto</span></a><a class="side-onto soon" href="/proximamente/marza/"><b>Marza</b><span>Naturaleza y tecnología</span><span class="soon-tag">pronto</span></a><a class="side-onto soon" href="/proximamente/miguel-mafias-el-muso/"><b>Miguel Mafias, el Muso</b><span>Demonios internos</span><span class="soon-tag">pronto</span></a><a class="side-onto soon" href="/proximamente/musitoxic/"><b>Musitoxic</b><span>IMT</span><span class="soon-tag">pronto</span></a><a class="side-onto soon" href="/proximamente/sirius/"><b>Sirius</b><span>Exploración espacial</span><span class="soon-tag">pronto</span></a><a class="side-onto" href="/universo/personajes/sismico/"><b>Sísmico</b><span>Microfonía y sensórica</span></a><a class="side-onto soon" href="/proximamente/tamen/"><b>Tamen</b><span>Nuevas redes</span><span class="soon-tag">pronto</span></a>
+    </nav>
+    <div class="side-section-label sub">Laboratorio</div>
+    <nav class="side-onto-list">
+<a class="side-onto active-onto" href="/chess-lab/"><b>Chess Lab</b><span>Juego → semántica · H−2 en vivo</span></a><a class="side-onto" href="/arcade/"><b>Arcade</b><span>Minijuegos clásicos como cuaderno de mecánicas</span></a><a class="side-onto" href="/lab/airam/"><b>AIRAM</b><span>Docs H−2 · pipeline GameFrame → GameState</span></a><a class="side-onto soon" href="#" aria-disabled="true"><b>Criaturas</b><span>IK, FABRIK y comportamiento</span><span class="soon-tag">pronto</span></a><a class="side-onto soon" href="#" aria-disabled="true"><b>RM Game</b><span>Prototipos del videojuego Radio Micelio</span><span class="soon-tag">pronto</span></a>
+    </nav>
+  </div>
+</aside>
+
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <div class="content-col">
+    <header class="site">
+      <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Mostrar/ocultar menú">☰</button>
+      <a class="brand" href="/">Radio Micelio</a>
+      <nav><a href="/atlas/" class="">Wiki</a><a href="/escena/" class="">Escena</a><a href="/productora/" class="">Productora</a><a href="/universo/" class="">Universo</a><a href="/lab/" class="active">Lab</a></nav>
+    </header>
+    <main>
+
+<div class="lab-crumbs"><a href="/">Radio Micelio</a> › <a href="/lab/">Lab</a> › Chess Lab · <a href="/lab/airam/">docs AIRAM</a></div>
+<link rel="stylesheet" href="/assets/airam/chess_lab.css">
+<div id="airam-chess-lab"></div>
+<script src="/assets/airam/schemas.js"></script>
+<script src="/assets/airam/store.js"></script>
+<script src="/assets/airam/ruleset_v0_1.js"></script>
+<script src="/assets/airam/chess_core.js"></script>
+<script src="/assets/airam/chess_adapter.js"></script>
+<script src="/assets/airam/chess_pieces.js"></script>
+<script src="/assets/airam/chess_lab.js"></script>
+
+    </main>
+    <footer class="site">
+      <a href="https://www.radiomicelio.es">Radio Micelio</a> ·
+      Wiki musical, escena, productora, universo y laboratorio ·
+      Contenido bajo CC BY 4.0 ·
+      <a href="/ontology.jsonld">datos Microfonía (JSON-LD)</a>
+    </footer>
+  </div>
+</div>
+<script src="/assets/app.js" defer></script>
+</body>
+</html>

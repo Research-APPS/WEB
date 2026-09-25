@@ -264,6 +264,20 @@ CONCEPT_ENTITIES = build_concept_entities()
 
 LAB_SECTIONS = [
     {
+        "id": "chess-lab",
+        "label": "Chess Lab",
+        "status": "published",
+        "icon": "♟️",
+        "short": "Juego → semántica · H−2 en vivo",
+        "description": (
+            "Laboratorio principal AIRAM: siete variables expresivas sobre ajedrez, "
+            "revisión humana e IndexedDB. Estático, compatible con GitHub Pages."
+        ),
+        "current_url": "/chess-lab/",
+        "canonical_url": "/chess-lab/",
+        "future_url": "/chess-lab/",
+    },
+    {
         "id": "arcade",
         "label": "Arcade",
         "status": "published",
@@ -280,12 +294,15 @@ LAB_SECTIONS = [
     {
         "id": "airam",
         "label": "AIRAM",
-        "status": "upcoming",
+        "status": "published",
         "icon": "🤖",
-        "short": "Agentes, narración y conocimiento estructurado",
-        "description": "Sistema experimental que interpreta y opera sobre el conocimiento del universo.",
-        "current_url": None,
-        "canonical_url": None,
+        "short": "Docs H−2 · pipeline GameFrame → GameState",
+        "description": (
+            "Documentación del núcleo AIRAM Music: GameFrame → GameState con siete "
+            "variables expresivas. Todavía sin música."
+        ),
+        "current_url": "/lab/airam/",
+        "canonical_url": "/lab/airam/",
         "future_url": "/lab/airam/",
     },
     {

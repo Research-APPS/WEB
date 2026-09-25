@@ -40,9 +40,15 @@ a { color: var(--accent-2); }
 .side-onto span { display: block; font-size: 10.5px; color: var(--muted); margin-top: 1px; }
 .side-onto.active-onto { background: rgba(239,43,43,.13); border-color: rgba(239,43,43,.35); }
 .side-onto.active-onto b { color: var(--accent-2); }
-.side-onto.soon { opacity: .55; }
-.side-onto.soon:hover { opacity: .85; }
-.side-onto.soon b::after { content: " · pronto"; font-size: 9px; color: var(--muted); font-weight: 400; text-transform: uppercase; letter-spacing: .04em; }
+.side-onto.soon { color: var(--muted); }
+.side-onto.soon b { color: var(--muted); font-weight: 550; }
+.side-onto.soon span { color: #5a5a5e; }
+.side-onto.soon .soon-tag {
+  display: inline-block; margin-top: 3px; font-size: 9px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .06em; color: #6e6e74;
+  border: 1px solid #3a3a3e; border-radius: 2px; padding: 1px 5px;
+}
+body.page-lab-focus .side-onto.soon { display: none; }
 .sidebar-backdrop { display: none; }
 .content-col { flex: 1; min-width: 0; }
 .sidebar-toggle {
@@ -201,3 +207,39 @@ table.props th, table.props td { word-break: break-word; }
   header.site { flex-direction: column; align-items: flex-start; gap: 8px; }
   header.site nav { margin-left: 0; width: 100%; justify-content: flex-start; }
 }
+
+/* Featured lab strip (home + /lab/) */
+.feature-strip {
+  margin-top: 22px;
+  padding: 20px 18px;
+  border: 1px solid rgba(239,43,43,.35);
+  border-radius: 6px;
+  background:
+    radial-gradient(ellipse 70% 80% at 0% 50%, rgba(239,43,43,.16), transparent 55%),
+    linear-gradient(145deg, #1a1214 0%, var(--panel) 60%);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+.feature-strip .feature-kicker {
+  font-size: 11px; text-transform: uppercase; letter-spacing: .1em;
+  color: var(--accent-2); font-weight: 700; margin: 0 0 6px;
+}
+.feature-strip h2 {
+  margin: 0 0 8px; font-size: clamp(22px, 4vw, 28px);
+  font-family: "Iowan Old Style", Palatino, Georgia, serif; letter-spacing: -.02em;
+}
+.feature-strip p { margin: 0 0 14px; color: var(--text-2); font-size: 14px; max-width: 52ch; }
+.feature-strip .hero-actions { margin-top: 0; }
+
+/* Wide play surfaces inside the shared shell (GH Pages MPA) */
+body.page-lab-focus main {
+  max-width: 1280px;
+  padding-top: 14px;
+  padding-bottom: 40px;
+}
+body.page-lab-focus footer.site { max-width: 1280px; }
+body.page-lab-focus .lab-crumbs {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 12px; color: var(--muted); margin-bottom: 10px;
+}
+body.page-lab-focus .lab-crumbs a { color: var(--muted); text-decoration: none; }
+body.page-lab-focus .lab-crumbs a:hover { color: var(--accent-2); }

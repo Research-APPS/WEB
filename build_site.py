@@ -154,9 +154,15 @@ a { color: var(--accent-2); }
 .side-onto span { display: block; font-size: 10.5px; color: var(--muted); margin-top: 1px; }
 .side-onto.active-onto { background: rgba(239,43,43,.13); border-color: rgba(239,43,43,.35); }
 .side-onto.active-onto b { color: var(--accent-2); }
-.side-onto.soon { opacity: .55; }
-.side-onto.soon:hover { opacity: .85; }
-.side-onto.soon b::after { content: " · pronto"; font-size: 9px; color: var(--muted); font-weight: 400; text-transform: uppercase; letter-spacing: .04em; }
+.side-onto.soon { color: var(--muted); }
+.side-onto.soon b { color: var(--muted); font-weight: 550; }
+.side-onto.soon span { color: #5a5a5e; }
+.side-onto.soon .soon-tag {
+  display: inline-block; margin-top: 3px; font-size: 9px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .06em; color: #6e6e74;
+  border: 1px solid #3a3a3e; border-radius: 2px; padding: 1px 5px;
+}
+body.page-lab-focus .side-onto.soon { display: none; }
 .sidebar-backdrop { display: none; }
 .content-col { flex: 1; min-width: 0; }
 .sidebar-toggle {
@@ -315,43 +321,147 @@ table.props th, table.props td { word-break: break-word; }
   header.site { flex-direction: column; align-items: flex-start; gap: 8px; }
   header.site nav { margin-left: 0; width: 100%; justify-content: flex-start; }
 }
+
+/* Featured lab strip (home + /lab/) */
+.feature-strip {
+  margin-top: 22px;
+  padding: 20px 18px;
+  border: 1px solid rgba(239,43,43,.35);
+  border-radius: 6px;
+  background:
+    radial-gradient(ellipse 70% 80% at 0% 50%, rgba(239,43,43,.16), transparent 55%),
+    linear-gradient(145deg, #1a1214 0%, var(--panel) 60%);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+.feature-strip .feature-kicker {
+  font-size: 11px; text-transform: uppercase; letter-spacing: .1em;
+  color: var(--accent-2); font-weight: 700; margin: 0 0 6px;
+}
+.feature-strip h2 {
+  margin: 0 0 8px; font-size: clamp(22px, 4vw, 28px);
+  font-family: "Iowan Old Style", Palatino, Georgia, serif; letter-spacing: -.02em;
+}
+.feature-strip p { margin: 0 0 14px; color: var(--text-2); font-size: 14px; max-width: 52ch; }
+.feature-strip .hero-actions { margin-top: 0; }
+
+/* Wide play surfaces inside the shared shell (GH Pages MPA) */
+body.page-lab-focus main {
+  max-width: 1280px;
+  padding-top: 14px;
+  padding-bottom: 40px;
+}
+body.page-lab-focus footer.site { max-width: 1280px; }
+body.page-lab-focus .lab-crumbs {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 12px; color: var(--muted); margin-bottom: 10px;
+}
+body.page-lab-focus .lab-crumbs a { color: var(--muted); text-decoration: none; }
+body.page-lab-focus .lab-crumbs a:hover { color: var(--accent-2); }
+"""
+
+APP_JS = r"""
+(function () {
+  var sidebar = document.getElementById("sidebar");
+  var toggle = document.getElementById("sidebar-toggle");
+  var backdrop = document.getElementById("sidebar-backdrop");
+  if (!sidebar || !toggle) return;
+
+  var isMobile = function () {
+    return window.matchMedia("(max-width: 860px)").matches;
+  };
+
+  function apply(collapsed) {
+    sidebar.classList.toggle("collapsed", collapsed);
+    document.body.classList.toggle("sidebar-open", !collapsed && isMobile());
+  }
+
+  var preferCollapsed =
+    document.body.classList.contains("page-lab-focus") ||
+    document.body.getAttribute("data-sidebar") === "collapsed";
+
+  var saved = null;
+  try {
+    saved = localStorage.getItem("rm-sidebar-collapsed");
+  } catch (e) {}
+
+  if (isMobile()) {
+    apply(true);
+  } else if (preferCollapsed && saved === null) {
+    apply(true);
+  } else {
+    apply(saved === "1");
+  }
+
+  toggle.addEventListener("click", function () {
+    var collapsed = !sidebar.classList.contains("collapsed");
+    apply(collapsed);
+    if (!isMobile()) {
+      try {
+        localStorage.setItem("rm-sidebar-collapsed", collapsed ? "1" : "0");
+      } catch (e) {}
+    }
+  });
+
+  if (backdrop) {
+    backdrop.addEventListener("click", function () {
+      apply(true);
+    });
+  }
+})();
 """
 
 
-def build_sidebar_html(active_section=None):
+def build_sidebar_html(active_section=None, active_path=None):
     """Sidebar contextual: no expone topología legacy como nav principal."""
     wiki_domains = []
     for d in DOMAINS:
         if d["status"] == "published":
+            on = active_section == "wiki" and (
+                not active_path or active_path.startswith(d["current_url"] or "/")
+            )
             wiki_domains.append(
-                f'<a class="side-onto{" active-onto" if active_section == "wiki" else ""}" href="{d["current_url"]}">'
+                f'<a class="side-onto{" active-onto" if on else ""}" href="{d["current_url"]}">'
                 f'<b>{d["label"]}</b><span>{d["short"]}</span></a>'
             )
         else:
             wiki_domains.append(
-                f'<a class="side-onto soon" href="#"><b>{d["label"]}</b><span>{d["short"]}</span></a>'
+                f'<a class="side-onto soon" href="#" aria-disabled="true">'
+                f'<b>{d["label"]}</b><span>{d["short"]}</span>'
+                f'<span class="soon-tag">pronto</span></a>'
             )
 
     chars = []
     for c in CHARACTERS:
-        cls = "side-onto" + (" soon" if c["status"] != "published" else "")
-        if active_section == "universo" and c["status"] == "published":
+        is_pub = c["status"] == "published"
+        cls = "side-onto" + ("" if is_pub else " soon")
+        if active_section == "universo" and is_pub and active_path == c["current_url"]:
             cls += " active-onto"
+        elif active_section == "universo" and is_pub and not active_path:
+            cls += " active-onto"
+        tag = "" if is_pub else '<span class="soon-tag">pronto</span>'
         chars.append(
             f'<a class="{cls}" href="{c["current_url"]}">'
-            f'<b>{c["label"]}</b><span>{c["topic"]}</span></a>'
+            f'<b>{c["label"]}</b><span>{c["topic"]}</span>{tag}</a>'
         )
 
     lab_items = []
     for s in LAB_SECTIONS:
         if s["status"] == "published" and s["current_url"]:
+            if active_path:
+                on = active_path == s["current_url"] or (
+                    s["id"] == "chess-lab" and active_path.rstrip("/").endswith("chess-lab")
+                )
+            else:
+                on = False
             lab_items.append(
-                f'<a class="side-onto{" active-onto" if active_section == "lab" else ""}" href="{s["current_url"]}">'
+                f'<a class="side-onto{" active-onto" if on else ""}" href="{s["current_url"]}">'
                 f'<b>{s["label"]}</b><span>{s["short"]}</span></a>'
             )
         else:
             lab_items.append(
-                f'<a class="side-onto soon" href="#"><b>{s["label"]}</b><span>{s["short"]}</span></a>'
+                f'<a class="side-onto soon" href="#" aria-disabled="true">'
+                f'<b>{s["label"]}</b><span>{s["short"]}</span>'
+                f'<span class="soon-tag">pronto</span></a>'
             )
 
     return f"""
@@ -375,13 +485,26 @@ def build_sidebar_html(active_section=None):
 """
 
 
-def page_shell(*, title, description, canonical, body_html, jsonld_obj, active_nav=None, active_section=None):
+def page_shell(
+    *,
+    title,
+    description,
+    canonical,
+    body_html,
+    jsonld_obj,
+    active_nav=None,
+    active_section=None,
+    active_path=None,
+    body_class="",
+    extra_head="",
+):
     jsonld = jsonld_dumps(jsonld_obj)
     nav_html = "".join(
         f'<a href="{s["href"]}" class="{"active" if s["href"] == active_nav else ""}">{s["label"]}</a>'
         for s in NAV_SECTIONS
     )
-    sidebar_html = build_sidebar_html(active_section)
+    sidebar_html = build_sidebar_html(active_section, active_path=active_path)
+    body_attr = f' class="{body_class.strip()}"' if body_class else ""
     return f"""<!doctype html>
 <html lang="es">
 <head>
@@ -397,11 +520,12 @@ def page_shell(*, title, description, canonical, body_html, jsonld_obj, active_n
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="{FAVICON_HREF}">
 <link rel="stylesheet" href="/assets/style.css">
+{extra_head}
 <script type="application/ld+json">
 {jsonld}
 </script>
 </head>
-<body>
+<body{body_attr}>
 <div class="app-shell">
 {sidebar_html}
   <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
@@ -422,27 +546,7 @@ def page_shell(*, title, description, canonical, body_html, jsonld_obj, active_n
     </footer>
   </div>
 </div>
-<script>
-(function() {{
-  var sidebar = document.getElementById('sidebar');
-  var toggle = document.getElementById('sidebar-toggle');
-  var backdrop = document.getElementById('sidebar-backdrop');
-  var isMobile = function() {{ return window.matchMedia('(max-width: 860px)').matches; }};
-  function apply(collapsed) {{
-    sidebar.classList.toggle('collapsed', collapsed);
-    document.body.classList.toggle('sidebar-open', !collapsed && isMobile());
-  }}
-  var saved = null;
-  try {{ saved = localStorage.getItem('rm-sidebar-collapsed'); }} catch (e) {{}}
-  apply(isMobile() ? true : saved === '1');
-  toggle.addEventListener('click', function() {{
-    var collapsed = !sidebar.classList.contains('collapsed');
-    apply(collapsed);
-    if (!isMobile()) {{ try {{ localStorage.setItem('rm-sidebar-collapsed', collapsed ? '1' : '0'); }} catch (e) {{}} }}
-  }});
-  backdrop.addEventListener('click', function() {{ apply(true); }});
-}})();
-</script>
+<script src="/assets/app.js" defer></script>
 </body>
 </html>
 """
@@ -455,7 +559,7 @@ HUB_BLURBS = [
     ("Escena", "/escena/", "Descubrir", "Bandas, conciertos, salas, entrevistas y reviews. Empieza cerca."),
     ("Productora", "/productora/", "Quiénes hacemos", "Profesionales de la cultura a través de sus alter ego."),
     ("Universo", "/universo/", "Ficción", "Personajes, historias y el mapa narrativo de Radio Micelio."),
-    ("Lab", "/lab/", "Experimentar", "Arcade, AIRAM, criaturas y el futuro videojuego RM."),
+    ("Lab", "/lab/", "Experimentar", "Chess Lab, Arcade, AIRAM y el futuro videojuego RM."),
 ]
 
 
@@ -474,6 +578,18 @@ def build_home():
   <p class="home-tagline">Música, ficción, conocimiento y experimentación digital.</p>
   <p class="home-sub">Estamos construyendo una wiki musical conectada: de una banda a un concierto, a una técnica, a un personaje. Un pequeño micelio.</p>
 </section>
+<aside class="feature-strip" aria-label="Chess Lab">
+  <div class="feature-kicker">Laboratorio · en vivo</div>
+  <h2>Chess Lab</h2>
+  <p>
+    Semántica del juego en siete variables: juega Vs Bot, 2 jugadores o Bot vs Bot,
+    revisa cada ply y exporta la sesión. Estático en GitHub Pages.
+  </p>
+  <div class="hero-actions">
+    <a class="btn primary" href="/chess-lab/">Abrir Chess Lab →</a>
+    <a class="btn ghost" href="/lab/airam/">Docs AIRAM</a>
+  </div>
+</aside>
 <div class="hub-grid">
 {cards}
 </div>
@@ -880,6 +996,8 @@ def build_productora_hub():
 def build_lab_hub():
     cards = []
     for s in LAB_SECTIONS:
+        if s["id"] == "chess-lab":
+            continue  # featured above the grid
         if s["status"] == "published" and s["current_url"]:
             cards.append(
                 f"""<a class="cat-card" href="{s['current_url']}">
@@ -902,9 +1020,21 @@ def build_lab_hub():
 <p class="pill">I+D · videojuego RM</p>
 <h1>Laboratorio</h1>
 <p class="lead">
-  Cuaderno de laboratorio del videojuego Radio Micelio: mecánicas en minijuegos,
-  agentes AIRAM, criaturas y prototipos. Lo que se experimenta aquí alimenta el juego.
+  Cuaderno de laboratorio del videojuego Radio Micelio. Chess Lab es el experimento
+  principal ahora; Arcade y AIRAM lo rodean. Lo que se prueba aquí alimenta el juego.
 </p>
+<aside class="feature-strip" aria-label="Chess Lab">
+  <div class="feature-kicker">Destacado · H−2</div>
+  <h2>Chess Lab</h2>
+  <p>
+    GameFrame → GameState con siete variables expresivas, modos de juego claros
+    y revisión humana. Sin música todavía — solo semántica del juego.
+  </p>
+  <div class="hero-actions">
+    <a class="btn primary" href="/chess-lab/">Jugar en Chess Lab →</a>
+    <a class="btn ghost" href="/lab/airam/">Leer docs AIRAM</a>
+  </div>
+</aside>
 <div class="cat-grid">
 {"".join(cards)}
 </div>
@@ -914,20 +1044,171 @@ def build_lab_hub():
             "@type": "CollectionPage",
             "name": f"Laboratorio · {SITE_NAME}",
             "url": f"{SITE_URL}/lab/",
-            "description": "Laboratorio de Radio Micelio: Arcade, AIRAM, criaturas y RM Game.",
+            "description": "Laboratorio de Radio Micelio: Chess Lab, Arcade, AIRAM, criaturas y RM Game.",
             "breadcrumb": crumbs_jsonld(crumbs),
         }
     )
     html = page_shell(
         title=f"Lab · {SITE_NAME}",
-        description="Laboratorio: Arcade, AIRAM, criaturas y prototipos del videojuego Radio Micelio.",
+        description="Laboratorio: Chess Lab, Arcade, AIRAM y prototipos del videojuego Radio Micelio.",
         canonical=f"{SITE_URL}/lab/",
         body_html=body,
         jsonld_obj=jsonld,
         active_nav="/lab/",
         active_section="lab",
+        active_path="/lab/",
     )
     write_text(DOCS / "lab" / "index.html", html)
+
+
+def copy_airam_lab_assets():
+    src_dir = ROOT / "airam_lab"
+    dst = DOCS / "assets" / "airam"
+    dst.mkdir(parents=True, exist_ok=True)
+    for name in (
+        "schemas.js",
+        "store.js",
+        "ruleset_v0_1.js",
+        "chess_core.js",
+        "chess_adapter.js",
+        "chess_pieces.js",
+        "chess_lab.js",
+        "chess_lab.css",
+    ):
+        src = src_dir / name
+        if src.exists():
+            (dst / name).write_text(src.read_text(encoding="utf-8"), encoding="utf-8")
+
+
+def build_airam_docs():
+    """H−2 docs only — no music / CHORDIA / Story."""
+    crumbs = [("Radio Micelio", "/"), ("Lab", "/lab/"), ("AIRAM", None)]
+    body = f"""
+{crumbs_html(crumbs)}
+<p class="pill">AIRAM Music · H−2</p>
+<h1>AIRAM</h1>
+<p class="lead">
+  Núcleo pequeño y explicable: <strong>juego → semántica</strong>.
+  La música, CHORDIA, Web Audio y Story Mode son deuda futura — no están implementados aquí.
+</p>
+<div class="hero-actions">
+  <a class="btn primary" href="/chess-lab/">Abrir Chess Lab →</a>
+</div>
+
+<h2>Qué hace H−2</h2>
+<p class="lead">
+  Construye <code>GameFrame → GameState</code> con siete variables expresivas,
+  tendencias, memoria, justificación por componentes (<code>rule_version</code>)
+  y un laboratorio visual con validación humana.
+</p>
+<ul>
+  <li><code>advantage</code></li>
+  <li><code>tension</code></li>
+  <li><code>surprise</code></li>
+  <li><code>urgency</code></li>
+  <li><code>forcing</code></li>
+  <li><code>instability</code></li>
+  <li><code>ambiguity</code></li>
+</ul>
+
+<h2>Pipeline</h2>
+<pre style="background:#141416;padding:12px;border-radius:4px;overflow:auto;font-size:13px">GameAdapter (chess)
+    → GameFrame   (datos crudos recalculables)
+    → GameState   (current + trend + memory + components)
+    → ReviewEvent (✅ ❌ 🤔 ✏️ 💬)
+
+IndexedDB: sessions · game_frames · game_states · review_events
+Export / Import JSON</pre>
+
+<p class="lead">
+  <code>GameState</code> y <code>ReviewEvent</code> guardan siempre
+  <code>session_id</code>, <code>source_frame_id</code> y <code>ruleset_version</code>
+  para recalcular v0.2 sobre los mismos frames.
+</p>
+
+<h2>Criterio de fin H−2</h2>
+<p class="lead">
+  No “las curvas parecen buenas”. Sí: podemos marcar ❌, explicar por qué se equivoca
+  la fórmula, publicar <strong>ruleset-v0.2</strong> y recalcular los mismos
+  <code>GameFrame</code> sin tocar los datos originales.
+</p>
+
+<h2>Deuda futura (no implementar aún)</h2>
+<ul>
+  <li>Stockfish WDL / PV / MultiPV (PASS A ≠ PASS B)</li>
+  <li>CausalTrace · MusicalState · ScorePlanner · Web Audio</li>
+  <li>CharacterMusicProfile · Story Mode · PerspectiveHandoff</li>
+</ul>
+"""
+    jsonld = with_context(
+        {
+            "@type": "WebPage",
+            "name": f"AIRAM · Lab · {SITE_NAME}",
+            "description": "Laboratorio H−2: semántica del juego GameFrame → GameState.",
+            "url": f"{SITE_URL}/lab/airam/",
+            "breadcrumb": crumbs_jsonld(crumbs),
+        }
+    )
+    html = page_shell(
+        title=f"AIRAM · Lab · {SITE_NAME}",
+        description="AIRAM Music H−2: semántica del juego, sin música todavía.",
+        canonical=f"{SITE_URL}/lab/airam/",
+        body_html=body,
+        jsonld_obj=jsonld,
+        active_nav="/lab/",
+        active_section="lab",
+        active_path="/lab/airam/",
+    )
+    write_text(DOCS / "lab" / "airam" / "index.html", html)
+
+
+def build_chess_lab():
+    crumbs = [
+        ("Radio Micelio", "/"),
+        ("Lab", "/lab/"),
+        ("Chess Lab", None),
+    ]
+    scripts = "\n".join(
+        f'<script src="/assets/airam/{name}"></script>'
+        for name in (
+            "schemas.js",
+            "store.js",
+            "ruleset_v0_1.js",
+            "chess_core.js",
+            "chess_adapter.js",
+            "chess_pieces.js",
+            "chess_lab.js",
+        )
+    )
+    body = f"""
+<div class="lab-crumbs"><a href="/">Radio Micelio</a> › <a href="/lab/">Lab</a> › Chess Lab · <a href="/lab/airam/">docs AIRAM</a></div>
+<link rel="stylesheet" href="/assets/airam/chess_lab.css">
+<div id="airam-chess-lab"></div>
+{scripts}
+"""
+    jsonld = with_context(
+        {
+            "@type": "WebApplication",
+            "name": f"AIRAM Chess Lab · {SITE_NAME}",
+            "description": "Laboratorio H−2 de semántica del juego sobre ajedrez.",
+            "url": f"{SITE_URL}/chess-lab/",
+            "applicationCategory": "GameApplication",
+            "breadcrumb": crumbs_jsonld(crumbs),
+            "isPartOf": {"@id": f"{SITE_URL}/lab/"},
+        }
+    )
+    html = page_shell(
+        title=f"Chess Lab · AIRAM · {SITE_NAME}",
+        description="Chess Lab H−2: siete variables expresivas, falsables, sin música.",
+        canonical=f"{SITE_URL}/chess-lab/",
+        body_html=body,
+        jsonld_obj=jsonld,
+        active_nav="/lab/",
+        active_section="lab",
+        active_path="/chess-lab/",
+        body_class="page-lab-focus",
+    )
+    write_text(DOCS / "chess-lab" / "index.html", html)
 
 
 def build_category_pages():
@@ -1490,6 +1771,8 @@ def build_sitemap():
         f"{SITE_URL}/escena/",
         f"{SITE_URL}/productora/",
         f"{SITE_URL}/lab/",
+        f"{SITE_URL}/lab/airam/",
+        f"{SITE_URL}/chess-lab/",
         f"{SITE_URL}/grafo/",
         f"{SITE_URL}/arcade/",
     ]
@@ -1528,8 +1811,10 @@ def build():
     DOCS.mkdir(parents=True, exist_ok=True)
 
     write_text(DOCS / "assets" / "style.css", STYLE_CSS)
+    write_text(DOCS / "assets" / "app.js", APP_JS)
     write_text(DOCS / "assets" / "graph.js", GRAPH_JS)
     write_text(DOCS / "CNAME", "www.radiomicelio.es\n")
+    copy_airam_lab_assets()
 
     img_src = ROOT / "assets_src"
     img_dst = DOCS / "assets" / "img"
@@ -1548,6 +1833,8 @@ def build():
     build_escena_hub()
     build_productora_hub()
     build_lab_hub()
+    build_airam_docs()
+    build_chess_lab()
     build_category_pages()
     build_concept_pages()
     build_graph_page()
@@ -1562,7 +1849,7 @@ def build():
     build_robots()
 
     n_html = sum(1 for _ in DOCS.rglob("*.html"))
-    print(f"OK: {n_html} páginas HTML + data.json + ontology.jsonld en {DOCS}")
+    print(f"OK: {n_html} páginas HTML + data.json + ontology.jsonld + airam H−2 en {DOCS}")
 
 
 if __name__ == "__main__":

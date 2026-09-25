@@ -1,0 +1,408 @@
+/* AIRAM Chess Lab — modern chess.com-inspired shell */
+.airam-lab {
+  --bg: #262421;
+  --panel: #312e2b;
+  --panel-2: #3c3935;
+  --line: #3d3a36;
+  --text: #ffffff;
+  --muted: #a7a39b;
+  --green: #81b64c;
+  --green-dim: #5d8a36;
+  --sq-light: #eeeed2;
+  --sq-dark: #769656;
+  --hl-select: rgba(255, 255, 0, 0.55);
+  --hl-last: rgba(255, 255, 0, 0.38);
+  --hl-legal: rgba(0, 0, 0, 0.16);
+  --hl-capture: rgba(0, 0, 0, 0.14);
+  --board-frame: #312e2b;
+  --radius: 8px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: var(--text);
+}
+
+.airam-lab .lab-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.airam-lab .lab-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.airam-lab .lab-brand strong {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.airam-lab .lab-brand span {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.airam-lab .mode-switch {
+  display: inline-flex;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 3px;
+  gap: 2px;
+  flex-wrap: wrap;
+  max-width: 100%;
+}
+.airam-lab .mode-switch button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 8px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.airam-lab .mode-switch button:hover { color: var(--text); }
+.airam-lab .mode-switch button.active {
+  background: var(--green);
+  color: #fff;
+  box-shadow: 0 1px 0 rgba(0,0,0,.25);
+}
+
+.airam-lab .mode-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(90deg, rgba(129,182,76,.18), transparent 70%);
+  border: 1px solid rgba(129,182,76,.35);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  font-size: 13px;
+}
+.airam-lab .mode-banner .chip {
+  background: var(--green);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+.airam-lab .mode-banner .desc { color: #d6d3cd; }
+
+.airam-lab .lab-grid {
+  display: grid;
+  gap: 16px;
+}
+@media (min-width: 1100px) {
+  .airam-lab .lab-grid {
+    grid-template-columns: minmax(360px, 460px) 1fr minmax(280px, 340px);
+    align-items: start;
+  }
+}
+
+.airam-lab .panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+.airam-lab .panel h3 {
+  margin: 0 0 12px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.airam-lab .board-shell {
+  width: 100%;
+  max-width: 460px;
+  margin: 0 auto;
+  background: var(--board-frame);
+  border-radius: 10px;
+  padding: 8px 8px 10px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+.airam-lab .player-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 6px;
+}
+.airam-lab .player-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.airam-lab .avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  font-weight: 800;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  flex-shrink: 0;
+}
+.airam-lab .avatar.bot { background: #3a4a2f; border-color: #56703f; }
+.airam-lab .avatar.human { background: #3a4558; border-color: #4f6488; }
+.airam-lab .player-text { min-width: 0; }
+.airam-lab .player-text .name {
+  font-size: 14px;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: clip;
+}
+.airam-lab .player-text .role {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.airam-lab .clock-ish {
+  font-size: 18px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  background: #21201d;
+  border-radius: 6px;
+  padding: 6px 10px;
+  min-width: 72px;
+  text-align: center;
+  color: #cfcbc4;
+}
+.airam-lab .player-row.active .clock-ish {
+  background: var(--green);
+  color: #fff;
+}
+.airam-lab .player-row.active .name { color: #c8f0a0; }
+
+.airam-lab .board-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  border-radius: 3px;
+  overflow: hidden;
+  user-select: none;
+  touch-action: manipulation;
+}
+.airam-lab .sq {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.airam-lab .sq.light { background: var(--sq-light); }
+.airam-lab .sq.dark { background: var(--sq-dark); }
+.airam-lab .sq.last { box-shadow: inset 0 0 0 100px var(--hl-last); }
+.airam-lab .sq.sel { box-shadow: inset 0 0 0 100px var(--hl-select); }
+.airam-lab .sq.sel.last { box-shadow: inset 0 0 0 100px rgba(255, 220, 0, 0.65); }
+.airam-lab .piece-svg {
+  width: 92%;
+  height: 92%;
+  pointer-events: none;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35));
+  transition: transform 0.08s ease;
+}
+.airam-lab .sq:hover .piece-svg { transform: scale(1.03); }
+.airam-lab .sq.legal::after {
+  content: "";
+  position: absolute;
+  width: 28%;
+  height: 28%;
+  border-radius: 50%;
+  background: var(--hl-legal);
+  pointer-events: none;
+  z-index: 1;
+}
+.airam-lab .sq.legal.has-piece::after {
+  width: 88%;
+  height: 88%;
+  background: transparent;
+  border: 6px solid var(--hl-capture);
+  box-sizing: border-box;
+}
+.airam-lab .sq .piece-svg { position: relative; z-index: 2; }
+.airam-lab .coord {
+  position: absolute;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  pointer-events: none;
+  z-index: 3;
+  opacity: 0.9;
+}
+.airam-lab .coord.file { right: 3px; bottom: 2px; }
+.airam-lab .coord.rank { left: 3px; top: 2px; }
+.airam-lab .sq.light .coord { color: #769656; }
+.airam-lab .sq.dark .coord { color: #eeeed2; }
+
+.airam-lab .board-locked .sq { cursor: default; }
+
+.airam-lab .toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0 0;
+}
+.airam-lab .toolbar button,
+.airam-lab .review-bar button,
+.airam-lab .dim-list button,
+.airam-lab .ply-nav button {
+  font: inherit;
+  font-size: 12.5px;
+  padding: 9px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--panel-2);
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 700;
+}
+.airam-lab .toolbar button:hover,
+.airam-lab .review-bar button:hover,
+.airam-lab .ply-nav button:hover {
+  filter: brightness(1.08);
+}
+.airam-lab .toolbar button.primary {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+.airam-lab .toolbar button.danger {
+  background: #5a3030;
+  border-color: #7a4040;
+}
+
+.airam-lab .status {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 10px;
+  word-break: break-all;
+}
+
+.airam-lab .curves {
+  width: 100%;
+  height: 240px;
+  background: #21201d;
+  border-radius: 6px;
+}
+.airam-lab .legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.airam-lab .legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.airam-lab .legend i {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+.airam-lab .ply-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 0;
+  font-size: 13px;
+  font-weight: 700;
+}
+.airam-lab .ply-nav input[type="range"] { flex: 1; }
+
+.airam-lab .inspector {
+  font-size: 12.5px;
+  line-height: 1.45;
+  max-height: 58vh;
+  overflow: auto;
+}
+.airam-lab .inspector pre {
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: #21201d;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  color: #cfcbc4;
+}
+.airam-lab .dim-block {
+  border-top: 1px solid var(--line);
+  padding: 8px 0;
+}
+.airam-lab .dim-block strong { color: var(--text); }
+.airam-lab .dim-block .comps {
+  margin: 4px 0 0;
+  padding-left: 14px;
+  color: var(--muted);
+}
+.airam-lab .dim-block .comps li { margin: 2px 0; }
+.airam-lab .up { color: #81b64c; }
+.airam-lab .down { color: #e36c6c; }
+.airam-lab .review-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+.airam-lab .review-bar textarea {
+  width: 100%;
+  min-height: 56px;
+  margin-top: 6px;
+  background: #21201d;
+  border: 1px solid var(--line);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 8px;
+  font: inherit;
+  font-size: 12px;
+}
+.airam-lab .review-bar .human-val {
+  width: 72px;
+  background: #21201d;
+  border: 1px solid var(--line);
+  color: var(--text);
+  padding: 8px;
+  border-radius: 6px;
+}
+.airam-lab .dim-list { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
+.airam-lab .dim-list button.active {
+  border-color: var(--green);
+  color: var(--green);
+  background: rgba(129,182,76,.12);
+}
+.airam-lab .debt {
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+#airam-chess-lab { margin-top: 0; }

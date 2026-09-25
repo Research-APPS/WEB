@@ -8,7 +8,7 @@
   "@id": "mf:MicrofoniaOntology",
   "dcterms:title": "Ontología de microfonía",
   "dcterms:license": "https://creativecommons.org/licenses/by/4.0/",
-  "dcterms:created": "2026-09-20T12:02:21+02:00",
+  "dcterms:created": "2026-09-25T13:58:38+02:00",
   "@graph": [
     {
       "@id": "mf:MicrofoniaScheme",
