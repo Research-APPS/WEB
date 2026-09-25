@@ -10,11 +10,13 @@
     const C = Core();
     const turnBefore = meta.sideMoved; // who just moved
     const sideToMove = turnBefore === "w" ? "b" : "w";
+    const rights = meta.rightsAfter || C.defaultCastling();
+    const rightsBefore = meta.rightsBefore || rights;
     const evalBefore = C.evaluate(boardBefore);
     const evalAfter = C.evaluate(boardAfter);
     const evalDelta =
       (turnBefore === "w" ? 1 : -1) * (evalAfter - evalBefore);
-    const legal = C.allLegalMoves(boardAfter, sideToMove);
+    const legal = C.allLegalMoves(boardAfter, sideToMove, rights);
     const check = C.inCheck(boardAfter, sideToMove);
     const mat = C.material(boardAfter);
     const capturedVal = move.captured
@@ -27,18 +29,22 @@
     const tags = C.classifyTags({
       ended,
       check,
+      castle: !!move.isCastle,
       capture: !!move.captured,
       capturedValue: capturedVal,
       evalDelta,
     });
     const uci = C.moveUci(move.from, move.to);
-    const sanApprox =
-      (move.captured ? "x" : "") + C.sq(move.to[0], move.to[1]);
+    const sanApprox = move.isCastle
+      ? move.to[1] === 6
+        ? "O-O"
+        : "O-O-O"
+      : (move.captured ? "x" : "") + C.sq(move.to[0], move.to[1]);
 
-    return global.AiramH2.createGameFrame({
+    const frame = global.AiramH2.createGameFrame({
       session_id: sessionId,
       ply,
-      fen: C.fenFromBoard(boardAfter, sideToMove),
+      fen: C.fenFromBoard(boardAfter, sideToMove, rights),
       side_to_move: sideToMove,
       move_uci: uci,
       move_san: sanApprox,
@@ -53,8 +59,12 @@
       legal_move_count: legal.length,
       check,
       capture: !!move.captured,
+      castle: !!move.isCastle,
+      captured_piece: move.captured || null,
+      captured_value: capturedVal,
       material: mat,
       tags,
+      castling_rights: C.cloneCastling(rights),
       attacked_hanging_count:
         C.hangingCount(boardAfter, "w") + C.hangingCount(boardAfter, "b"),
       king_openness: {
@@ -69,20 +79,42 @@
         multipv: 1,
         threads: 1,
         depth: meta.botDepth || null,
-        notes:
-          "H−2 local engine. Stockfish go/WDL/PV/MultiPV = future debt (H0).",
+        notes: "H0: enrich with HorizonEngine PASS A≠B when available.",
       },
       ended,
     });
+
+    // H0 dual pass (skip if meta.skipHorizon — e.g. bulk import before reanalyze)
+    if (
+      !meta.skipHorizon &&
+      global.AiramH2.HorizonEngine &&
+      ply >= 1
+    ) {
+      const depth =
+        meta.horizonDepth != null
+          ? meta.horizonDepth
+          : meta.botDepth != null
+            ? Math.min(meta.botDepth, 2)
+            : 2;
+      global.AiramH2.HorizonEngine.enrichFrame(
+        frame,
+        boardBefore,
+        turnBefore,
+        rightsBefore,
+        { depth: depth, multipv: meta.multipv || 3 }
+      );
+    }
+    return frame;
   }
 
-  function buildInitialFrame(sessionId, board) {
+  function buildInitialFrame(sessionId, board, rights) {
     const C = Core();
-    const legal = C.allLegalMoves(board, "w");
+    const castle = rights || C.defaultCastling();
+    const legal = C.allLegalMoves(board, "w", castle);
     return global.AiramH2.createGameFrame({
       session_id: sessionId,
       ply: 0,
-      fen: C.fenFromBoard(board, "w"),
+      fen: C.fenFromBoard(board, "w", castle),
       side_to_move: "w",
       move_uci: null,
       move_san: null,
@@ -93,8 +125,10 @@
       legal_move_count: legal.length,
       check: C.inCheck(board, "w"),
       capture: false,
+      castle: false,
       material: C.material(board),
       tags: ["start"],
+      castling_rights: C.cloneCastling(castle),
       attacked_hanging_count:
         C.hangingCount(board, "w") + C.hangingCount(board, "b"),
       king_openness: {

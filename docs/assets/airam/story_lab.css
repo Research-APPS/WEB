@@ -1,0 +1,219 @@
+.story-lab {
+  --bg: #12141a;
+  --panel: #1a1e27;
+  --line: #2c3340;
+  --text: #e8eaef;
+  --muted: #8b93a3;
+  --accent: #81b64c;
+  color: var(--text);
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 12px 0 48px;
+}
+.story-lab .sl-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+.story-lab .sl-top strong {
+  display: block;
+  font-size: 1.25rem;
+}
+.story-lab .sl-top span {
+  color: var(--muted);
+  font-size: 13px;
+}
+.story-lab .sl-link {
+  color: var(--accent);
+  font-weight: 700;
+  text-decoration: none;
+}
+.story-lab .sl-panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin-bottom: 14px;
+}
+.story-lab .sl-note {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.story-lab .sl-chars {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  margin-top: 12px;
+}
+.story-lab .sl-char {
+  text-align: left;
+  font: inherit;
+  color: var(--text);
+  background: rgba(0,0,0,.25);
+  border: 1px solid var(--line);
+  border-left-width: 4px;
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+}
+.story-lab .sl-char strong {
+  display: block;
+  margin-bottom: 4px;
+}
+.story-lab .sl-char span {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.35;
+}
+.story-lab .sl-char:hover {
+  border-color: var(--accent);
+}
+.story-lab .sl-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.story-lab .sl-meta span {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: rgba(0,0,0,.2);
+}
+.story-lab .sl-meta button,
+.story-lab .sl-choices button,
+.story-lab .go-toolbar button,
+.story-lab #sl-play-score {
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 7px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: #222833;
+  color: var(--text);
+  cursor: pointer;
+}
+.story-lab .sl-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.story-lab .sl-choices button:hover,
+.story-lab .go-toolbar button:hover {
+  border-color: var(--accent);
+}
+.story-lab .sl-scene h3 {
+  margin: 0 0 8px;
+}
+.story-lab .sl-scene p {
+  margin: 0;
+  line-height: 1.5;
+  color: #c5cad3;
+}
+.story-lab .sl-knowledge {
+  margin-top: 14px;
+  font-size: 12px;
+}
+.story-lab .sl-knowledge ul {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  color: var(--muted);
+}
+.story-lab .sl-handoff-log {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #c8f0a0;
+}
+.story-lab .sl-muted { color: var(--muted); }
+.story-lab .sl-game-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(240px, 1fr) minmax(200px, 1fr);
+}
+@media (max-width: 720px) {
+  .story-lab .sl-game-grid { grid-template-columns: 1fr; }
+}
+.story-lab .go-board {
+  display: grid;
+  gap: 2px;
+  background: #c2a36b;
+  padding: 8px;
+  border-radius: 8px;
+  max-width: 360px;
+}
+.story-lab .go-cell {
+  aspect-ratio: 1;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  position: relative;
+}
+.story-lab .go-cell::before {
+  content: "";
+  position: absolute;
+  inset: 42% 0;
+  background: rgba(0,0,0,.2);
+  height: 1px;
+  top: 50%;
+}
+.story-lab .go-cell::after {
+  content: "";
+  position: absolute;
+  inset: 0 42%;
+  background: rgba(0,0,0,.2);
+  width: 1px;
+  left: 50%;
+}
+.story-lab .go-cell.stone-b,
+.story-lab .go-cell.stone-w {
+  z-index: 1;
+}
+.story-lab .go-cell.stone-b {
+  background: #1a1a1a;
+  box-shadow: inset 0 0 0 1px #000;
+}
+.story-lab .go-cell.stone-w {
+  background: #f4f0e6;
+  box-shadow: inset 0 0 0 1px #666;
+}
+.story-lab .go-cell.stone-b::before,
+.story-lab .go-cell.stone-b::after,
+.story-lab .go-cell.stone-w::before,
+.story-lab .go-cell.stone-w::after {
+  display: none;
+}
+.story-lab .go-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 10px;
+}
+.story-lab #go-status {
+  font-size: 12px;
+  color: var(--muted);
+}
+.story-lab .sl-comment {
+  font-size: 13px;
+  line-height: 1.45;
+  margin-bottom: 10px;
+  min-height: 4em;
+}
+.story-lab .sl-comment p { margin: 0 0 6px; color: #c5cad3; }
+.story-lab .sl-score {
+  font-size: 12px;
+  color: #c8f0a0;
+  margin-bottom: 8px;
+  font-weight: 650;
+}

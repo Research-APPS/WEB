@@ -1,10 +1,10 @@
 /**
- * Ruleset v0.1 — GameFrame → GameState
- * Seven dimensions only: advantage, tension, surprise, urgency,
+ * Ruleset v0.2 — GameFrame → GameState
+ * Seven dimensions: advantage, tension, surprise, urgency,
  * forcing, instability, ambiguity.
  *
- * Honest about missing MultiPV/Stockfish: those components are
- * documented as proxies / zeros with future-debt notes.
+ * H0: when frame.horizon / candidates exist (PASS B), surprise &
+ * ambiguity use MultiPV gaps instead of proxy-zeros.
  */
 (function (global) {
   "use strict";
@@ -19,6 +19,10 @@
     return prev * (1 - alpha) + next * alpha;
   }
 
+  function horizonOf(frame) {
+    return (frame && frame.horizon) || null;
+  }
+
   function computeCurrent(frame, historyFrames) {
     const evalCp = frame.eval_cp != null ? frame.eval_cp : 0;
     const delta = frame.eval_delta_cp != null ? frame.eval_delta_cp : 0;
@@ -28,6 +32,9 @@
     const side = frame.side_to_move;
     const kingOpen =
       (frame.king_openness && frame.king_openness[side]) || 0;
+    const hz = horizonOf(frame);
+    const gaps = (hz && hz.gaps) || {};
+    const candidates = frame.candidates || [];
 
     // --- advantage (-1..1, white-positive) ---
     const advMaterial = clamp((frame.material.diff || 0) / 15, -1, 1);
@@ -61,29 +68,47 @@
       RV()
     );
 
-    // --- surprise (0..1) — without MultiPV: eval discontinuity proxy ---
-    // Future debt: candidate_rank, score_gap, PV_distance from Stockfish PASS B
+    // --- surprise (0..1) — MultiPV rank / gap when PASS B present ---
     const disc = clamp(absDelta / 250, 0, 1);
     const tagSurprise =
-      (frame.tags || []).includes("error") || (frame.tags || []).includes("buena")
+      (frame.tags || []).includes("error") ||
+      (frame.tags || []).includes("buena")
         ? 0.15
         : 0;
     const captureSurp = frame.capture && absDelta > 80 ? 0.12 : 0;
+    let rankComp = 0;
+    let gapComp = 0;
+    if (hz && hz.played_rank != null) {
+      rankComp = clamp((hz.played_rank - 1) / 4, 0, 1) * 0.55;
+      if (hz.score_gap_to_best_cp != null) {
+        gapComp = clamp(hz.score_gap_to_best_cp / 200, 0, 1) * 0.35;
+      }
+    }
+    const surpriseRaw = hz
+      ? 0.25 * disc +
+        rankComp +
+        gapComp +
+        tagSurprise * 0.5 +
+        captureSurp * 0.5
+      : 0.7 * disc + tagSurprise + captureSurp;
     const surprise = dim01(
-      clamp(0.7 * disc + tagSurprise + captureSurp, 0, 1),
+      clamp(surpriseRaw, 0, 1),
       {
-        eval_discontinuity: round4(0.7 * disc),
+        eval_discontinuity: round4(hz ? 0.25 * disc : 0.7 * disc),
         tag_signal: round4(tagSurprise),
         capture_shift: round4(captureSurp),
-        multipv_candidate_rank: 0,
-        note: "MultiPV surprise = future debt",
+        multipv_candidate_rank: round4(rankComp),
+        multipv_gap_to_best: round4(gapComp),
+        note: hz ? "H0 PASS B" : "proxy (no horizon)",
       },
       RV()
     );
 
     // --- urgency (0..1) ---
     const urgCheck = frame.check ? 0.55 : 0;
-    const urgFew = frame.check ? clamp((8 - Math.min(legal, 8)) / 8, 0, 1) * 0.35 : 0;
+    const urgFew = frame.check
+      ? clamp((8 - Math.min(legal, 8)) / 8, 0, 1) * 0.35
+      : 0;
     const urgMateTag = (frame.tags || []).includes("checkmate") ? 1 : 0;
     const urgency = dim01(
       clamp(Math.max(urgMateTag, urgCheck + urgFew), 0, 1),
@@ -95,16 +120,21 @@
       RV()
     );
 
-    // --- forcing (0..1) — obliges a reply; not inverse of ambiguity ---
+    // --- forcing (0..1) — high when PASS B top gap is large ---
     const forCheck = frame.check ? 0.5 : 0;
     const forCapture = frame.capture ? 0.15 : 0;
     const forFew = clamp((20 - Math.min(legal, 20)) / 20, 0, 0.35);
+    let forGap = 0;
+    if (gaps.top_gap_cp != null && candidates.length >= 2) {
+      forGap = clamp(gaps.top_gap_cp / 180, 0, 1) * 0.4;
+    }
     const forcing = dim01(
-      clamp(forCheck + forCapture + forFew, 0, 1),
+      clamp(forCheck + forCapture + forFew + forGap, 0, 1),
       {
         check_forces_reply: round4(forCheck),
         capture_pressure: round4(forCapture),
         constrained_replies: round4(forFew),
+        multipv_top_gap: round4(forGap),
       },
       RV()
     );
@@ -112,29 +142,59 @@
     // --- instability (0..1) ---
     const shortVar = shortWindowVariance(historyFrames, 4);
     const instDelta = clamp(absDelta / 200, 0, 1);
+    let pvVol = 0;
+    if (gaps.spread_cp != null && candidates.length >= 2) {
+      pvVol = clamp(gaps.spread_cp / 250, 0, 1) * 0.35;
+    }
     const instability = dim01(
-      clamp(0.55 * shortVar + 0.45 * instDelta, 0, 1),
+      clamp(
+        hz
+          ? 0.4 * shortVar + 0.35 * instDelta + pvVol
+          : 0.55 * shortVar + 0.45 * instDelta,
+        0,
+        1
+      ),
       {
-        short_window_variance: round4(0.55 * shortVar),
-        eval_delta: round4(0.45 * instDelta),
-        pv_volatility: 0,
-        note: "PV volatility = future debt",
+        short_window_variance: round4(
+          hz ? 0.4 * shortVar : 0.55 * shortVar
+        ),
+        eval_delta: round4(hz ? 0.35 * instDelta : 0.45 * instDelta),
+        pv_volatility: round4(pvVol),
+        note: hz ? "H0 PASS B spread" : "proxy",
       },
       RV()
     );
 
-    // --- ambiguity (0..1) — competitive futures; weak legal-move proxy ---
-    // Future debt: MultiPV score gaps
+    // --- ambiguity (0..1) — competitive futures via MultiPV gaps ---
     const spread = clamp((legal - 8) / 40, 0, 1);
     const quietHighLegal =
-      !frame.check && legal >= 25 ? 0.2 : !frame.check && legal >= 15 ? 0.1 : 0;
+      !frame.check && legal >= 25
+        ? 0.2
+        : !frame.check && legal >= 15
+          ? 0.1
+          : 0;
+    let multipvAmb = 0;
+    if (candidates.length >= 2 && gaps.top_gap_cp != null) {
+      multipvAmb = clamp(1 - gaps.top_gap_cp / 120, 0, 1) * 0.7;
+      if (gaps.candidate_count >= 3 && gaps.spread_cp < 80) {
+        multipvAmb = Math.min(1, multipvAmb + 0.15);
+      }
+    }
     const ambiguity = dim01(
-      clamp(0.65 * spread + quietHighLegal, 0, 1),
+      clamp(
+        hz
+          ? 0.25 * spread + 0.1 * quietHighLegal + multipvAmb
+          : 0.65 * spread + quietHighLegal,
+        0,
+        1
+      ),
       {
-        legal_move_spread_proxy: round4(0.65 * spread),
+        legal_move_spread_proxy: round4(
+          hz ? 0.25 * spread : 0.65 * spread
+        ),
         quiet_branching: round4(quietHighLegal),
-        multipv_score_gaps: 0,
-        note: "Replace with MultiPV gaps in H0",
+        multipv_score_gaps: round4(multipvAmb),
+        note: hz ? "H0 PASS B gaps" : "proxy (no horizon)",
       },
       RV()
     );
@@ -163,17 +223,22 @@
   }
 
   function computeTrend(prevState, current) {
-    const alpha = 0.4;
-    const prev = (prevState && prevState.current) || {};
-    const tr = (prevState && prevState.trend) || {};
-    function d(name, isSigned) {
-      const now = current[name].value;
-      const was = prev[name] ? prev[name].value : now;
-      const raw = now - was;
-      return ema(tr[name] != null ? tr[name] : 0, raw, alpha);
+    if (!prevState || !prevState.current) {
+      return {
+        advantage: 0,
+        tension: 0,
+        urgency: 0,
+        instability: 0,
+      };
+    }
+    function d(name) {
+      const a = prevState.current[name] && prevState.current[name].value;
+      const b = current[name] && current[name].value;
+      if (a == null || b == null) return 0;
+      return b - a;
     }
     return {
-      advantage: round4(d("advantage", true)),
+      advantage: round4(d("advantage")),
       tension: round4(d("tension")),
       urgency: round4(d("urgency")),
       instability: round4(d("instability")),
@@ -190,29 +255,30 @@
     const t = current.tension.value;
     const mean4 = ema(prevMem.tension_mean_4, t, 0.35);
     const peak8 = Math.max(t, prevMem.tension_peak_8 * 0.92);
-    let major = prevMem.last_major_event;
-    if (frame.check || (frame.tags || []).includes("checkmate") || Math.abs(frame.eval_delta_cp || 0) >= 200) {
-      major = {
-        ply: frame.ply,
-        kind: (frame.tags || []).includes("checkmate")
-          ? "checkmate"
-          : frame.check
-            ? "check"
-            : frame.capture
-              ? "capture"
-              : "eval_swing",
-        move: frame.move_san || frame.move_uci,
-      };
+    let lastMajor = prevMem.last_major_event;
+    if (frame && frame.check) lastMajor = { kind: "check", ply: frame.ply };
+    if (frame && (frame.tags || []).includes("checkmate"))
+      lastMajor = { kind: "checkmate", ply: frame.ply };
+    if (frame && frame.capture && (frame.captured_value || 0) >= 300)
+      lastMajor = { kind: "capturegrande", ply: frame.ply };
+    if (
+      frame &&
+      frame.horizon &&
+      frame.horizon.played_rank != null &&
+      frame.horizon.played_rank >= 3
+    ) {
+      lastMajor = { kind: "offbook", ply: frame.ply };
     }
-    const quiet =
+    const stable =
       current.tension.value < 0.35 &&
-      current.instability.value < 0.3 &&
-      !frame.check;
-    const stable = quiet ? (prevMem.stable_for_plies || 0) + 1 : 0;
+      current.urgency.value < 0.25 &&
+      current.surprise.value < 0.3
+        ? (prevMem.stable_for_plies || 0) + 1
+        : 0;
     return {
       tension_mean_4: round4(mean4),
       tension_peak_8: round4(peak8),
-      last_major_event: major,
+      last_major_event: lastMajor,
       stable_for_plies: stable,
     };
   }
@@ -232,7 +298,6 @@
     });
   }
 
-  /** Recompute all states from frames with this ruleset (falsifiability). */
   function recomputeAll(frames) {
     const sorted = frames.slice().sort((a, b) => a.ply - b.ply);
     const states = [];
@@ -254,7 +319,7 @@
 
   global.AiramH2 = global.AiramH2 || {};
   global.AiramH2.RulesetV01 = {
-    version: "ruleset-v0.1",
+    version: "ruleset-v0.2",
     frameToState,
     recomputeAll,
   };

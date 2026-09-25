@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Chess Lab · AIRAM · Radio Micelio</title>
-<meta name="description" content="Chess Lab H−2: siete variables expresivas, falsables, sin música.">
+<meta name="description" content="Chess Lab: siete variables expresivas, score, personajes, datasets.">
 <link rel="canonical" href="https://www.radiomicelio.es/chess-lab/">
 <meta property="og:title" content="Chess Lab · AIRAM · Radio Micelio">
-<meta property="og:description" content="Chess Lab H−2: siete variables expresivas, falsables, sin música.">
+<meta property="og:description" content="Chess Lab: siete variables expresivas, score, personajes, datasets.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://www.radiomicelio.es/chess-lab/">
 <meta name="twitter:card" content="summary">
@@ -69,7 +69,7 @@
     </nav>
     <div class="side-section-label sub">Laboratorio</div>
     <nav class="side-onto-list">
-<a class="side-onto active-onto" href="/chess-lab/"><b>Chess Lab</b><span>Juego → semántica · H−2 en vivo</span></a><a class="side-onto" href="/arcade/"><b>Arcade</b><span>Minijuegos clásicos como cuaderno de mecánicas</span></a><a class="side-onto" href="/lab/airam/"><b>AIRAM</b><span>Docs H−2 · pipeline GameFrame → GameState</span></a><a class="side-onto soon" href="#" aria-disabled="true"><b>Criaturas</b><span>IK, FABRIK y comportamiento</span><span class="soon-tag">pronto</span></a><a class="side-onto soon" href="#" aria-disabled="true"><b>RM Game</b><span>Prototipos del videojuego Radio Micelio</span><span class="soon-tag">pronto</span></a>
+<a class="side-onto active-onto" href="/chess-lab/"><b>Chess Lab</b><span>Juego → semántica · H−2 en vivo</span></a><a class="side-onto" href="/story-lab/"><b>Story Lab</b><span>H7 Go · H8 Story Mode + PerspectiveHandoff</span></a><a class="side-onto" href="/arcade/"><b>Arcade</b><span>Minijuegos clásicos como cuaderno de mecánicas</span></a><a class="side-onto" href="/lab/airam/"><b>AIRAM</b><span>H−1 · CausalTrace ∥ MusicalState</span></a><a class="side-onto soon" href="#" aria-disabled="true"><b>Criaturas</b><span>IK, FABRIK y comportamiento</span><span class="soon-tag">pronto</span></a><a class="side-onto soon" href="#" aria-disabled="true"><b>RM Game</b><span>Prototipos del videojuego Radio Micelio</span><span class="soon-tag">pronto</span></a>
     </nav>
   </div>
 </aside>
@@ -83,13 +83,27 @@
     </header>
     <main>
 
-<div class="lab-crumbs"><a href="/">Radio Micelio</a> › <a href="/lab/">Lab</a> › Chess Lab · <a href="/lab/airam/">docs AIRAM</a></div>
+<div class="lab-crumbs"><a href="/">Radio Micelio</a> › <a href="/lab/">Lab</a> › Chess Lab · <a href="/lab/airam/">docs AIRAM</a> · <a href="/story-lab/">Story Lab</a></div>
 <link rel="stylesheet" href="/assets/airam/chess_lab.css">
 <div id="airam-chess-lab"></div>
+<script src="https://cdn.jsdelivr.net/npm/soundfont-player@0.12.0/dist/soundfont-player.min.js" crossorigin></script>
 <script src="/assets/airam/schemas.js"></script>
 <script src="/assets/airam/store.js"></script>
 <script src="/assets/airam/ruleset_v0_1.js"></script>
+<script src="/assets/airam/musical_map_v0_1.js"></script>
+<script src="/assets/airam/chord_voice.js"></script>
+<script src="/assets/airam/piano_engine.js"></script>
+<script src="/assets/airam/affect_lexicon.js"></script>
+<script src="/assets/airam/narrative.js"></script>
 <script src="/assets/airam/chess_core.js"></script>
+<script src="/assets/airam/horizon_engine.js"></script>
+<script src="/assets/airam/character_profiles.js"></script>
+<script src="/assets/airam/score_planner.js"></script>
+<script src="/assets/airam/harmonic_world.js"></script>
+<script src="/assets/airam/musical_horizon.js"></script>
+<script src="/assets/airam/character_voices.js"></script>
+<script src="/assets/airam/character_commenter.js"></script>
+<script src="/assets/airam/dataset_rankings.js"></script>
 <script src="/assets/airam/chess_adapter.js"></script>
 <script src="/assets/airam/chess_pieces.js"></script>
 <script src="/assets/airam/chess_lab.js"></script>

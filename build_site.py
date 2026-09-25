@@ -449,7 +449,11 @@ def build_sidebar_html(active_section=None, active_path=None):
         if s["status"] == "published" and s["current_url"]:
             if active_path:
                 on = active_path == s["current_url"] or (
-                    s["id"] == "chess-lab" and active_path.rstrip("/").endswith("chess-lab")
+                    s["id"] == "chess-lab"
+                    and active_path.rstrip("/").endswith("chess-lab")
+                ) or (
+                    s["id"] == "story-lab"
+                    and active_path.rstrip("/").endswith("story-lab")
                 )
             else:
                 on = False
@@ -1069,11 +1073,29 @@ def copy_airam_lab_assets():
         "schemas.js",
         "store.js",
         "ruleset_v0_1.js",
+        "musical_map_v0_1.js",
+        "chord_voice.js",
+        "piano_engine.js",
+        "affect_lexicon.js",
+        "narrative.js",
         "chess_core.js",
+        "horizon_engine.js",
+        "character_profiles.js",
+        "score_planner.js",
+        "harmonic_world.js",
+        "musical_horizon.js",
+        "character_voices.js",
+        "character_commenter.js",
+        "dataset_rankings.js",
         "chess_adapter.js",
         "chess_pieces.js",
         "chess_lab.js",
         "chess_lab.css",
+        "go_core.js",
+        "go_adapter.js",
+        "story_mode.js",
+        "story_lab.js",
+        "story_lab.css",
     ):
         src = src_dir / name
         if src.exists():
@@ -1081,77 +1103,59 @@ def copy_airam_lab_assets():
 
 
 def build_airam_docs():
-    """H−2 docs only — no music / CHORDIA / Story."""
+    """AIRAM pipeline docs through H8."""
     crumbs = [("Radio Micelio", "/"), ("Lab", "/lab/"), ("AIRAM", None)]
     body = f"""
 {crumbs_html(crumbs)}
-<p class="pill">AIRAM Music · H−2</p>
+<p class="pill">AIRAM Music · H8</p>
 <h1>AIRAM</h1>
 <p class="lead">
-  Núcleo pequeño y explicable: <strong>juego → semántica</strong>.
-  La música, CHORDIA, Web Audio y Story Mode son deuda futura — no están implementados aquí.
+  Núcleo completo hasta Story Mode: juego (ajedrez/go) → semántica → música →
+  personaje → datasets → mundo narrativo.
 </p>
 <div class="hero-actions">
-  <a class="btn primary" href="/chess-lab/">Abrir Chess Lab →</a>
+  <a class="btn primary" href="/chess-lab/">Chess Lab →</a>
+  <a class="btn ghost" href="/story-lab/">Story Lab →</a>
 </div>
 
-<h2>Qué hace H−2</h2>
-<p class="lead">
-  Construye <code>GameFrame → GameState</code> con siete variables expresivas,
-  tendencias, memoria, justificación por componentes (<code>rule_version</code>)
-  y un laboratorio visual con validación humana.
-</p>
-<ul>
-  <li><code>advantage</code></li>
-  <li><code>tension</code></li>
-  <li><code>surprise</code></li>
-  <li><code>urgency</code></li>
-  <li><code>forcing</code></li>
-  <li><code>instability</code></li>
-  <li><code>ambiguity</code></li>
-</ul>
-
 <h2>Pipeline</h2>
-<pre style="background:#141416;padding:12px;border-radius:4px;overflow:auto;font-size:13px">GameAdapter (chess)
-    → GameFrame   (datos crudos recalculables)
-    → GameState   (current + trend + memory + components)
-    → ReviewEvent (✅ ❌ 🤔 ✏️ 💬)
+<pre style="background:#141416;padding:12px;border-radius:4px;overflow:auto;font-size:13px">GameAdapter (chess | go)
+  → GameFrame → GameState → CausalTrace ∥ MusicalState
+  → Score + Horizonte + Mundo Alfa/Beta
+  → CharacterCommenter · Datasets H6
+  → Story: WorldState · CharacterState · PerspectiveHandoff</pre>
 
-IndexedDB: sessions · game_frames · game_states · review_events
-Export / Import JSON</pre>
-
+<h2>H7 — Go</h2>
 <p class="lead">
-  <code>GameState</code> y <code>ReviewEvent</code> guardan siempre
-  <code>session_id</code>, <code>source_frame_id</code> y <code>ruleset_version</code>
-  para recalcular v0.2 sobre los mismos frames.
+  Go 9×9 lite → mismos <code>GameFrame</code>/<code>GameState</code>.
+  Capturas por libertades; score territorial aproximado.
 </p>
 
-<h2>Criterio de fin H−2</h2>
+<h2>H8 — Story Mode</h2>
 <p class="lead">
-  No “las curvas parecen buenas”. Sí: podemos marcar ❌, explicar por qué se equivoca
-  la fórmula, publicar <strong>ruleset-v0.2</strong> y recalcular los mismos
-  <code>GameFrame</code> sin tocar los datos originales.
+  Pack <code>micelio-v0.1</code>: selector de perspectiva, escenas, encuentros,
+  <strong>PerspectiveHandoff</strong> (WorldState persiste; CharacterState cambia).
+  Mapa MapLibre/H3 = deuda futura.
 </p>
 
-<h2>Deuda futura (no implementar aún)</h2>
+<h2>Deuda</h2>
 <ul>
-  <li>Stockfish WDL / PV / MultiPV (PASS A ≠ PASS B)</li>
-  <li>CausalTrace · MusicalState · ScorePlanner · Web Audio</li>
-  <li>CharacterMusicProfile · Story Mode · PerspectiveHandoff</li>
+  <li>Stockfish WASM · en passant · Go ko completo</li>
+  <li>Mapa OSM/H3 · StoryPacks ricos · RM Game shell</li>
 </ul>
 """
     jsonld = with_context(
         {
             "@type": "WebPage",
             "name": f"AIRAM · Lab · {SITE_NAME}",
-            "description": "Laboratorio H−2: semántica del juego GameFrame → GameState.",
+            "description": "AIRAM Music H8: Go + Story Mode.",
             "url": f"{SITE_URL}/lab/airam/",
             "breadcrumb": crumbs_jsonld(crumbs),
         }
     )
     html = page_shell(
         title=f"AIRAM · Lab · {SITE_NAME}",
-        description="AIRAM Music H−2: semántica del juego, sin música todavía.",
+        description="AIRAM Music H7–H8: Go lite + Story Mode + PerspectiveHandoff.",
         canonical=f"{SITE_URL}/lab/airam/",
         body_html=body,
         jsonld_obj=jsonld,
@@ -1162,6 +1166,68 @@ Export / Import JSON</pre>
     write_text(DOCS / "lab" / "airam" / "index.html", html)
 
 
+def build_story_lab():
+    crumbs = [
+        ("Radio Micelio", "/"),
+        ("Lab", "/lab/"),
+        ("Story Lab", None),
+    ]
+    scripts = "\n".join(
+        [
+            '<script src="https://cdn.jsdelivr.net/npm/soundfont-player@0.12.0/dist/soundfont-player.min.js" crossorigin></script>',
+        ]
+        + [
+            f'<script src="/assets/airam/{name}"></script>'
+            for name in (
+                "schemas.js",
+                "ruleset_v0_1.js",
+                "musical_map_v0_1.js",
+                "chord_voice.js",
+                "piano_engine.js",
+                "affect_lexicon.js",
+                "character_profiles.js",
+                "score_planner.js",
+                "harmonic_world.js",
+                "character_voices.js",
+                "character_commenter.js",
+                "go_core.js",
+                "go_adapter.js",
+                "story_mode.js",
+                "story_lab.js",
+            )
+        ]
+    )
+    body = f"""
+<div class="lab-crumbs"><a href="/">Radio Micelio</a> › <a href="/lab/">Lab</a> › Story Lab · <a href="/lab/airam/">docs AIRAM</a> · <a href="/chess-lab/">Chess Lab</a></div>
+<link rel="stylesheet" href="/assets/airam/story_lab.css">
+<div id="airam-story-lab"></div>
+{scripts}
+"""
+    jsonld = with_context(
+        {
+            "@type": "WebApplication",
+            "name": f"AIRAM Story Lab · {SITE_NAME}",
+            "description": "H7–H8: Go + Story Mode + PerspectiveHandoff.",
+            "url": f"{SITE_URL}/story-lab/",
+            "applicationCategory": "GameApplication",
+            "breadcrumb": crumbs_jsonld(crumbs),
+            "isPartOf": {"@id": f"{SITE_URL}/lab/"},
+        }
+    )
+    html = page_shell(
+        title=f"Story Lab · AIRAM · {SITE_NAME}",
+        description="Story Lab H8: personajes, capítulos, go y PerspectiveHandoff.",
+        canonical=f"{SITE_URL}/story-lab/",
+        body_html=body,
+        jsonld_obj=jsonld,
+        active_nav="/lab/",
+        active_section="lab",
+        active_path="/story-lab/",
+        body_class="page-lab-focus",
+    )
+    write_text(DOCS / "story-lab" / "index.html", html)
+
+
 def build_chess_lab():
     crumbs = [
         ("Radio Micelio", "/"),
@@ -1169,19 +1235,37 @@ def build_chess_lab():
         ("Chess Lab", None),
     ]
     scripts = "\n".join(
-        f'<script src="/assets/airam/{name}"></script>'
-        for name in (
-            "schemas.js",
-            "store.js",
-            "ruleset_v0_1.js",
-            "chess_core.js",
-            "chess_adapter.js",
-            "chess_pieces.js",
-            "chess_lab.js",
-        )
+        [
+            '<script src="https://cdn.jsdelivr.net/npm/soundfont-player@0.12.0/dist/soundfont-player.min.js" crossorigin></script>',
+        ]
+        + [
+            f'<script src="/assets/airam/{name}"></script>'
+            for name in (
+                "schemas.js",
+                "store.js",
+                "ruleset_v0_1.js",
+                "musical_map_v0_1.js",
+                "chord_voice.js",
+                "piano_engine.js",
+                "affect_lexicon.js",
+                "narrative.js",
+                "chess_core.js",
+                "horizon_engine.js",
+                "character_profiles.js",
+                "score_planner.js",
+                "harmonic_world.js",
+                "musical_horizon.js",
+                "character_voices.js",
+                "character_commenter.js",
+                "dataset_rankings.js",
+                "chess_adapter.js",
+                "chess_pieces.js",
+                "chess_lab.js",
+            )
+        ]
     )
     body = f"""
-<div class="lab-crumbs"><a href="/">Radio Micelio</a> › <a href="/lab/">Lab</a> › Chess Lab · <a href="/lab/airam/">docs AIRAM</a></div>
+<div class="lab-crumbs"><a href="/">Radio Micelio</a> › <a href="/lab/">Lab</a> › Chess Lab · <a href="/lab/airam/">docs AIRAM</a> · <a href="/story-lab/">Story Lab</a></div>
 <link rel="stylesheet" href="/assets/airam/chess_lab.css">
 <div id="airam-chess-lab"></div>
 {scripts}
@@ -1199,7 +1283,7 @@ def build_chess_lab():
     )
     html = page_shell(
         title=f"Chess Lab · AIRAM · {SITE_NAME}",
-        description="Chess Lab H−2: siete variables expresivas, falsables, sin música.",
+        description="Chess Lab: siete variables expresivas, score, personajes, datasets.",
         canonical=f"{SITE_URL}/chess-lab/",
         body_html=body,
         jsonld_obj=jsonld,
@@ -1773,6 +1857,7 @@ def build_sitemap():
         f"{SITE_URL}/lab/",
         f"{SITE_URL}/lab/airam/",
         f"{SITE_URL}/chess-lab/",
+        f"{SITE_URL}/story-lab/",
         f"{SITE_URL}/grafo/",
         f"{SITE_URL}/arcade/",
     ]
@@ -1835,6 +1920,7 @@ def build():
     build_lab_hub()
     build_airam_docs()
     build_chess_lab()
+    build_story_lab()
     build_category_pages()
     build_concept_pages()
     build_graph_page()
@@ -1849,7 +1935,7 @@ def build():
     build_robots()
 
     n_html = sum(1 for _ in DOCS.rglob("*.html"))
-    print(f"OK: {n_html} páginas HTML + data.json + ontology.jsonld + airam H−2 en {DOCS}")
+    print(f"OK: {n_html} páginas HTML + data.json + ontology.jsonld + airam H−1 en {DOCS}")
 
 
 if __name__ == "__main__":

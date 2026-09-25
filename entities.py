@@ -278,6 +278,20 @@ LAB_SECTIONS = [
         "future_url": "/chess-lab/",
     },
     {
+        "id": "story-lab",
+        "label": "Story Lab",
+        "status": "published",
+        "icon": "📖",
+        "short": "H7 Go · H8 Story Mode + PerspectiveHandoff",
+        "description": (
+            "Semilla del mundo narrativo Radio Micelio: selector de personaje, "
+            "capítulos, encuentros de go/ajedrez y handoff de perspectiva."
+        ),
+        "current_url": "/story-lab/",
+        "canonical_url": "/story-lab/",
+        "future_url": "/story-lab/",
+    },
+    {
         "id": "arcade",
         "label": "Arcade",
         "status": "published",
@@ -296,10 +310,10 @@ LAB_SECTIONS = [
         "label": "AIRAM",
         "status": "published",
         "icon": "🤖",
-        "short": "Docs H−2 · pipeline GameFrame → GameState",
+        "short": "H−1 · CausalTrace ∥ MusicalState",
         "description": (
-            "Documentación del núcleo AIRAM Music: GameFrame → GameState con siete "
-            "variables expresivas. Todavía sin música."
+            "Documentación AIRAM: GameFrame → GameState → CausalTrace ∥ MusicalState. "
+            "Sin audio todavía."
         ),
         "current_url": "/lab/airam/",
         "canonical_url": "/lab/airam/",

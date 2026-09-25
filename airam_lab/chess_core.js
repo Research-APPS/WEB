@@ -1,5 +1,6 @@
 /**
- * Minimal chess core for H−2 lab (no castling/en passant).
+ * Chess core for AIRAM lab.
+ * Castling + basic promo. En passant = future debt (tagged in FEN as "-").
  * Future debt: Stockfish WASM for WDL/PV/MultiPV.
  */
 (function (global) {
@@ -19,6 +20,14 @@
     return b;
   }
 
+  function defaultCastling() {
+    return { wK: true, wQ: true, bK: true, bQ: true };
+  }
+
+  function cloneCastling(c) {
+    return { wK: !!c.wK, wQ: !!c.wQ, bK: !!c.bK, bQ: !!c.bQ };
+  }
+
   function cloneBoard(b) {
     return b.map((row) => row.slice());
   }
@@ -36,7 +45,16 @@
     return FILES[c] + (8 - r);
   }
 
-  function fenFromBoard(board, turn) {
+  function castlingFen(rights) {
+    let s = "";
+    if (rights.wK) s += "K";
+    if (rights.wQ) s += "Q";
+    if (rights.bK) s += "k";
+    if (rights.bQ) s += "q";
+    return s || "-";
+  }
+
+  function fenFromBoard(board, turn, rights) {
     const rows = [];
     for (let r = 0; r < 8; r++) {
       let empty = 0;
@@ -56,7 +74,8 @@
       if (empty) row += empty;
       rows.push(row);
     }
-    return rows.join("/") + " " + turn + " - - 0 1";
+    const castle = rights ? castlingFen(rights) : "-";
+    return rows.join("/") + " " + turn + " " + castle + " - 0 1";
   }
 
   function material(board) {
@@ -183,27 +202,63 @@
     return isSquareAttacked(b, k[0], k[1], color === "w" ? "b" : "w");
   }
 
-  function legalMovesFor(b, r, c) {
+  /** Castling targets: king destination squares if legal geometrically + rights. */
+  function castlingTargets(b, color, rights) {
+    const out = [];
+    if (!rights) return out;
+    const row = color === "w" ? 7 : 0;
+    const enemy = color === "w" ? "b" : "w";
+    const kingHome = color + "K";
+    if (b[row][4] !== kingHome) return out;
+    if (inCheck(b, color)) return out;
+
+    function pathClear(cols) {
+      return cols.every((c) => !b[row][c]);
+    }
+    function safe(cols) {
+      return cols.every((c) => !isSquareAttacked(b, row, c, enemy));
+    }
+
+    // kingside
+    const kFlag = color === "w" ? rights.wK : rights.bK;
+    if (kFlag && b[row][7] === color + "R" && pathClear([5, 6]) && safe([4, 5, 6])) {
+      out.push([row, 6]);
+    }
+    // queenside
+    const qFlag = color === "w" ? rights.wQ : rights.bQ;
+    if (
+      qFlag &&
+      b[row][0] === color + "R" &&
+      pathClear([1, 2, 3]) &&
+      safe([4, 3, 2])
+    ) {
+      out.push([row, 2]);
+    }
+    return out;
+  }
+
+  function legalMovesFor(b, r, c, rights) {
     const p = b[r][c];
     if (!p) return [];
     const color = pieceColor(p);
-    return pseudoMoves(b, r, c).filter(([nr, nc]) => {
-      const clone = cloneBoard(b);
-      clone[nr][nc] = clone[r][c];
-      clone[r][c] = null;
-      // promo
-      if (pieceType(clone[nr][nc]) === "P" && (nr === 0 || nr === 7))
-        clone[nr][nc] = color + "Q";
+    const rightsSafe = rights || defaultCastling();
+    let candidates = pseudoMoves(b, r, c);
+    if (pieceType(p) === "K") {
+      candidates = candidates.concat(castlingTargets(b, color, rightsSafe));
+    }
+    return candidates.filter(([nr, nc]) => {
+      const { board: clone } = applyMove(b, [r, c], [nr, nc], rightsSafe);
       return !inCheck(clone, color);
     });
   }
 
-  function allLegalMoves(b, color) {
+  function allLegalMoves(b, color, rights) {
     const out = [];
+    const rightsSafe = rights || defaultCastling();
     for (let r = 0; r < 8; r++)
       for (let c = 0; c < 8; c++) {
         if (pieceColor(b[r][c]) !== color) continue;
-        for (const [nr, nc] of legalMovesFor(b, r, c)) {
+        for (const [nr, nc] of legalMovesFor(b, r, c, rightsSafe)) {
           out.push({ from: [r, c], to: [nr, nc] });
         }
       }
@@ -218,7 +273,6 @@
         if (!p) continue;
         const v = PIECE_VALUE[pieceType(p)] || 0;
         score += pieceColor(p) === "w" ? v : -v;
-        // center nudge
         const center =
           (r === 3 || r === 4) && (c === 3 || c === 4) ? 10 : 0;
         score += pieceColor(p) === "w" ? center : -center;
@@ -228,21 +282,83 @@
     return score;
   }
 
-  function applyMove(b, from, to) {
+  function updateRightsAfterMove(board, from, to, piece, captured, rights) {
+    const next = cloneCastling(rights || defaultCastling());
+    const color = pieceColor(piece);
+    const type = pieceType(piece);
+
+    if (type === "K") {
+      if (color === "w") {
+        next.wK = false;
+        next.wQ = false;
+      } else {
+        next.bK = false;
+        next.bQ = false;
+      }
+    }
+    if (type === "R") {
+      if (color === "w") {
+        if (from[0] === 7 && from[1] === 7) next.wK = false;
+        if (from[0] === 7 && from[1] === 0) next.wQ = false;
+      } else {
+        if (from[0] === 0 && from[1] === 7) next.bK = false;
+        if (from[0] === 0 && from[1] === 0) next.bQ = false;
+      }
+    }
+    // rook captured on corner
+    if (captured && pieceType(captured) === "R") {
+      if (to[0] === 7 && to[1] === 7) next.wK = false;
+      if (to[0] === 7 && to[1] === 0) next.wQ = false;
+      if (to[0] === 0 && to[1] === 7) next.bK = false;
+      if (to[0] === 0 && to[1] === 0) next.bQ = false;
+    }
+    return next;
+  }
+
+  function applyMove(b, from, to, rights) {
     const next = cloneBoard(b);
     const piece = next[from[0]][from[1]];
     const captured = next[to[0]][to[1]];
+    const rightsIn = rights || defaultCastling();
+    let isCastle = false;
+
     next[to[0]][to[1]] = piece;
     next[from[0]][from[1]] = null;
-    if (pieceType(piece) === "P" && (to[0] === 0 || to[0] === 7))
+
+    // Castling: king moves two files
+    if (piece && pieceType(piece) === "K" && Math.abs(to[1] - from[1]) === 2) {
+      isCastle = true;
+      const row = from[0];
+      if (to[1] === 6) {
+        // kingside: rook h → f
+        next[row][5] = next[row][7];
+        next[row][7] = null;
+      } else if (to[1] === 2) {
+        // queenside: rook a → d
+        next[row][3] = next[row][0];
+        next[row][0] = null;
+      }
+    }
+
+    if (piece && pieceType(piece) === "P" && (to[0] === 0 || to[0] === 7))
       next[to[0]][to[1]] = pieceColor(piece) + "Q";
-    return { board: next, captured, piece };
+
+    const newRights = updateRightsAfterMove(
+      next,
+      from,
+      to,
+      piece,
+      captured,
+      rightsIn
+    );
+    return { board: next, captured, piece, rights: newRights, isCastle };
   }
 
-  function minimax(b, depth, alpha, beta, maximizing) {
+  function minimax(b, depth, alpha, beta, maximizing, rights) {
+    const rightsSafe = rights || defaultCastling();
     if (depth === 0) return evaluate(b);
     const color = maximizing ? "w" : "b";
-    const moves = allLegalMoves(b, color);
+    const moves = allLegalMoves(b, color, rightsSafe);
     if (!moves.length) {
       if (inCheck(b, color)) return maximizing ? -99999 : 99999;
       return 0;
@@ -250,8 +366,11 @@
     if (maximizing) {
       let value = -Infinity;
       for (const m of moves) {
-        const { board: nb } = applyMove(b, m.from, m.to);
-        value = Math.max(value, minimax(nb, depth - 1, alpha, beta, false));
+        const { board: nb, rights: nr } = applyMove(b, m.from, m.to, rightsSafe);
+        value = Math.max(
+          value,
+          minimax(nb, depth - 1, alpha, beta, false, nr)
+        );
         alpha = Math.max(alpha, value);
         if (alpha >= beta) break;
       }
@@ -259,32 +378,61 @@
     }
     let value = Infinity;
     for (const m of moves) {
-      const { board: nb } = applyMove(b, m.from, m.to);
-      value = Math.min(value, minimax(nb, depth - 1, alpha, beta, true));
+      const { board: nb, rights: nr } = applyMove(b, m.from, m.to, rightsSafe);
+      value = Math.min(value, minimax(nb, depth - 1, alpha, beta, true, nr));
       beta = Math.min(beta, value);
       if (alpha >= beta) break;
     }
     return value;
   }
 
-  function chooseBotMove(b, color, depth) {
-    const moves = allLegalMoves(b, color);
+  function positionKey(b, turn, rights) {
+    return fenFromBoard(b, turn, rights || defaultCastling());
+  }
+
+  function chooseBotMove(b, color, depth, rights, opts) {
+    const rightsSafe = rights || defaultCastling();
+    opts = opts || {};
+    const avoidKeys = opts.avoidKeys || null;
+    const preferDiverse = opts.preferDiverse !== false;
+    let moves = allLegalMoves(b, color, rightsSafe);
     if (!moves.length) return null;
+
+    // Soft filter: drop moves that reverse the last opponent reply loop
+    // or recreate a recently seen position (when alternatives exist).
+    if (preferDiverse && avoidKeys && avoidKeys.size) {
+      const filtered = moves.filter((m) => {
+        const { board: nb, rights: nr } = applyMove(b, m.from, m.to, rightsSafe);
+        const nextTurn = color === "w" ? "b" : "w";
+        return !avoidKeys.has(positionKey(nb, nextTurn, nr));
+      });
+      if (filtered.length) moves = filtered;
+    }
+
     let best = [];
     let bestScore = color === "w" ? -Infinity : Infinity;
     for (const m of moves) {
-      const { board: nb } = applyMove(b, m.from, m.to);
-      const score = minimax(nb, depth - 1, -Infinity, Infinity, color !== "w");
+      const { board: nb, rights: nr } = applyMove(b, m.from, m.to, rightsSafe);
+      let score = minimax(
+        nb,
+        depth - 1,
+        -Infinity,
+        Infinity,
+        color !== "w",
+        nr
+      );
+      // tiny jitter so equal evals don't ping-pong forever
+      score += (Math.random() - 0.5) * 0.01;
       if (color === "w") {
         if (score > bestScore) {
           bestScore = score;
           best = [m];
-        } else if (score === bestScore) best.push(m);
+        } else if (Math.abs(score - bestScore) < 1e-6) best.push(m);
       } else {
         if (score < bestScore) {
           bestScore = score;
           best = [m];
-        } else if (score === bestScore) best.push(m);
+        } else if (Math.abs(score - bestScore) < 1e-6) best.push(m);
       }
     }
     return best[Math.floor(Math.random() * best.length)];
@@ -335,6 +483,7 @@
     const tags = [];
     if (opts.ended === "checkmate") tags.push("checkmate");
     if (opts.check) tags.push("check");
+    if (opts.castle) tags.push("castle");
     if (opts.capture) {
       tags.push("captura");
       if (opts.capturedValue >= 320) tags.push("capturegrande");
@@ -347,6 +496,8 @@
   global.AiramH2 = global.AiramH2 || {};
   global.AiramH2.ChessCore = {
     initialBoard,
+    defaultCastling,
+    cloneCastling,
     cloneBoard,
     fenFromBoard,
     material,
@@ -355,6 +506,8 @@
     inCheck,
     evaluate,
     applyMove,
+    minimax,
+    positionKey,
     chooseBotMove,
     hangingCount,
     kingOpenness,

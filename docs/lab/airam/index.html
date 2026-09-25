@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AIRAM · Lab · Radio Micelio</title>
-<meta name="description" content="AIRAM Music H−2: semántica del juego, sin música todavía.">
+<meta name="description" content="AIRAM Music H7–H8: Go lite + Story Mode + PerspectiveHandoff.">
 <link rel="canonical" href="https://www.radiomicelio.es/lab/airam/">
 <meta property="og:title" content="AIRAM · Lab · Radio Micelio">
-<meta property="og:description" content="AIRAM Music H−2: semántica del juego, sin música todavía.">
+<meta property="og:description" content="AIRAM Music H7–H8: Go lite + Story Mode + PerspectiveHandoff.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://www.radiomicelio.es/lab/airam/">
 <meta name="twitter:card" content="summary">
@@ -18,7 +18,7 @@
 {
   "@type": "WebPage",
   "name": "AIRAM · Lab · Radio Micelio",
-  "description": "Laboratorio H−2: semántica del juego GameFrame → GameState.",
+  "description": "AIRAM Music H8: Go + Story Mode.",
   "url": "https://www.radiomicelio.es/lab/airam/",
   "breadcrumb": {
     "@type": "BreadcrumbList",
@@ -65,7 +65,7 @@
     </nav>
     <div class="side-section-label sub">Laboratorio</div>
     <nav class="side-onto-list">
-<a class="side-onto" href="/chess-lab/"><b>Chess Lab</b><span>Juego → semántica · H−2 en vivo</span></a><a class="side-onto" href="/arcade/"><b>Arcade</b><span>Minijuegos clásicos como cuaderno de mecánicas</span></a><a class="side-onto active-onto" href="/lab/airam/"><b>AIRAM</b><span>Docs H−2 · pipeline GameFrame → GameState</span></a><a class="side-onto soon" href="#" aria-disabled="true"><b>Criaturas</b><span>IK, FABRIK y comportamiento</span><span class="soon-tag">pronto</span></a><a class="side-onto soon" href="#" aria-disabled="true"><b>RM Game</b><span>Prototipos del videojuego Radio Micelio</span><span class="soon-tag">pronto</span></a>
+<a class="side-onto" href="/chess-lab/"><b>Chess Lab</b><span>Juego → semántica · H−2 en vivo</span></a><a class="side-onto" href="/story-lab/"><b>Story Lab</b><span>H7 Go · H8 Story Mode + PerspectiveHandoff</span></a><a class="side-onto" href="/arcade/"><b>Arcade</b><span>Minijuegos clásicos como cuaderno de mecánicas</span></a><a class="side-onto active-onto" href="/lab/airam/"><b>AIRAM</b><span>H−1 · CausalTrace ∥ MusicalState</span></a><a class="side-onto soon" href="#" aria-disabled="true"><b>Criaturas</b><span>IK, FABRIK y comportamiento</span><span class="soon-tag">pronto</span></a><a class="side-onto soon" href="#" aria-disabled="true"><b>RM Game</b><span>Prototipos del videojuego Radio Micelio</span><span class="soon-tag">pronto</span></a>
     </nav>
   </div>
 </aside>
@@ -80,59 +80,41 @@
     <main>
 
 <div class="crumbs"><a href="/">Radio Micelio</a> › <a href="/lab/">Lab</a> › AIRAM</div>
-<p class="pill">AIRAM Music · H−2</p>
+<p class="pill">AIRAM Music · H8</p>
 <h1>AIRAM</h1>
 <p class="lead">
-  Núcleo pequeño y explicable: <strong>juego → semántica</strong>.
-  La música, CHORDIA, Web Audio y Story Mode son deuda futura — no están implementados aquí.
+  Núcleo completo hasta Story Mode: juego (ajedrez/go) → semántica → música →
+  personaje → datasets → mundo narrativo.
 </p>
 <div class="hero-actions">
-  <a class="btn primary" href="/chess-lab/">Abrir Chess Lab →</a>
+  <a class="btn primary" href="/chess-lab/">Chess Lab →</a>
+  <a class="btn ghost" href="/story-lab/">Story Lab →</a>
 </div>
 
-<h2>Qué hace H−2</h2>
-<p class="lead">
-  Construye <code>GameFrame → GameState</code> con siete variables expresivas,
-  tendencias, memoria, justificación por componentes (<code>rule_version</code>)
-  y un laboratorio visual con validación humana.
-</p>
-<ul>
-  <li><code>advantage</code></li>
-  <li><code>tension</code></li>
-  <li><code>surprise</code></li>
-  <li><code>urgency</code></li>
-  <li><code>forcing</code></li>
-  <li><code>instability</code></li>
-  <li><code>ambiguity</code></li>
-</ul>
-
 <h2>Pipeline</h2>
-<pre style="background:#141416;padding:12px;border-radius:4px;overflow:auto;font-size:13px">GameAdapter (chess)
-    → GameFrame   (datos crudos recalculables)
-    → GameState   (current + trend + memory + components)
-    → ReviewEvent (✅ ❌ 🤔 ✏️ 💬)
+<pre style="background:#141416;padding:12px;border-radius:4px;overflow:auto;font-size:13px">GameAdapter (chess | go)
+  → GameFrame → GameState → CausalTrace ∥ MusicalState
+  → Score + Horizonte + Mundo Alfa/Beta
+  → CharacterCommenter · Datasets H6
+  → Story: WorldState · CharacterState · PerspectiveHandoff</pre>
 
-IndexedDB: sessions · game_frames · game_states · review_events
-Export / Import JSON</pre>
-
+<h2>H7 — Go</h2>
 <p class="lead">
-  <code>GameState</code> y <code>ReviewEvent</code> guardan siempre
-  <code>session_id</code>, <code>source_frame_id</code> y <code>ruleset_version</code>
-  para recalcular v0.2 sobre los mismos frames.
+  Go 9×9 lite → mismos <code>GameFrame</code>/<code>GameState</code>.
+  Capturas por libertades; score territorial aproximado.
 </p>
 
-<h2>Criterio de fin H−2</h2>
+<h2>H8 — Story Mode</h2>
 <p class="lead">
-  No “las curvas parecen buenas”. Sí: podemos marcar ❌, explicar por qué se equivoca
-  la fórmula, publicar <strong>ruleset-v0.2</strong> y recalcular los mismos
-  <code>GameFrame</code> sin tocar los datos originales.
+  Pack <code>micelio-v0.1</code>: selector de perspectiva, escenas, encuentros,
+  <strong>PerspectiveHandoff</strong> (WorldState persiste; CharacterState cambia).
+  Mapa MapLibre/H3 = deuda futura.
 </p>
 
-<h2>Deuda futura (no implementar aún)</h2>
+<h2>Deuda</h2>
 <ul>
-  <li>Stockfish WDL / PV / MultiPV (PASS A ≠ PASS B)</li>
-  <li>CausalTrace · MusicalState · ScorePlanner · Web Audio</li>
-  <li>CharacterMusicProfile · Story Mode · PerspectiveHandoff</li>
+  <li>Stockfish WASM · en passant · Go ko completo</li>
+  <li>Mapa OSM/H3 · StoryPacks ricos · RM Game shell</li>
 </ul>
 
     </main>
