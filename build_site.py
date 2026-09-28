@@ -3,12 +3,13 @@ Genera el sitio estático completo en docs/ (GitHub Pages).
 
     python3 build_site.py
 
-Fase 1: home Radio Micelio, hubs Wiki/Escena/Productora/Universo/Lab,
-capa entities, breadcrumbs conceptuales. URLs legacy de conceptos y arcade
-se conservan; /id/... solo existe como @id en JSON-LD.
+La banda y el cómic son las dos ramas principales. El contenido editable
+vive en content/personajes.json. Se conservan las URLs de recursos y las
+antiguas fichas redirigen a las actuales; /id/... identifica entidades JSON-LD.
 """
 
 import hashlib
+from html import escape
 import json
 import re
 import urllib.parse
@@ -33,6 +34,10 @@ from entities import (
     upcoming_characters,
     abs_url,
 )
+
+from project_data import BRANCHES, GROUPS, PROFILES, group_profiles
+from project_pages import build_project
+from project_pages import project_graph
 
 ONTOLOGY_NS = f"{SITE_URL}/ontology#"
 ROOT = Path(__file__).parent
@@ -74,7 +79,7 @@ def url_for(concept):
 
 
 def jsonld_dumps(obj) -> str:
-    return json.dumps(obj, ensure_ascii=False, indent=2)
+    return json.dumps(obj, ensure_ascii=False, indent=2).replace("<", "\\u003c")
 
 
 def with_context(obj):
@@ -93,9 +98,9 @@ def crumbs_html(items):
         if i:
             parts.append(" › ")
         if href:
-            parts.append(f'<a href="{href}">{label}</a>')
+            parts.append(f'<a href="{escape(href, quote=True)}">{escape(label)}</a>')
         else:
-            parts.append(label)
+            parts.append(escape(label))
     return f'<div class="crumbs">{"".join(parts)}</div>'
 
 
@@ -372,6 +377,8 @@ APP_JS = r"""
 
   function apply(collapsed) {
     sidebar.classList.toggle("collapsed", collapsed);
+    sidebar.inert = collapsed;
+    toggle.setAttribute("aria-expanded", String(!collapsed));
     document.body.classList.toggle("sidebar-open", !collapsed && isMobile());
   }
 
@@ -407,86 +414,48 @@ APP_JS = r"""
       apply(true);
     });
   }
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape" && !sidebar.classList.contains("collapsed")) {
+      apply(true);
+      toggle.focus();
+    }
+  });
+  window.matchMedia("(max-width: 860px)").addEventListener("change", function () {
+    apply(isMobile() || sidebar.classList.contains("collapsed"));
+  });
 })();
 """
 
 
 def build_sidebar_html(active_section=None, active_path=None):
-    """Sidebar contextual: no expone topología legacy como nav principal."""
-    wiki_domains = []
-    for d in DOMAINS:
-        if d["status"] == "published":
-            on = active_section == "wiki" and (
-                not active_path or active_path.startswith(d["current_url"] or "/")
-            )
-            wiki_domains.append(
-                f'<a class="side-onto{" active-onto" if on else ""}" href="{d["current_url"]}">'
-                f'<b>{d["label"]}</b><span>{d["short"]}</span></a>'
-            )
-        else:
-            wiki_domains.append(
-                f'<a class="side-onto soon" href="#" aria-disabled="true">'
-                f'<b>{d["label"]}</b><span>{d["short"]}</span>'
-                f'<span class="soon-tag">pronto</span></a>'
-            )
-
-    chars = []
-    for c in CHARACTERS:
-        is_pub = c["status"] == "published"
-        cls = "side-onto" + ("" if is_pub else " soon")
-        if active_section == "universo" and is_pub and active_path == c["current_url"]:
-            cls += " active-onto"
-        elif active_section == "universo" and is_pub and not active_path:
-            cls += " active-onto"
-        tag = "" if is_pub else '<span class="soon-tag">pronto</span>'
-        chars.append(
-            f'<a class="{cls}" href="{c["current_url"]}">'
-            f'<b>{c["label"]}</b><span>{c["topic"]}</span>{tag}</a>'
-        )
-
-    lab_items = []
-    for s in LAB_SECTIONS:
-        if s["status"] == "published" and s["current_url"]:
-            if active_path:
-                on = active_path == s["current_url"] or (
-                    s["id"] == "chess-lab"
-                    and active_path.rstrip("/").endswith("chess-lab")
-                ) or (
-                    s["id"] == "story-lab"
-                    and active_path.rstrip("/").endswith("story-lab")
-                )
-            else:
-                on = False
-            lab_items.append(
-                f'<a class="side-onto{" active-onto" if on else ""}" href="{s["current_url"]}">'
-                f'<b>{s["label"]}</b><span>{s["short"]}</span></a>'
-            )
-        else:
-            lab_items.append(
-                f'<a class="side-onto soon" href="#" aria-disabled="true">'
-                f'<b>{s["label"]}</b><span>{s["short"]}</span>'
-                f'<span class="soon-tag">pronto</span></a>'
-            )
-
-    return f"""
-<aside class="sidebar" id="sidebar">
-  <div class="sidebar-inner">
-    <div class="side-section-label">Wiki</div>
-    <nav class="side-onto-list">
-{"".join(wiki_domains)}
-      <a class="side-onto" href="/grafo/"><b>Grafo</b><span>Microfonía · local</span></a>
-    </nav>
-    <div class="side-section-label sub">Universo</div>
-    <nav class="side-onto-list">
-{"".join(chars)}
-    </nav>
-    <div class="side-section-label sub">Laboratorio</div>
-    <nav class="side-onto-list">
-{"".join(lab_items)}
-    </nav>
-  </div>
-</aside>
-"""
+    sections = []
+    for branch, info in BRANCHES.items():
+        active = ' active-onto' if active_section == branch else ''
+        current = ' aria-current="page"' if active_path == info['url'] else ''
+        content = f'<a class="side-onto branch-nav{active}" href="{info["url"]}"{current}><b>{info["label"]}</b></a>'
+        for key, group in GROUPS.items():
+            if group['branch'] != branch:
+                continue
+            in_group = any(active_path in (p['url'], p['ontology']) for p in group_profiles(key))
+            opened = ' open' if active_path and (active_path.startswith(group['url']) or in_group) else ''
+            content += f'<details class="side-group"{opened}><summary>{group["label"]}</summary><nav aria-label="{group["label"]}">'
+            content += f'<a class="side-person group-index" href="{group["url"]}">Ver todos →</a>'
+            for profile in group_profiles(key):
+                on = active_path == profile['url'] or active_path == profile['ontology']
+                current = ' aria-current="page"' if on else ''
+                content += f'<a class="side-person{" active-onto" if on else ""}" href="{profile["url"]}"{current}>{escape(profile["nombre"])}</a>'
+            content += '</nav></details>'
+        sections.append(content)
+    return f'''<aside class="sidebar" id="sidebar"><div class="sidebar-inner">
+      <a class="side-home" href="/">RADIO MICELIO <span>Inicio ↗</span></a>
+      <div class="side-section-label">El proyecto</div>{"".join(sections)}
+      <details class="side-resources"{" open" if active_section in ("wiki", "lab") else ""}><summary>Otros espacios</summary>
+        <nav aria-label="Otros espacios"><a class="side-person" href="/atlas/">Wiki musical</a>
+        <a class="side-person" href="/lab/">Laboratorio</a><a class="side-person" href="/chess-lab/">Chess Lab</a>
+        <a class="side-person" href="/story-lab/">Story Lab</a><a class="side-person" href="/arcade/">Arcade</a>
+        <a class="side-person" href="/escena/">Escena</a><a class="side-person" href="/productora/">Productora</a></nav>
+      </details><a class="side-ontology" href="/ontologia/">Ontología del proyecto ↗</a>
+    </div></aside>'''
 
 
 def page_shell(
@@ -503,6 +472,7 @@ def page_shell(
     extra_head="",
 ):
     jsonld = jsonld_dumps(jsonld_obj)
+    title, description = escape(title, quote=True), escape(description, quote=True)
     nav_html = "".join(
         f'<a href="{s["href"]}" class="{"active" if s["href"] == active_nav else ""}">{s["label"]}</a>'
         for s in NAV_SECTIONS
@@ -535,7 +505,7 @@ def page_shell(
   <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
   <div class="content-col">
     <header class="site">
-      <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Mostrar/ocultar menú">☰</button>
+      <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Mostrar/ocultar menú" aria-controls="sidebar" aria-expanded="true">☰</button>
       <a class="brand" href="/">Radio Micelio</a>
       <nav>{nav_html}</nav>
     </header>
@@ -544,90 +514,22 @@ def page_shell(
     </main>
     <footer class="site">
       <a href="https://www.radiomicelio.es">Radio Micelio</a> ·
-      Wiki musical, escena, productora, universo y laboratorio ·
+      La banda y el cómic ·
       Contenido bajo CC BY 4.0 ·
-      <a href="/ontology.jsonld">datos Microfonía (JSON-LD)</a>
+      <a href="/ontologia/">Ontología del proyecto</a>
+      · <a href="/editor/">Editor</a>
+      <p id="persistence-note">Edición en esta web: los cambios no se guardan en el sitio publicado.</p>
     </footer>
   </div>
 </div>
 <script src="/assets/app.js" defer></script>
+<script src="/assets/persistence.js" defer></script>
 </body>
 </html>
 """
 
 
 # ------------------------------------------------------------------ pages
-
-HUB_BLURBS = [
-    ("Wiki", "/atlas/", "Aprender y explorar", "Ontologías y conceptos conectados — empieza por Microfonía."),
-    ("Escena", "/escena/", "Descubrir", "Bandas, conciertos, salas, entrevistas y reviews. Empieza cerca."),
-    ("Productora", "/productora/", "Quiénes hacemos", "Profesionales de la cultura a través de sus alter ego."),
-    ("Universo", "/universo/", "Ficción", "Personajes, historias y el mapa narrativo de Radio Micelio."),
-    ("Lab", "/lab/", "Experimentar", "Chess Lab, Arcade, AIRAM y el futuro videojuego RM."),
-]
-
-
-def build_home():
-    cards = "\n".join(
-        f"""<a class="hub-card" href="{href}">
-              <div class="hub-kicker">{kicker}</div>
-              <h3>{label}</h3>
-              <p>{desc}</p>
-            </a>"""
-        for label, href, kicker, desc in HUB_BLURBS
-    )
-    body = f"""
-<section class="home-hero">
-  <h1 class="home-brand">Radio Micelio</h1>
-  <p class="home-tagline">Música, ficción, conocimiento y experimentación digital.</p>
-  <p class="home-sub">Estamos construyendo una wiki musical conectada: de una banda a un concierto, a una técnica, a un personaje. Un pequeño micelio.</p>
-</section>
-<aside class="feature-strip" aria-label="Chess Lab">
-  <div class="feature-kicker">Laboratorio · en vivo</div>
-  <h2>Chess Lab</h2>
-  <p>
-    Semántica del juego en siete variables: juega Vs Bot, 2 jugadores o Bot vs Bot,
-    revisa cada ply y exporta la sesión. Estático en GitHub Pages.
-  </p>
-  <div class="hero-actions">
-    <a class="btn primary" href="/chess-lab/">Abrir Chess Lab →</a>
-    <a class="btn ghost" href="/lab/airam/">Docs AIRAM</a>
-  </div>
-</aside>
-<div class="hub-grid">
-{cards}
-</div>
-"""
-    jsonld = with_context(
-        [
-            {
-                "@type": "WebSite",
-                "@id": f"{SITE_URL}/#website",
-                "url": f"{SITE_URL}/",
-                "name": SITE_NAME,
-                "description": SITE_DESCRIPTION,
-                "inLanguage": "es",
-                "publisher": {"@id": f"{SITE_URL}/#organization"},
-            },
-            {
-                "@type": "Organization",
-                "@id": f"{SITE_URL}/#organization",
-                "name": SITE_NAME,
-                "url": f"{SITE_URL}/",
-                "description": SITE_DESCRIPTION,
-            },
-        ]
-    )
-    html = page_shell(
-        title=f"{SITE_NAME} — Wiki musical, escena y laboratorio",
-        description=SITE_DESCRIPTION,
-        canonical=f"{SITE_URL}/",
-        body_html=body,
-        jsonld_obj=jsonld,
-        active_nav=None,
-    )
-    write_text(DOCS / "index.html", html)
-
 
 def build_atlas_hub():
     cards = []
@@ -739,169 +641,6 @@ def build_microfonia_landing():
     write_text(DOCS / "atlas" / "microfonia" / "index.html", html)
 
 
-def build_universo_hub():
-    char_cards = []
-    for c in CHARACTERS:
-        soon = " soon" if c["status"] != "published" else ""
-        if c.get("image"):
-            img = f"""<div class="char-img-wrap">
-                <picture>
-                  <source srcset="/assets/img/sismico.webp" type="image/webp">
-                  <img class="char-img" src="{c['image']}" alt="{c['label']}" width="80" height="80" loading="lazy">
-                </picture>
-              </div>"""
-        else:
-            img = '<div class="char-img-wrap"><div class="char-placeholder">🍄</div></div>'
-        char_cards.append(
-            f"""<a class="char-card{soon}" href="{c['current_url']}">
-              {img}
-              <h3>{c['label']}</h3>
-              <p>{c['topic']}</p>
-            </a>"""
-        )
-    crumbs = [("Radio Micelio", "/"), ("Universo", None)]
-    body = f"""
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <filter id="sismico-wave" x="-20%" y="-20%" width="140%" height="140%">
-    <feTurbulence type="fractalNoise" numOctaves="2" baseFrequency="0.009 0.014" seed="7" result="noise">
-      <animate attributeName="baseFrequency" values="0.009 0.014;0.013 0.010;0.009 0.014" dur="14s" repeatCount="indefinite"/>
-    </feTurbulence>
-    <feDisplacementMap in="SourceGraphic" in2="noise" scale="22" xChannelSelector="R" yChannelSelector="G"/>
-  </filter>
-</svg>
-{crumbs_html(crumbs)}
-<p class="pill">Ficción</p>
-<h1>Universo</h1>
-<p class="lead">
-  Personajes, relaciones y mundo de Radio Micelio. Cada personaje es una interfaz
-  hacia un campo de conocimiento — y hacia la productora.
-</p>
-<div class="char-grid">
-{"".join(char_cards)}
-</div>
-<p class="lead" style="margin-top:20px"><a href="/universo/personajes/">Ver índice de personajes →</a></p>
-"""
-    jsonld = with_context(
-        {
-            "@type": "CollectionPage",
-            "name": f"Universo · {SITE_NAME}",
-            "url": f"{SITE_URL}/universo/",
-            "description": "Personajes y mundo narrativo de Radio Micelio.",
-            "breadcrumb": crumbs_jsonld(crumbs),
-        }
-    )
-    html = page_shell(
-        title=f"Universo · {SITE_NAME}",
-        description="Personajes y mundo narrativo de Radio Micelio.",
-        canonical=f"{SITE_URL}/universo/",
-        body_html=body,
-        jsonld_obj=jsonld,
-        active_nav="/universo/",
-        active_section="universo",
-    )
-    write_text(DOCS / "universo" / "index.html", html)
-
-
-def build_personajes_index():
-    rows = "\n".join(
-        f'<a class="concept-card{" soon" if c["status"] != "published" else ""}" href="{c["current_url"]}">'
-        f'<b>{c["label"]}</b><span>{c["topic"]}</span></a>'
-        for c in CHARACTERS
-    )
-    crumbs = [("Radio Micelio", "/"), ("Universo", "/universo/"), ("Personajes", None)]
-    body = f"""
-{crumbs_html(crumbs)}
-<h1>Personajes</h1>
-<p class="lead">Interfaces narrativas hacia campos de conocimiento y hacia la productora.</p>
-<div class="concept-list">
-{rows}
-</div>
-"""
-    jsonld = with_context(
-        {
-            "@type": "CollectionPage",
-            "name": f"Personajes · {SITE_NAME}",
-            "url": f"{SITE_URL}/universo/personajes/",
-            "breadcrumb": crumbs_jsonld(crumbs),
-        }
-    )
-    html = page_shell(
-        title=f"Personajes · Universo · {SITE_NAME}",
-        description="Personajes del universo Radio Micelio.",
-        canonical=f"{SITE_URL}/universo/personajes/",
-        body_html=body,
-        jsonld_obj=jsonld,
-        active_nav="/universo/",
-        active_section="universo",
-    )
-    write_text(DOCS / "universo" / "personajes" / "index.html", html)
-
-
-def build_sismico_page():
-    crumbs = [
-        ("Radio Micelio", "/"),
-        ("Universo", "/universo/"),
-        ("Personajes", "/universo/personajes/"),
-        ("Sísmico", None),
-    ]
-    body = f"""
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <filter id="sismico-wave" x="-20%" y="-20%" width="140%" height="140%">
-    <feTurbulence type="fractalNoise" numOctaves="2" baseFrequency="0.009 0.014" seed="7" result="noise">
-      <animate attributeName="baseFrequency" values="0.009 0.014;0.013 0.010;0.009 0.014" dur="14s" repeatCount="indefinite"/>
-    </feTurbulence>
-    <feDisplacementMap in="SourceGraphic" in2="noise" scale="22" xChannelSelector="R" yChannelSelector="G"/>
-  </filter>
-</svg>
-{crumbs_html(crumbs)}
-<div class="hero">
-  <div class="hero-img-wrap">
-    <picture>
-      <source srcset="/assets/img/sismico.webp" type="image/webp">
-      <img class="hero-img" src="/assets/img/sismico.png" alt="Sísmico" width="1000" height="1000" fetchpriority="high">
-    </picture>
-  </div>
-</div>
-<p class="pill">Personaje · Universo Radio Micelio</p>
-<h1>Sísmico</h1>
-<p class="lead">{SISMICO['description']}</p>
-<h2>Campo de investigación</h2>
-<p class="lead">
-  <strong>Microfonía y sensórica.</strong> El extraordinario sistema auditivo de Sísmico
-  conecta su historia con el estudio del sonido, los sensores y la captación acústica.
-</p>
-<div class="hero-actions">
-  <a class="btn primary" href="/atlas/microfonia/">Explorar conocimiento →</a>
-  <a class="btn ghost" href="/universo/">Volver al universo</a>
-</div>
-"""
-    jsonld = with_context(
-        [
-            {
-                "@type": "Person",
-                "@id": SISMICO["entity_id"],
-                "name": "Sísmico",
-                "url": abs_url(SISMICO["current_url"]),
-                "image": abs_url(SISMICO["image"]),
-                "description": SISMICO["description"],
-                "knowsAbout": {"@id": MICROFONIA["entity_id"]},
-                "rm:knowsDomain": {"@id": MICROFONIA["entity_id"]},
-            },
-            crumbs_jsonld(crumbs),
-        ]
-    )
-    html = page_shell(
-        title=f"Sísmico · Universo · {SITE_NAME}",
-        description=SISMICO["description"],
-        canonical=abs_url(SISMICO["canonical_url"]),
-        body_html=body,
-        jsonld_obj=jsonld,
-        active_nav="/universo/",
-        active_section="universo",
-    )
-    write_text(DOCS / "universo" / "personajes" / "sismico" / "index.html", html)
-
-
 def build_escena_hub():
     crumbs = [("Radio Micelio", "/"), ("Escena", None)]
     body = f"""
@@ -945,6 +684,8 @@ def build_escena_hub():
 def build_productora_hub():
     cards = []
     for c in CHARACTERS:
+        if not c.get("producer_role"):
+            continue
         soon = " soon" if c["status"] != "published" else ""
         cards.append(
             f"""<a class="concept-card{soon}" href="{c['current_url']}">
@@ -1272,7 +1013,9 @@ def build_chess_lab():
 """
     jsonld = with_context(
         {
-            "@type": "WebApplication",
+            "@id": f"{SITE_URL}/chess-lab/#game",
+            "@type": ["VideoGame", "WebApplication"],
+            "exampleOfWork": {"@id": f"{SITE_URL}/id/game/chess"},
             "name": f"AIRAM Chess Lab · {SITE_NAME}",
             "description": "Laboratorio H−2 de semántica del juego sobre ajedrez.",
             "url": f"{SITE_URL}/chess-lab/",
@@ -1845,27 +1588,9 @@ def build_404():
 
 
 def build_sitemap():
-    urls = [
-        f"{SITE_URL}/",
-        f"{SITE_URL}/atlas/",
-        f"{SITE_URL}/atlas/microfonia/",
-        f"{SITE_URL}/universo/",
-        f"{SITE_URL}/universo/personajes/",
-        f"{SITE_URL}/universo/personajes/sismico/",
-        f"{SITE_URL}/escena/",
-        f"{SITE_URL}/productora/",
-        f"{SITE_URL}/lab/",
-        f"{SITE_URL}/lab/airam/",
-        f"{SITE_URL}/chess-lab/",
-        f"{SITE_URL}/story-lab/",
-        f"{SITE_URL}/grafo/",
-        f"{SITE_URL}/arcade/",
-    ]
-    urls += [f"{SITE_URL}/{cat['key']}/" for cat in CATEGORIES]
-    urls += [f"{SITE_URL}/{c['category']}/{c['id']}/" for c in CONCEPTS]
-    urls += [f"{SITE_URL}/arcade/decade/{d['key']}/" for d in ARCADE_DECADES]
-    urls += [f"{SITE_URL}/arcade/{g['slug']}/" for g in ARCADE_GAMES]
-    urls += [abs_url(c["canonical_url"]) for c in upcoming_characters()]
+    urls = sorted({match.group(1) for path in DOCS.rglob("*.html")
+                   if path.name != "404.html" and path.relative_to(DOCS).parts[0] != "editor"
+                   for match in re.finditer(r'<link rel="canonical" href="([^"<>]+)"', path.read_text(encoding="utf-8"))})
 
     today = datetime.now(timezone.utc).date().isoformat()
     entries = "\n".join(f"  <url><loc>{u}</loc><lastmod>{today}</lastmod></url>" for u in urls)
@@ -1886,6 +1611,11 @@ def build_robots():
 
 
 def build():
+    project_graph()  # Valida también la ontología antes de sustituir docs/.
+    domain_ids = {d["id"] for d in DOMAINS}
+    for profile in PROFILES:
+        if not set(profile["dominios"]).issubset(domain_ids):
+            raise ValueError(f"Dominios desconocidos en {profile['id']}")
     if DOCS.exists():
         for p in sorted(DOCS.rglob("*"), reverse=True):
             if p.is_file():
@@ -1895,7 +1625,7 @@ def build():
                 p.rmdir()
     DOCS.mkdir(parents=True, exist_ok=True)
 
-    write_text(DOCS / "assets" / "style.css", STYLE_CSS)
+    write_text(DOCS / "assets" / "style.css", STYLE_CSS + (ROOT / "assets_src" / "project.css").read_text(encoding="utf-8"))
     write_text(DOCS / "assets" / "app.js", APP_JS)
     write_text(DOCS / "assets" / "graph.js", GRAPH_JS)
     write_text(DOCS / "CNAME", "www.radiomicelio.es\n")
@@ -1904,17 +1634,14 @@ def build():
     img_src = ROOT / "assets_src"
     img_dst = DOCS / "assets" / "img"
     img_dst.mkdir(parents=True, exist_ok=True)
-    for name in ("sismico.png", "sismico.webp", "404.png", "404.webp"):
-        src = img_src / name
-        if src.exists():
-            (img_dst / name).write_bytes(src.read_bytes())
+    for src in img_src.rglob("*"):
+        if src.is_file() and src.suffix.lower() in {".png", ".webp", ".jpg", ".jpeg", ".gif", ".svg", ".avif"}:
+            dest = img_dst / src.relative_to(img_src)
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            dest.write_bytes(src.read_bytes())
 
-    build_home()
     build_atlas_hub()
     build_microfonia_landing()
-    build_universo_hub()
-    build_personajes_index()
-    build_sismico_page()
     build_escena_hub()
     build_productora_hub()
     build_lab_hub()
@@ -1931,6 +1658,7 @@ def build():
     build_404()
     build_graph_data()
     build_ontology_jsonld()
+    build_project(page_shell, write_text, write_json, DOCS, crumbs_html, crumbs_jsonld)
     build_sitemap()
     build_robots()
 

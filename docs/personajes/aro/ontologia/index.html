@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ontología de Aro · Radio Micelio</title>
+<meta name="description" content="Ontología de Aro">
+<link rel="canonical" href="https://www.radiomicelio.es/personajes/aro/ontologia/">
+<meta property="og:title" content="Ontología de Aro · Radio Micelio">
+<meta property="og:description" content="Ontología de Aro">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.radiomicelio.es/personajes/aro/ontologia/">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Ctext%20y%3D%22.9em%22%20font-size%3D%2290%22%3E%F0%9F%8D%84%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="/assets/style.css">
+<link rel="alternate" type="application/ld+json" href="/personajes/aro/ontologia/ontology.jsonld">
+<script type="application/ld+json">
+{
+  "@context": {
+    "@vocab": "https://schema.org/",
+    "rm": "https://www.radiomicelio.es/vocab/",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  },
+  "@graph": [
+    {
+      "@id": "https://www.radiomicelio.es/id/radio-micelio",
+      "@type": "CreativeWork",
+      "name": "Radio Micelio",
+      "url": "https://www.radiomicelio.es/",
+      "description": "Radio Micelio: la banda y el cómic. Música, personajes e historias conectadas.",
+      "rm:hasBranch": [
+        {
+          "@id": "https://www.radiomicelio.es/id/banda"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/id/comic"
+        }
+      ]
+    },
+    {
+      "@id": "https://www.radiomicelio.es/id/banda",
+      "@type": "MusicGroup",
+      "name": "La banda · Radio Micelio",
+      "description": "La música y las personas que forman Radio Micelio.",
+      "url": "https://www.radiomicelio.es/banda/",
+      "rm:inProject": {
+        "@id": "https://www.radiomicelio.es/id/radio-micelio"
+      },
+      "subjectOf": {
+        "@id": "https://www.radiomicelio.es/banda/ontologia/"
+      },
+      "member": [
+        {
+          "@id": "https://www.radiomicelio.es/id/sismico"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/id/atomico"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/id/amethystos"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/id/tamen"
+        }
+      ],
+      "rm:formerMember": [
+        {
+          "@id": "https://www.radiomicelio.es/id/basscolgado"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/id/musitoxic"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/id/miguel-mafias-el-muso"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/id/will-el-puas"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/id/tocarlos-el-nino-rave"
+        }
+      ]
+    },
+    {
+      "@id": "https://www.radiomicelio.es/id/comic",
+      "@type": "ComicSeries",
+      "name": "Cómic · Radio Micelio",
+      "description": "Las historias y los personajes del cómic de Radio Micelio.",
+      "url": "https://www.radiomicelio.es/comic/",
+      "rm:inProject": {
+        "@id": "https://www.radiomicelio.es/id/radio-micelio"
+      },
+      "subjectOf": {
+        "@id": "https://www.radiomicelio.es/comic/ontologia/"
+      },
+      "character": [
+        {
+          "@id": "https://www.radiomicelio.es/id/marza"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/id/daphne-rockmore"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/id/solfa"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/id/jhonny"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/id/aro"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/id/gab"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/id/foca-1"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/id/caballo-1"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/id/cobaya-1"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/id/cobaya-2"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/id/cobaya-n-1"
+        }
+      ]
+    },
+    {
+      "@id": "https://www.radiomicelio.es/banda/integrantes/",
+      "@type": "CollectionPage",
+      "name": "Integrantes",
+      "url": "https://www.radiomicelio.es/banda/integrantes/",
+      "about": {
+        "@id": "https://www.radiomicelio.es/id/banda"
+      },
+      "isPartOf": {
+        "@id": "https://www.radiomicelio.es/banda/"
+      },
+      "hasPart": [
+        {
+          "@id": "https://www.radiomicelio.es/personajes/sismico/"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/personajes/atomico/"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/personajes/amethystos/"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/personajes/tamen/"
+        }
+      ]
+    },
+    {
+      "@id": "https://www.radiomicelio.es/banda/antiguos-integrantes/",
+      "@type": "CollectionPage",
+      "name": "Antiguos integrantes",
+      "url": "https://www.radiomicelio.es/banda/antiguos-integrantes/",
+      "about": {
+        "@id": "https://www.radiomicelio.es/id/banda"
+      },
+      "isPartOf": {
+        "@id": "https://www.radiomicelio.es/banda/"
+      },
+      "hasPart": [
+        {
+          "@id": "https://www.radiomicelio.es/personajes/basscolgado/"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/personajes/musitoxic/"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/personajes/miguel-mafias-el-muso/"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/personajes/will-el-puas/"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/personajes/tocarlos-el-nino-rave/"
+        }
+      ]
+    },
+    {
+      "@id": "https://www.radiomicelio.es/comic/personajes/",
+      "@type": "CollectionPage",
+      "name": "Personajes",
+      "url": "https://www.radiomicelio.es/comic/personajes/",
+      "about": {
+        "@id": "https://www.radiomicelio.es/id/comic"
+      },
+      "isPartOf": {
+        "@id": "https://www.radiomicelio.es/comic/"
+      },
+      "hasPart": [
+        {
+          "@id": "https://www.radiomicelio.es/personajes/marza/"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/personajes/daphne-rockmore/"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/personajes/solfa/"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/personajes/jhonny/"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/personajes/aro/"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/personajes/gab/"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/personajes/foca-1/"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/personajes/caballo-1/"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/personajes/cobaya-1/"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/personajes/cobaya-2/"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/personajes/cobaya-n-1/"
+        }
+      ]
+    },
+    {
+      "@id": "https://www.radiomicelio.es/id/aro",
+      "@type": [
+        "rm:Character"
+      ],
+      "name": "Aro",
+      "description": "Descripción en preparación.",
+      "url": "https://www.radiomicelio.es/personajes/aro/",
+      "mainEntityOfPage": {
+        "@id": "https://www.radiomicelio.es/personajes/aro/"
+      },
+      "subjectOf": {
+        "@id": "https://www.radiomicelio.es/personajes/aro/ontologia/"
+      },
+      "rm:inBranch": [
+        {
+          "@id": "https://www.radiomicelio.es/id/comic"
+        }
+      ],
+      "rm:inGroup": [
+        {
+          "@id": "https://www.radiomicelio.es/comic/personajes/"
+        }
+      ],
+      "rm:appearsIn": [
+        {
+          "@id": "https://www.radiomicelio.es/id/comic"
+        }
+      ]
+    },
+    {
+      "@id": "https://www.radiomicelio.es/personajes/aro/",
+      "@type": "ProfilePage",
+      "name": "Aro",
+      "url": "https://www.radiomicelio.es/personajes/aro/",
+      "mainEntity": {
+        "@id": "https://www.radiomicelio.es/id/aro"
+      },
+      "isPartOf": [
+        {
+          "@id": "https://www.radiomicelio.es/comic/personajes/"
+        }
+      ]
+    },
+    {
+      "@id": "https://www.radiomicelio.es/chess-lab/#game",
+      "@type": [
+        "VideoGame",
+        "WebApplication"
+      ],
+      "name": "Ajedrez · Chess Lab",
+      "url": "https://www.radiomicelio.es/chess-lab/",
+      "exampleOfWork": {
+        "@id": "https://www.radiomicelio.es/id/game/chess"
+      }
+    },
+    {
+      "@id": "https://www.radiomicelio.es/id/game/chess",
+      "@type": "Game",
+      "name": "Ajedrez",
+      "workExample": {
+        "@id": "https://www.radiomicelio.es/chess-lab/#game"
+      }
+    },
+    {
+      "@id": "https://www.radiomicelio.es/id/microfonia",
+      "@type": "DefinedTermSet",
+      "name": "Microfonía",
+      "description": "Ontología abierta de microfonía: tipos de micrófono, patrones polares, técnicas estéreo y colocación por instrumento.",
+      "url": "https://www.radiomicelio.es/atlas/microfonia/",
+      "subjectOf": {
+        "@id": "https://www.radiomicelio.es/ontology.jsonld"
+      },
+      "rm:conceptScheme": {
+        "@id": "https://www.radiomicelio.es/ontology#MicrofoniaScheme"
+      }
+    },
+    {
+      "@id": "https://www.radiomicelio.es/id/evolucion",
+      "@type": "DefinedTermSet",
+      "name": "Evolución",
+      "description": "Dominio de conocimiento asociado a Atómico. En preparación."
+    },
+    {
+      "@id": "https://www.radiomicelio.es/id/botanica",
+      "@type": "DefinedTermSet",
+      "name": "Botánica",
+      "description": "Dominio de conocimiento asociado a Amethystos. En preparación."
+    },
+    {
+      "@id": "https://www.radiomicelio.es/id/electronica",
+      "@type": "DefinedTermSet",
+      "name": "Electricidad y electrónica",
+      "description": "Dominio de conocimiento asociado a Daphne Rockmore. En preparación."
+    },
+    {
+      "@id": "https://www.radiomicelio.es/id/tecno-naturaleza",
+      "@type": "DefinedTermSet",
+      "name": "Naturaleza y tecnología",
+      "description": "Dominio de conocimiento asociado a Marza. En preparación."
+    },
+    {
+      "@id": "https://www.radiomicelio.es/id/exploracion-espacial",
+      "@type": "DefinedTermSet",
+      "name": "Exploración espacial",
+      "description": "Dominio de conocimiento asociado a Sirius. En preparación."
+    },
+    {
+      "@id": "https://www.radiomicelio.es/vocab/Character",
+      "@type": "rdfs:Class",
+      "rdfs:label": "Personaje de ficción",
+      "rdfs:subClassOf": {
+        "@id": "https://schema.org/Thing"
+      }
+    },
+    {
+      "@id": "https://www.radiomicelio.es/vocab/hasBranch",
+      "@type": "rdf:Property",
+      "rdfs:label": "Rama del proyecto"
+    },
+    {
+      "@id": "https://www.radiomicelio.es/vocab/inProject",
+      "@type": "rdf:Property",
+      "rdfs:label": "Pertenece al proyecto"
+    },
+    {
+      "@id": "https://www.radiomicelio.es/vocab/inBranch",
+      "@type": "rdf:Property",
+      "rdfs:label": "Pertenece a la rama"
+    },
+    {
+      "@id": "https://www.radiomicelio.es/vocab/inGroup",
+      "@type": "rdf:Property",
+      "rdfs:label": "Figura en la colección"
+    },
+    {
+      "@id": "https://www.radiomicelio.es/vocab/formerMember",
+      "@type": "rdf:Property",
+      "rdfs:label": "Antiguo integrante"
+    },
+    {
+      "@id": "https://www.radiomicelio.es/vocab/formerMemberOf",
+      "@type": "rdf:Property",
+      "rdfs:label": "Fue integrante de"
+    },
+    {
+      "@id": "https://www.radiomicelio.es/vocab/themeSong",
+      "@type": "rdf:Property",
+      "rdfs:label": "Canción asociada"
+    },
+    {
+      "@id": "https://www.radiomicelio.es/vocab/game",
+      "@type": "rdf:Property",
+      "rdfs:label": "Juego asociado"
+    },
+    {
+      "@id": "https://www.radiomicelio.es/vocab/currentLocation",
+      "@type": "rdf:Property",
+      "rdfs:label": "Ubicación actual publicada"
+    },
+    {
+      "@id": "https://www.radiomicelio.es/vocab/relatedLink",
+      "@type": "rdf:Property",
+      "rdfs:label": "Enlace relacionado"
+    },
+    {
+      "@id": "https://www.radiomicelio.es/vocab/externalOntology",
+      "@type": "rdf:Property",
+      "rdfs:label": "Ontología complementaria"
+    },
+    {
+      "@id": "https://www.radiomicelio.es/vocab/conceptScheme",
+      "@type": "rdf:Property",
+      "rdfs:label": "Esquema de conceptos"
+    },
+    {
+      "@id": "https://www.radiomicelio.es/vocab/appearsIn",
+      "@type": "rdf:Property",
+      "rdfs:label": "Aparece en"
+    },
+    {
+      "@id": "https://www.radiomicelio.es/vocab/tutorial",
+      "@type": "rdf:Property",
+      "rdfs:label": "Recurso para aprender"
+    },
+    {
+      "@id": "https://www.radiomicelio.es/vocab/childConcept",
+      "@type": "rdf:Property",
+      "rdfs:label": "childConcept"
+    },
+    {
+      "@id": "https://www.radiomicelio.es/vocab/parentConcept",
+      "@type": "rdf:Property",
+      "rdfs:label": "parentConcept"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Radio Micelio",
+          "item": "https://www.radiomicelio.es/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Cómic",
+          "item": "https://www.radiomicelio.es/comic/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Aro",
+          "item": "https://www.radiomicelio.es/personajes/aro/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "Ontología"
+        }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body class="page-project">
+<div class="app-shell">
+<aside class="sidebar" id="sidebar"><div class="sidebar-inner">
+      <a class="side-home" href="/">RADIO MICELIO <span>Inicio ↗</span></a>
+      <div class="side-section-label">El proyecto</div><a class="side-onto branch-nav" href="/banda/"><b>La banda</b></a><details class="side-group"><summary>Integrantes</summary><nav aria-label="Integrantes"><a class="side-person group-index" href="/banda/integrantes/">Ver todos →</a><a class="side-person" href="/personajes/sismico/">Sísmico</a><a class="side-person" href="/personajes/atomico/">Atómico Vaquero</a><a class="side-person" href="/personajes/amethystos/">Amethystos</a><a class="side-person" href="/personajes/tamen/">Tamen</a></nav></details><details class="side-group"><summary>Antiguos integrantes</summary><nav aria-label="Antiguos integrantes"><a class="side-person group-index" href="/banda/antiguos-integrantes/">Ver todos →</a><a class="side-person" href="/personajes/basscolgado/">Basscolgado</a><a class="side-person" href="/personajes/musitoxic/">Musitoxic</a><a class="side-person" href="/personajes/miguel-mafias-el-muso/">Miguel Mafias (el Muso)</a><a class="side-person" href="/personajes/will-el-puas/">Will el púas</a><a class="side-person" href="/personajes/tocarlos-el-nino-rave/">Tocarlos el niño Rave</a></nav></details><a class="side-onto branch-nav active-onto" href="/comic/"><b>Cómic</b></a><details class="side-group" open><summary>Personajes</summary><nav aria-label="Personajes"><a class="side-person group-index" href="/comic/personajes/">Ver todos →</a><a class="side-person" href="/personajes/marza/">Marza</a><a class="side-person" href="/personajes/daphne-rockmore/">Daphne Rockmore</a><a class="side-person" href="/personajes/solfa/">Solfa</a><a class="side-person" href="/personajes/jhonny/">Jhonny</a><a class="side-person active-onto" href="/personajes/aro/" aria-current="page">Aro</a><a class="side-person" href="/personajes/gab/">Gab</a><a class="side-person" href="/personajes/foca-1/">Foca 1</a><a class="side-person" href="/personajes/caballo-1/">Caballo 1</a><a class="side-person" href="/personajes/cobaya-1/">Cobaya 1</a><a class="side-person" href="/personajes/cobaya-2/">Cobaya 2</a><a class="side-person" href="/personajes/cobaya-n-1/">Cobaya n-1</a></nav></details>
+      <details class="side-resources"><summary>Otros espacios</summary>
+        <nav aria-label="Otros espacios"><a class="side-person" href="/atlas/">Wiki musical</a>
+        <a class="side-person" href="/lab/">Laboratorio</a><a class="side-person" href="/chess-lab/">Chess Lab</a>
+        <a class="side-person" href="/story-lab/">Story Lab</a><a class="side-person" href="/arcade/">Arcade</a>
+        <a class="side-person" href="/escena/">Escena</a><a class="side-person" href="/productora/">Productora</a></nav>
+      </details><a class="side-ontology" href="/ontologia/">Ontología del proyecto ↗</a>
+    </div></aside>
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <div class="content-col">
+    <header class="site">
+      <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Mostrar/ocultar menú" aria-controls="sidebar" aria-expanded="true">☰</button>
+      <a class="brand" href="/">Radio Micelio</a>
+      <nav><a href="/banda/" class="">La banda</a><a href="/comic/" class="active">Cómic</a></nav>
+    </header>
+    <main>
+<div class="crumbs"><a href="/">Radio Micelio</a> › <a href="/comic/">Cómic</a> › <a href="/personajes/aro/">Aro</a> › Ontología</div><h1>Ontología de Aro</h1><p class="lead">Relaciones entre el proyecto, sus ramas, las fichas y sus campos de conocimiento.</p><nav class="ontology-trail" aria-label="Jerarquía ontológica"><a href="/ontologia/">Radio Micelio</a> <span>→</span> <a href="/comic/ontologia/">Cómic</a> <span>→ Personajes</span> <span>→ Aro</span></nav><p><a href="/personajes/aro/">Volver a la ficha de Aro</a></p><p class="entity-id">ID permanente: <code>https://www.radiomicelio.es/id/aro</code></p><h2>Tipos y relaciones</h2><dl class="ontology-relations"><dt>Tipo</dt><dd>Personaje</dd><dt>Aparece en</dt><dd><a href="/comic/ontologia/">Cómic</a></dd><dt>Canción asociada</dt><dd>Pendiente</dd><dt>Juego asociado</dt><dd>Pendiente</dd><dt>Tutorial</dt><dd>Pendiente</dd><dt>Ubicación actual</dt><dd>Por anunciar</dd></dl><h2>Campos de conocimiento</h2><p class="pending">Conexiones de conocimiento en preparación.</p><p class="ontology-link"><a href="/personajes/aro/ontologia/ontology.jsonld">Datos enlazados · JSON-LD</a> · <a href="/ontologia/ontology.jsonld">Grafo completo del proyecto</a> · <a href="/editor/?personaje=aro&vista=ontologia">Editar ontología</a></p>
+    </main>
+    <footer class="site">
+      <a href="https://www.radiomicelio.es">Radio Micelio</a> ·
+      La banda y el cómic ·
+      Contenido bajo CC BY 4.0 ·
+      <a href="/ontologia/">Ontología del proyecto</a>
+      · <a href="/editor/">Editor</a>
+      <p id="persistence-note">Edición en esta web: los cambios no se guardan en el sitio publicado.</p>
+    </footer>
+  </div>
+</div>
+<script src="/assets/app.js" defer></script>
+<script src="/assets/persistence.js" defer></script>
+</body>
+</html>

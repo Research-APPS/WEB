@@ -1,0 +1,427 @@
+{
+  "@context": {
+    "@vocab": "https://schema.org/",
+    "rm": "https://www.radiomicelio.es/vocab/",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  },
+  "@id": "https://www.radiomicelio.es/personajes/atomico/ontologia/",
+  "@type": "CreativeWork",
+  "name": "Ontología de Atómico Vaquero",
+  "isPartOf": {
+    "@id": "https://www.radiomicelio.es/ontologia/"
+  },
+  "@graph": [
+    {
+      "@id": "https://www.radiomicelio.es/id/radio-micelio",
+      "@type": "CreativeWork",
+      "name": "Radio Micelio",
+      "url": "https://www.radiomicelio.es/",
+      "description": "Radio Micelio: la banda y el cómic. Música, personajes e historias conectadas.",
+      "rm:hasBranch": [
+        {
+          "@id": "https://www.radiomicelio.es/id/banda"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/id/comic"
+        }
+      ]
+    },
+    {
+      "@id": "https://www.radiomicelio.es/id/banda",
+      "@type": "MusicGroup",
+      "name": "La banda · Radio Micelio",
+      "description": "La música y las personas que forman Radio Micelio.",
+      "url": "https://www.radiomicelio.es/banda/",
+      "rm:inProject": {
+        "@id": "https://www.radiomicelio.es/id/radio-micelio"
+      },
+      "subjectOf": {
+        "@id": "https://www.radiomicelio.es/banda/ontologia/"
+      },
+      "member": [
+        {
+          "@id": "https://www.radiomicelio.es/id/sismico"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/id/atomico"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/id/amethystos"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/id/tamen"
+        }
+      ],
+      "rm:formerMember": [
+        {
+          "@id": "https://www.radiomicelio.es/id/basscolgado"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/id/musitoxic"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/id/miguel-mafias-el-muso"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/id/will-el-puas"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/id/tocarlos-el-nino-rave"
+        }
+      ]
+    },
+    {
+      "@id": "https://www.radiomicelio.es/id/comic",
+      "@type": "ComicSeries",
+      "name": "Cómic · Radio Micelio",
+      "description": "Las historias y los personajes del cómic de Radio Micelio.",
+      "url": "https://www.radiomicelio.es/comic/",
+      "rm:inProject": {
+        "@id": "https://www.radiomicelio.es/id/radio-micelio"
+      },
+      "subjectOf": {
+        "@id": "https://www.radiomicelio.es/comic/ontologia/"
+      },
+      "character": [
+        {
+          "@id": "https://www.radiomicelio.es/id/marza"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/id/daphne-rockmore"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/id/solfa"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/id/jhonny"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/id/aro"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/id/gab"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/id/foca-1"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/id/caballo-1"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/id/cobaya-1"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/id/cobaya-2"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/id/cobaya-n-1"
+        }
+      ]
+    },
+    {
+      "@id": "https://www.radiomicelio.es/banda/integrantes/",
+      "@type": "CollectionPage",
+      "name": "Integrantes",
+      "url": "https://www.radiomicelio.es/banda/integrantes/",
+      "about": {
+        "@id": "https://www.radiomicelio.es/id/banda"
+      },
+      "isPartOf": {
+        "@id": "https://www.radiomicelio.es/banda/"
+      },
+      "hasPart": [
+        {
+          "@id": "https://www.radiomicelio.es/personajes/sismico/"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/personajes/atomico/"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/personajes/amethystos/"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/personajes/tamen/"
+        }
+      ]
+    },
+    {
+      "@id": "https://www.radiomicelio.es/banda/antiguos-integrantes/",
+      "@type": "CollectionPage",
+      "name": "Antiguos integrantes",
+      "url": "https://www.radiomicelio.es/banda/antiguos-integrantes/",
+      "about": {
+        "@id": "https://www.radiomicelio.es/id/banda"
+      },
+      "isPartOf": {
+        "@id": "https://www.radiomicelio.es/banda/"
+      },
+      "hasPart": [
+        {
+          "@id": "https://www.radiomicelio.es/personajes/basscolgado/"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/personajes/musitoxic/"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/personajes/miguel-mafias-el-muso/"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/personajes/will-el-puas/"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/personajes/tocarlos-el-nino-rave/"
+        }
+      ]
+    },
+    {
+      "@id": "https://www.radiomicelio.es/comic/personajes/",
+      "@type": "CollectionPage",
+      "name": "Personajes",
+      "url": "https://www.radiomicelio.es/comic/personajes/",
+      "about": {
+        "@id": "https://www.radiomicelio.es/id/comic"
+      },
+      "isPartOf": {
+        "@id": "https://www.radiomicelio.es/comic/"
+      },
+      "hasPart": [
+        {
+          "@id": "https://www.radiomicelio.es/personajes/marza/"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/personajes/daphne-rockmore/"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/personajes/solfa/"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/personajes/jhonny/"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/personajes/aro/"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/personajes/gab/"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/personajes/foca-1/"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/personajes/caballo-1/"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/personajes/cobaya-1/"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/personajes/cobaya-2/"
+        },
+        {
+          "@id": "https://www.radiomicelio.es/personajes/cobaya-n-1/"
+        }
+      ]
+    },
+    {
+      "@id": "https://www.radiomicelio.es/id/atomico",
+      "@type": [
+        "rm:Character",
+        "Person"
+      ],
+      "name": "Atómico Vaquero",
+      "description": "Su campo de investigación: evolución. Su historia está en preparación.",
+      "url": "https://www.radiomicelio.es/personajes/atomico/",
+      "mainEntityOfPage": {
+        "@id": "https://www.radiomicelio.es/personajes/atomico/"
+      },
+      "subjectOf": {
+        "@id": "https://www.radiomicelio.es/personajes/atomico/ontologia/"
+      },
+      "rm:inBranch": [
+        {
+          "@id": "https://www.radiomicelio.es/id/banda"
+        }
+      ],
+      "rm:inGroup": [
+        {
+          "@id": "https://www.radiomicelio.es/banda/integrantes/"
+        }
+      ],
+      "memberOf": {
+        "@id": "https://www.radiomicelio.es/id/banda"
+      },
+      "knowsAbout": [
+        {
+          "@id": "https://www.radiomicelio.es/id/evolucion"
+        }
+      ]
+    },
+    {
+      "@id": "https://www.radiomicelio.es/personajes/atomico/",
+      "@type": "ProfilePage",
+      "name": "Atómico Vaquero",
+      "url": "https://www.radiomicelio.es/personajes/atomico/",
+      "mainEntity": {
+        "@id": "https://www.radiomicelio.es/id/atomico"
+      },
+      "isPartOf": [
+        {
+          "@id": "https://www.radiomicelio.es/banda/integrantes/"
+        }
+      ]
+    },
+    {
+      "@id": "https://www.radiomicelio.es/chess-lab/#game",
+      "@type": [
+        "VideoGame",
+        "WebApplication"
+      ],
+      "name": "Ajedrez · Chess Lab",
+      "url": "https://www.radiomicelio.es/chess-lab/",
+      "exampleOfWork": {
+        "@id": "https://www.radiomicelio.es/id/game/chess"
+      }
+    },
+    {
+      "@id": "https://www.radiomicelio.es/id/game/chess",
+      "@type": "Game",
+      "name": "Ajedrez",
+      "workExample": {
+        "@id": "https://www.radiomicelio.es/chess-lab/#game"
+      }
+    },
+    {
+      "@id": "https://www.radiomicelio.es/id/microfonia",
+      "@type": "DefinedTermSet",
+      "name": "Microfonía",
+      "description": "Ontología abierta de microfonía: tipos de micrófono, patrones polares, técnicas estéreo y colocación por instrumento.",
+      "url": "https://www.radiomicelio.es/atlas/microfonia/",
+      "subjectOf": {
+        "@id": "https://www.radiomicelio.es/ontology.jsonld"
+      },
+      "rm:conceptScheme": {
+        "@id": "https://www.radiomicelio.es/ontology#MicrofoniaScheme"
+      }
+    },
+    {
+      "@id": "https://www.radiomicelio.es/id/evolucion",
+      "@type": "DefinedTermSet",
+      "name": "Evolución",
+      "description": "Dominio de conocimiento asociado a Atómico. En preparación."
+    },
+    {
+      "@id": "https://www.radiomicelio.es/id/botanica",
+      "@type": "DefinedTermSet",
+      "name": "Botánica",
+      "description": "Dominio de conocimiento asociado a Amethystos. En preparación."
+    },
+    {
+      "@id": "https://www.radiomicelio.es/id/electronica",
+      "@type": "DefinedTermSet",
+      "name": "Electricidad y electrónica",
+      "description": "Dominio de conocimiento asociado a Daphne Rockmore. En preparación."
+    },
+    {
+      "@id": "https://www.radiomicelio.es/id/tecno-naturaleza",
+      "@type": "DefinedTermSet",
+      "name": "Naturaleza y tecnología",
+      "description": "Dominio de conocimiento asociado a Marza. En preparación."
+    },
+    {
+      "@id": "https://www.radiomicelio.es/id/exploracion-espacial",
+      "@type": "DefinedTermSet",
+      "name": "Exploración espacial",
+      "description": "Dominio de conocimiento asociado a Sirius. En preparación."
+    },
+    {
+      "@id": "https://www.radiomicelio.es/vocab/Character",
+      "@type": "rdfs:Class",
+      "rdfs:label": "Personaje de ficción",
+      "rdfs:subClassOf": {
+        "@id": "https://schema.org/Thing"
+      }
+    },
+    {
+      "@id": "https://www.radiomicelio.es/vocab/hasBranch",
+      "@type": "rdf:Property",
+      "rdfs:label": "Rama del proyecto"
+    },
+    {
+      "@id": "https://www.radiomicelio.es/vocab/inProject",
+      "@type": "rdf:Property",
+      "rdfs:label": "Pertenece al proyecto"
+    },
+    {
+      "@id": "https://www.radiomicelio.es/vocab/inBranch",
+      "@type": "rdf:Property",
+      "rdfs:label": "Pertenece a la rama"
+    },
+    {
+      "@id": "https://www.radiomicelio.es/vocab/inGroup",
+      "@type": "rdf:Property",
+      "rdfs:label": "Figura en la colección"
+    },
+    {
+      "@id": "https://www.radiomicelio.es/vocab/formerMember",
+      "@type": "rdf:Property",
+      "rdfs:label": "Antiguo integrante"
+    },
+    {
+      "@id": "https://www.radiomicelio.es/vocab/formerMemberOf",
+      "@type": "rdf:Property",
+      "rdfs:label": "Fue integrante de"
+    },
+    {
+      "@id": "https://www.radiomicelio.es/vocab/themeSong",
+      "@type": "rdf:Property",
+      "rdfs:label": "Canción asociada"
+    },
+    {
+      "@id": "https://www.radiomicelio.es/vocab/game",
+      "@type": "rdf:Property",
+      "rdfs:label": "Juego asociado"
+    },
+    {
+      "@id": "https://www.radiomicelio.es/vocab/currentLocation",
+      "@type": "rdf:Property",
+      "rdfs:label": "Ubicación actual publicada"
+    },
+    {
+      "@id": "https://www.radiomicelio.es/vocab/relatedLink",
+      "@type": "rdf:Property",
+      "rdfs:label": "Enlace relacionado"
+    },
+    {
+      "@id": "https://www.radiomicelio.es/vocab/externalOntology",
+      "@type": "rdf:Property",
+      "rdfs:label": "Ontología complementaria"
+    },
+    {
+      "@id": "https://www.radiomicelio.es/vocab/conceptScheme",
+      "@type": "rdf:Property",
+      "rdfs:label": "Esquema de conceptos"
+    },
+    {
+      "@id": "https://www.radiomicelio.es/vocab/appearsIn",
+      "@type": "rdf:Property",
+      "rdfs:label": "Aparece en"
+    },
+    {
+      "@id": "https://www.radiomicelio.es/vocab/tutorial",
+      "@type": "rdf:Property",
+      "rdfs:label": "Recurso para aprender"
+    },
+    {
+      "@id": "https://www.radiomicelio.es/vocab/childConcept",
+      "@type": "rdf:Property",
+      "rdfs:label": "childConcept"
+    },
+    {
+      "@id": "https://www.radiomicelio.es/vocab/parentConcept",
+      "@type": "rdf:Property",
+      "rdfs:label": "parentConcept"
+    }
+  ]
+}

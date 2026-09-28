@@ -14,10 +14,7 @@ from arcade_data import GAMES as ARCADE_GAMES
 
 SITE_URL = "https://www.radiomicelio.es"
 SITE_NAME = "Radio Micelio"
-SITE_DESCRIPTION = (
-    "Plataforma cultural: wiki musical, escena, productora, universo narrativo "
-    "y laboratorio de experimentos con IA y videojuegos."
-)
+SITE_DESCRIPTION = "Radio Micelio: la banda y el cómic. Música, personajes e historias conectadas."
 RM_VOCAB = f"{SITE_URL}/vocab/"
 SCHEMA_CONTEXT = {
     "@vocab": "https://schema.org/",
@@ -222,7 +219,9 @@ for _raw in _UPCOMING_RAW:
         }
     )
 
-CHARACTERS.sort(key=lambda c: c["label"])
+from project_data import apply_profiles
+
+apply_profiles(CHARACTERS)
 
 
 # ---------------------------------------------------------------------------
@@ -416,9 +415,6 @@ def published_domains():
 
 
 NAV_SECTIONS = [
-    {"id": "wiki", "label": "Wiki", "href": "/atlas/"},
-    {"id": "escena", "label": "Escena", "href": "/escena/"},
-    {"id": "productora", "label": "Productora", "href": "/productora/"},
-    {"id": "universo", "label": "Universo", "href": "/universo/"},
-    {"id": "lab", "label": "Lab", "href": "/lab/"},
+    {"id": "banda", "label": "La banda", "href": "/banda/"},
+    {"id": "comic", "label": "Cómic", "href": "/comic/"},
 ]

@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Editor local · Radio Micelio</title>
+<meta name="description" content="Fichas y ontologías editables de Radio Micelio.">
+<link rel="canonical" href="https://www.radiomicelio.es/editor/">
+<meta property="og:title" content="Editor local · Radio Micelio">
+<meta property="og:description" content="Fichas y ontologías editables de Radio Micelio.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.radiomicelio.es/editor/">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Ctext%20y%3D%22.9em%22%20font-size%3D%2290%22%3E%F0%9F%8D%84%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="/assets/style.css">
+<meta name="robots" content="noindex"><link rel="stylesheet" href="/assets/editor.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Editor de Radio Micelio",
+  "url": "https://www.radiomicelio.es/editor/"
+}
+</script>
+</head>
+<body class="page-editor page-lab-focus">
+<div class="app-shell">
+<aside class="sidebar" id="sidebar"><div class="sidebar-inner">
+      <a class="side-home" href="/">RADIO MICELIO <span>Inicio ↗</span></a>
+      <div class="side-section-label">El proyecto</div><a class="side-onto branch-nav" href="/banda/"><b>La banda</b></a><details class="side-group"><summary>Integrantes</summary><nav aria-label="Integrantes"><a class="side-person group-index" href="/banda/integrantes/">Ver todos →</a><a class="side-person" href="/personajes/sismico/">Sísmico</a><a class="side-person" href="/personajes/atomico/">Atómico Vaquero</a><a class="side-person" href="/personajes/amethystos/">Amethystos</a><a class="side-person" href="/personajes/tamen/">Tamen</a></nav></details><details class="side-group"><summary>Antiguos integrantes</summary><nav aria-label="Antiguos integrantes"><a class="side-person group-index" href="/banda/antiguos-integrantes/">Ver todos →</a><a class="side-person" href="/personajes/basscolgado/">Basscolgado</a><a class="side-person" href="/personajes/musitoxic/">Musitoxic</a><a class="side-person" href="/personajes/miguel-mafias-el-muso/">Miguel Mafias (el Muso)</a><a class="side-person" href="/personajes/will-el-puas/">Will el púas</a><a class="side-person" href="/personajes/tocarlos-el-nino-rave/">Tocarlos el niño Rave</a></nav></details><a class="side-onto branch-nav" href="/comic/"><b>Cómic</b></a><details class="side-group"><summary>Personajes</summary><nav aria-label="Personajes"><a class="side-person group-index" href="/comic/personajes/">Ver todos →</a><a class="side-person" href="/personajes/marza/">Marza</a><a class="side-person" href="/personajes/daphne-rockmore/">Daphne Rockmore</a><a class="side-person" href="/personajes/solfa/">Solfa</a><a class="side-person" href="/personajes/jhonny/">Jhonny</a><a class="side-person" href="/personajes/aro/">Aro</a><a class="side-person" href="/personajes/gab/">Gab</a><a class="side-person" href="/personajes/foca-1/">Foca 1</a><a class="side-person" href="/personajes/caballo-1/">Caballo 1</a><a class="side-person" href="/personajes/cobaya-1/">Cobaya 1</a><a class="side-person" href="/personajes/cobaya-2/">Cobaya 2</a><a class="side-person" href="/personajes/cobaya-n-1/">Cobaya n-1</a></nav></details>
+      <details class="side-resources"><summary>Otros espacios</summary>
+        <nav aria-label="Otros espacios"><a class="side-person" href="/atlas/">Wiki musical</a>
+        <a class="side-person" href="/lab/">Laboratorio</a><a class="side-person" href="/chess-lab/">Chess Lab</a>
+        <a class="side-person" href="/story-lab/">Story Lab</a><a class="side-person" href="/arcade/">Arcade</a>
+        <a class="side-person" href="/escena/">Escena</a><a class="side-person" href="/productora/">Productora</a></nav>
+      </details><a class="side-ontology" href="/ontologia/">Ontología del proyecto ↗</a>
+    </div></aside>
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <div class="content-col">
+    <header class="site">
+      <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Mostrar/ocultar menú" aria-controls="sidebar" aria-expanded="true">☰</button>
+      <a class="brand" href="/">Radio Micelio</a>
+      <nav><a href="/banda/" class="">La banda</a><a href="/comic/" class="">Cómic</a></nav>
+    </header>
+    <main>
+<div class="editor-heading"><div><p class="eyebrow">Taller de Radio Micelio</p><h1>Editar el proyecto</h1></div><a id="view-profile" class="btn ghost" href="/personajes/sismico/" target="_blank" rel="noopener">Ver ficha ↗</a></div>
+<p id="editor-mode" class="editor-mode">Conectando con los datos…</p>
+<div class="editor-toolbar">
+  <label>Ficha <select id="profile-select" aria-label="Ficha"></select></label>
+  <button type="button" id="new-profile">Nueva ficha</button>
+  <div class="editor-save"><span id="dirty-status">Sin cambios</span><button type="button" id="save" class="btn primary" disabled>Guardar en el repositorio</button></div>
+</div>
+<div id="editor-feedback" role="status" aria-live="polite"></div>
+<div class="editor-tabs" role="tablist" aria-label="Tipo de edición">
+  <button id="tab-profile" role="tab" aria-selected="true" aria-controls="panel-profile">Ficha</button>
+  <button id="tab-ontology" role="tab" aria-selected="false" aria-controls="panel-ontology">Ontología</button>
+</div>
+<section id="panel-profile" role="tabpanel" aria-labelledby="tab-profile">
+  <form id="profile-form">
+    <div class="editor-grid">
+      <fieldset><legend>Identidad y descripción</legend>
+        <label>Nombre <input name="nombre" required></label>
+        <label>Identificador estable <input name="id" readonly></label>
+        <label>Descripción <textarea name="descripcion" rows="5" required></textarea></label>
+        <div class="check-group"><span>Figura en</span><label><input type="checkbox" name="grupos" value="integrantes"> Integrantes</label><label><input type="checkbox" name="grupos" value="antiguos-integrantes"> Antiguos integrantes</label><label><input type="checkbox" name="grupos" value="personajes"> Personajes del cómic</label></div>
+        <div class="check-group"><span>Tipo</span><label><input type="checkbox" name="tipos" value="personaje"> Personaje</label><label><input type="checkbox" name="tipos" value="persona"> Persona</label></div>
+      </fieldset>
+      <fieldset><legend>Imagen</legend>
+        <img id="image-preview" alt="Vista previa del retrato" hidden>
+        <label>Ruta o URL de la imagen <input name="imagen" placeholder="/assets/img/sismico.png"></label>
+        <label>Elegir una imagen de tu ordenador <input id="image-upload" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></label>
+        <p class="editor-hint">PNG, JPG, WebP o GIF · hasta 5 MB. Se incorporará al repositorio al guardar.</p>
+      </fieldset>
+      <fieldset><legend>Canción</legend>
+        <label>Título de la canción <input name="cancion.titulo"></label>
+        <label>Enlace de la canción <input name="cancion.url" placeholder="https://…"></label>
+        <label>ID de la canción <input name="cancion.id" placeholder="mi-cancion"></label>
+        <p class="editor-hint">Vacía estos campos para dejar la canción pendiente.</p>
+      </fieldset>
+      <fieldset><legend>Juego y tutorial</legend>
+        <label>Nombre del juego <input name="juego.nombre" placeholder="Ajedrez"></label>
+        <label>Nombre de la versión web <input name="juego.titulo" placeholder="Ajedrez · Chess Lab"></label>
+        <label>Enlace para jugar <input name="juego.url" placeholder="/chess-lab/"></label>
+        <label>ID del juego <input name="juego.id" placeholder="chess"></label>
+        <label>Título del tutorial <input name="tutorial.titulo"></label>
+        <label>Enlace del tutorial <input name="tutorial.url"></label>
+      </fieldset>
+      <fieldset class="editor-wide"><legend>Ubicación en OpenStreetMap</legend>
+        <div class="map-fields"><label>Nombre del lugar <input name="ubicacion.nombre"></label><label>Latitud <input name="ubicacion.lat" type="number" step="any" min="-90" max="90"></label><label>Longitud <input name="ubicacion.lon" type="number" step="any" min="-180" max="180"></label></div>
+        <div class="map-paste"><label>Pegar un enlace de OSM <input id="osm-url" placeholder="https://www.openstreetmap.org/#map=…"></label><button id="read-osm" type="button">Usar coordenadas</button><button id="clear-location" type="button">Quitar ubicación</button></div>
+        <p class="editor-hint">Busca el lugar en <a href="https://www.openstreetmap.org/" target="_blank" rel="noopener">OpenStreetMap ↗</a> y pega su enlace; también puedes introducir las coordenadas.</p>
+        <div id="map-preview"></div>
+      </fieldset>
+      <fieldset><legend>Más enlaces</legend><div id="links-list"></div><button type="button" data-add-list="enlaces">+ Añadir enlace</button></fieldset>
+      <fieldset><legend>Apariciones</legend><div id="appearances-list"></div><button type="button" data-add-list="apariciones">+ Añadir aparición</button></fieldset>
+      <fieldset class="editor-wide"><legend>Conocimiento y ontología</legend>
+        <div id="domains-list" class="check-group"></div>
+        <label>Ontología complementaria (URL opcional) <input name="ontologia_url"></label>
+        <details><summary>Direcciones anteriores</summary><label>Una ruta por línea <textarea name="rutas_anteriores" rows="3"></textarea></label></details>
+      </fieldset>
+    </div>
+  </form>
+</section>
+<section id="panel-ontology" role="tabpanel" aria-labelledby="tab-ontology" hidden>
+  <p class="editor-hint">Selecciona un nodo y amplía sus conexiones. «Padre» e «hijo» expresan una jerarquía conceptual, no parentesco familiar. Una relación puede conectar cualquier par de nodos.</p>
+  <div class="ontology-workspace">
+    <aside class="node-library"><label>Buscar nodos <input id="node-search" type="search" placeholder="Sísmico, sonido…"></label><button type="button" id="new-node">+ Nodo independiente</button><div id="node-list" aria-label="Nodos disponibles"></div></aside>
+    <div class="node-workspace">
+      <div class="graph-board"><div class="graph-navigation"><button type="button" id="node-back" aria-label="Nodo anterior">←</button><button type="button" id="node-forward" aria-label="Nodo siguiente">→</button><span id="graph-stats"></span></div><div id="node-graph" class="node-graph" aria-label="Conexiones del nodo"></div><p class="editor-hint">Pulsa un nodo para explorarlo. Las líneas rojas son conexiones que puedes editar; las grises proceden de las fichas.</p></div>
+      <aside class="node-inspector" aria-label="Inspector editable del nodo">
+      <div class="node-title"><div><p class="eyebrow">Nodo seleccionado</p><h2 id="node-title"></h2><code id="node-id"></code></div><button id="focus-profile" type="button">Volver al personaje</button></div>
+      <div class="node-actions"><button type="button" id="add-parent">+ Padre</button><button type="button" id="add-child">+ Hijo</button><button type="button" id="edit-node">Editar nodo</button><button type="button" id="delete-node">Eliminar nodo</button></div>
+      <div id="inspector-fields"></div>
+      <div id="node-connections"></div>
+      <fieldset><legend>Conectar un nodo existente</legend>
+        <form id="relation-form" class="relation-form">
+          <label>Relación <input id="relation-predicate" list="predicate-options" value="rm:relatedTo" required></label>
+          <label>Nodo de destino <select id="relation-target" required></select></label>
+          <button type="submit">Añadir relación</button>
+        </form><p class="editor-hint">Puedes escribir un predicado propio, como <code>rm:inspiradoPor</code>, o usar schema:, skos:, rdf: y rdfs:.</p>
+      </fieldset>
+      <fieldset><legend>Propiedades del nodo</legend><div id="node-properties"></div>
+        <form id="property-form" class="property-form"><label>Propiedad <input id="property-predicate" placeholder="rm:color" required></label><label>Tipo de valor <select id="property-type"><option value="text">Texto</option><option value="number">Número</option><option value="boolean">Sí / no</option><option value="url">URL</option></select></label><label>Valor <input id="property-value" required placeholder="púrpura"></label><button type="submit">Añadir propiedad</button></form>
+      </fieldset>
+      <details class="managed-relations"><summary>Relaciones generadas desde las fichas</summary><p class="editor-hint">Nombre, descripción, pertenencia, canción y juego se editan en la pestaña Ficha. Estas conexiones se actualizan al guardar.</p><pre id="base-node"></pre></details>
+      </aside>
+    </div>
+  </div>
+</section>
+<footer class="editor-file-actions"><button type="button" id="export-data">Exportar borrador JSON</button><label class="file-button">Importar borrador <input type="file" id="import-data" accept="application/json,.json"></label><button type="button" id="export-ontology">Exportar ontología JSON-LD</button><button type="button" id="undo">Deshacer último cambio</button><button type="button" id="discard">Descartar borrador</button></footer>
+<dialog id="node-dialog"><form id="node-form"><h2 id="node-dialog-title">Nuevo nodo</h2><label>Nombre <input id="new-node-label" required></label><label>Tipo <select id="new-node-type"><option value="skos:Concept">Concepto</option><option value="rdfs:Class">Clase</option><option value="schema:Thing">Entidad</option><option value="schema:Place">Lugar</option><option value="schema:Game">Juego</option><option value="schema:CreativeWork">Obra</option></select></label><label>Descripción <textarea id="new-node-description" rows="3"></textarea></label><p id="new-node-id" class="editor-hint"></p><div class="dialog-actions"><button type="button" id="cancel-node">Cancelar</button><button type="submit" class="btn primary">Aplicar al borrador</button></div></form></dialog>
+<datalist id="predicate-options"><option value="rm:relatedTo">Relacionado con</option><option value="rm:parentConcept">Padre conceptual</option><option value="schema:isPartOf">Forma parte de</option><option value="schema:knowsAbout">Conoce</option><option value="rm:appearsIn">Aparece en</option><option value="skos:broader">Concepto más amplio</option><option value="skos:related">Concepto relacionado</option><option value="rdfs:subClassOf">Subclase de</option><option value="rdf:type">Instancia de</option></datalist>
+<script src="/assets/editor.js" defer></script>
+
+    </main>
+    <footer class="site">
+      <a href="https://www.radiomicelio.es">Radio Micelio</a> ·
+      La banda y el cómic ·
+      Contenido bajo CC BY 4.0 ·
+      <a href="/ontologia/">Ontología del proyecto</a>
+      · <a href="/editor/">Editor</a>
+      <p id="persistence-note">Edición en esta web: los cambios no se guardan en el sitio publicado.</p>
+    </footer>
+  </div>
+</div>
+<script src="/assets/app.js" defer></script>
+<script src="/assets/persistence.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,477 @@
+[
+  {
+    "id": "sismico",
+    "nombre": "Sísmico",
+    "descripcion": "Su extraordinario sistema auditivo conecta su historia con el sonido, los sensores y la captación acústica.",
+    "imagen": "/assets/img/sismico.png",
+    "cancion": null,
+    "ubicacion": null,
+    "juego": {
+      "titulo": "Ajedrez · Chess Lab",
+      "url": "/chess-lab/",
+      "id": "chess",
+      "nombre": "Ajedrez"
+    },
+    "enlaces": [],
+    "dominios": [
+      "microfonia"
+    ],
+    "ontologia_url": null,
+    "grupos": [
+      "integrantes"
+    ],
+    "tipos": [
+      "personaje"
+    ],
+    "tutorial": null,
+    "apariciones": [],
+    "rutas_anteriores": [
+      "/banda/integrantes/sismico/"
+    ]
+  },
+  {
+    "id": "atomico",
+    "nombre": "Atómico Vaquero",
+    "descripcion": "Su campo de investigación: evolución. Su historia está en preparación.",
+    "imagen": null,
+    "cancion": null,
+    "ubicacion": null,
+    "juego": null,
+    "enlaces": [],
+    "dominios": [
+      "evolucion"
+    ],
+    "ontologia_url": null,
+    "grupos": [
+      "integrantes"
+    ],
+    "tipos": [
+      "personaje"
+    ],
+    "tutorial": null,
+    "apariciones": [],
+    "rutas_anteriores": [
+      "/banda/integrantes/atomico/"
+    ]
+  },
+  {
+    "id": "amethystos",
+    "nombre": "Amethystos",
+    "descripcion": "Su campo de investigación: botánica. Su historia está en preparación.",
+    "imagen": null,
+    "cancion": null,
+    "ubicacion": null,
+    "juego": null,
+    "enlaces": [],
+    "dominios": [
+      "botanica"
+    ],
+    "ontologia_url": null,
+    "grupos": [
+      "integrantes"
+    ],
+    "tipos": [
+      "personaje"
+    ],
+    "tutorial": null,
+    "apariciones": [],
+    "rutas_anteriores": [
+      "/banda/integrantes/amethystos/"
+    ]
+  },
+  {
+    "id": "tamen",
+    "nombre": "Tamen",
+    "descripcion": "Su campo de investigación: nuevas redes. Su historia está en preparación.",
+    "imagen": null,
+    "cancion": null,
+    "ubicacion": null,
+    "juego": null,
+    "enlaces": [],
+    "dominios": [],
+    "ontologia_url": null,
+    "grupos": [
+      "integrantes"
+    ],
+    "tipos": [
+      "personaje"
+    ],
+    "tutorial": null,
+    "apariciones": [],
+    "rutas_anteriores": [
+      "/banda/integrantes/tamen/"
+    ]
+  },
+  {
+    "id": "basscolgado",
+    "nombre": "Basscolgado",
+    "descripcion": "Su campo de investigación: españa vaciada. Su historia está en preparación.",
+    "imagen": null,
+    "cancion": null,
+    "ubicacion": null,
+    "juego": null,
+    "enlaces": [],
+    "dominios": [],
+    "ontologia_url": null,
+    "grupos": [
+      "antiguos-integrantes"
+    ],
+    "tipos": [
+      "personaje"
+    ],
+    "tutorial": null,
+    "apariciones": [],
+    "rutas_anteriores": [
+      "/banda/antiguos-integrantes/basscolgado/"
+    ]
+  },
+  {
+    "id": "musitoxic",
+    "nombre": "Musitoxic",
+    "descripcion": "Su campo de investigación: imt. Su historia está en preparación.",
+    "imagen": null,
+    "cancion": null,
+    "ubicacion": null,
+    "juego": null,
+    "enlaces": [],
+    "dominios": [],
+    "ontologia_url": null,
+    "grupos": [
+      "antiguos-integrantes"
+    ],
+    "tipos": [
+      "personaje"
+    ],
+    "tutorial": null,
+    "apariciones": [],
+    "rutas_anteriores": [
+      "/banda/antiguos-integrantes/musitoxic/"
+    ]
+  },
+  {
+    "id": "miguel-mafias-el-muso",
+    "nombre": "Miguel Mafias (el Muso)",
+    "descripcion": "Su campo de investigación: demonios internos. Su historia está en preparación.",
+    "imagen": null,
+    "cancion": null,
+    "ubicacion": null,
+    "juego": null,
+    "enlaces": [],
+    "dominios": [],
+    "ontologia_url": null,
+    "grupos": [
+      "antiguos-integrantes"
+    ],
+    "tipos": [
+      "personaje"
+    ],
+    "tutorial": null,
+    "apariciones": [],
+    "rutas_anteriores": [
+      "/banda/antiguos-integrantes/miguel-mafias-el-muso/"
+    ]
+  },
+  {
+    "id": "will-el-puas",
+    "nombre": "Will el púas",
+    "descripcion": "Descripción en preparación.",
+    "imagen": null,
+    "cancion": null,
+    "ubicacion": null,
+    "juego": null,
+    "enlaces": [],
+    "dominios": [],
+    "ontologia_url": null,
+    "grupos": [
+      "antiguos-integrantes"
+    ],
+    "tipos": [
+      "personaje"
+    ],
+    "tutorial": null,
+    "apariciones": [],
+    "rutas_anteriores": [
+      "/banda/antiguos-integrantes/will-el-puas/"
+    ]
+  },
+  {
+    "id": "tocarlos-el-nino-rave",
+    "nombre": "Tocarlos el niño Rave",
+    "descripcion": "Descripción en preparación.",
+    "imagen": null,
+    "cancion": null,
+    "ubicacion": null,
+    "juego": null,
+    "enlaces": [],
+    "dominios": [],
+    "ontologia_url": null,
+    "grupos": [
+      "antiguos-integrantes"
+    ],
+    "tipos": [
+      "personaje"
+    ],
+    "tutorial": null,
+    "apariciones": [],
+    "rutas_anteriores": [
+      "/banda/antiguos-integrantes/tocarlos-el-nino-rave/"
+    ]
+  },
+  {
+    "id": "marza",
+    "nombre": "Marza",
+    "descripcion": "Su campo de investigación: naturaleza y tecnología. Su historia está en preparación.",
+    "imagen": null,
+    "cancion": null,
+    "ubicacion": null,
+    "juego": null,
+    "enlaces": [],
+    "dominios": [
+      "tecno-naturaleza"
+    ],
+    "ontologia_url": null,
+    "grupos": [
+      "personajes"
+    ],
+    "tipos": [
+      "personaje"
+    ],
+    "tutorial": null,
+    "apariciones": [],
+    "rutas_anteriores": [
+      "/comic/personajes/marza/"
+    ]
+  },
+  {
+    "id": "daphne-rockmore",
+    "nombre": "Daphne Rockmore",
+    "descripcion": "Su campo de investigación: electricidad y electrónica. Su historia está en preparación.",
+    "imagen": null,
+    "cancion": null,
+    "ubicacion": null,
+    "juego": null,
+    "enlaces": [],
+    "dominios": [
+      "electronica"
+    ],
+    "ontologia_url": null,
+    "grupos": [
+      "personajes"
+    ],
+    "tipos": [
+      "personaje"
+    ],
+    "tutorial": null,
+    "apariciones": [],
+    "rutas_anteriores": [
+      "/comic/personajes/daphne-rockmore/"
+    ]
+  },
+  {
+    "id": "solfa",
+    "nombre": "Solfa",
+    "descripcion": "Descripción en preparación.",
+    "imagen": null,
+    "cancion": null,
+    "ubicacion": null,
+    "juego": null,
+    "enlaces": [],
+    "dominios": [],
+    "ontologia_url": null,
+    "grupos": [
+      "personajes"
+    ],
+    "tipos": [
+      "personaje"
+    ],
+    "tutorial": null,
+    "apariciones": [],
+    "rutas_anteriores": [
+      "/comic/personajes/solfa/"
+    ]
+  },
+  {
+    "id": "jhonny",
+    "nombre": "Jhonny",
+    "descripcion": "Su campo de investigación: energía. Su historia está en preparación.",
+    "imagen": null,
+    "cancion": null,
+    "ubicacion": null,
+    "juego": null,
+    "enlaces": [],
+    "dominios": [],
+    "ontologia_url": null,
+    "grupos": [
+      "personajes"
+    ],
+    "tipos": [
+      "personaje"
+    ],
+    "tutorial": null,
+    "apariciones": [],
+    "rutas_anteriores": [
+      "/comic/personajes/jhonny/"
+    ]
+  },
+  {
+    "id": "aro",
+    "nombre": "Aro",
+    "descripcion": "Descripción en preparación.",
+    "imagen": null,
+    "cancion": null,
+    "ubicacion": null,
+    "juego": null,
+    "enlaces": [],
+    "dominios": [],
+    "ontologia_url": null,
+    "grupos": [
+      "personajes"
+    ],
+    "tipos": [
+      "personaje"
+    ],
+    "tutorial": null,
+    "apariciones": [],
+    "rutas_anteriores": [
+      "/comic/personajes/aro/"
+    ]
+  },
+  {
+    "id": "gab",
+    "nombre": "Gab",
+    "descripcion": "Descripción en preparación.",
+    "imagen": null,
+    "cancion": null,
+    "ubicacion": null,
+    "juego": null,
+    "enlaces": [],
+    "dominios": [],
+    "ontologia_url": null,
+    "grupos": [
+      "personajes"
+    ],
+    "tipos": [
+      "personaje"
+    ],
+    "tutorial": null,
+    "apariciones": [],
+    "rutas_anteriores": [
+      "/comic/personajes/gab/"
+    ]
+  },
+  {
+    "id": "foca-1",
+    "nombre": "Foca 1",
+    "descripcion": "Descripción en preparación.",
+    "imagen": null,
+    "cancion": null,
+    "ubicacion": null,
+    "juego": null,
+    "enlaces": [],
+    "dominios": [],
+    "ontologia_url": null,
+    "grupos": [
+      "personajes"
+    ],
+    "tipos": [
+      "personaje"
+    ],
+    "tutorial": null,
+    "apariciones": [],
+    "rutas_anteriores": [
+      "/comic/personajes/foca-1/"
+    ]
+  },
+  {
+    "id": "caballo-1",
+    "nombre": "Caballo 1",
+    "descripcion": "Descripción en preparación.",
+    "imagen": null,
+    "cancion": null,
+    "ubicacion": null,
+    "juego": null,
+    "enlaces": [],
+    "dominios": [],
+    "ontologia_url": null,
+    "grupos": [
+      "personajes"
+    ],
+    "tipos": [
+      "personaje"
+    ],
+    "tutorial": null,
+    "apariciones": [],
+    "rutas_anteriores": [
+      "/comic/personajes/caballo-1/"
+    ]
+  },
+  {
+    "id": "cobaya-1",
+    "nombre": "Cobaya 1",
+    "descripcion": "Descripción en preparación.",
+    "imagen": null,
+    "cancion": null,
+    "ubicacion": null,
+    "juego": null,
+    "enlaces": [],
+    "dominios": [],
+    "ontologia_url": null,
+    "grupos": [
+      "personajes"
+    ],
+    "tipos": [
+      "personaje"
+    ],
+    "tutorial": null,
+    "apariciones": [],
+    "rutas_anteriores": [
+      "/comic/personajes/cobaya-1/"
+    ]
+  },
+  {
+    "id": "cobaya-2",
+    "nombre": "Cobaya 2",
+    "descripcion": "Descripción en preparación.",
+    "imagen": null,
+    "cancion": null,
+    "ubicacion": null,
+    "juego": null,
+    "enlaces": [],
+    "dominios": [],
+    "ontologia_url": null,
+    "grupos": [
+      "personajes"
+    ],
+    "tipos": [
+      "personaje"
+    ],
+    "tutorial": null,
+    "apariciones": [],
+    "rutas_anteriores": [
+      "/comic/personajes/cobaya-2/"
+    ]
+  },
+  {
+    "id": "cobaya-n-1",
+    "nombre": "Cobaya n-1",
+    "descripcion": "Descripción en preparación.",
+    "imagen": null,
+    "cancion": null,
+    "ubicacion": null,
+    "juego": null,
+    "enlaces": [],
+    "dominios": [],
+    "ontologia_url": null,
+    "grupos": [
+      "personajes"
+    ],
+    "tipos": [
+      "personaje"
+    ],
+    "tutorial": null,
+    "apariciones": [],
+    "rutas_anteriores": [
+      "/comic/personajes/cobaya-n-1/"
+    ]
+  }
+]

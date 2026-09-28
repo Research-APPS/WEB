@@ -11,6 +11,8 @@
 
   function apply(collapsed) {
     sidebar.classList.toggle("collapsed", collapsed);
+    sidebar.inert = collapsed;
+    toggle.setAttribute("aria-expanded", String(!collapsed));
     document.body.classList.toggle("sidebar-open", !collapsed && isMobile());
   }
 
@@ -46,4 +48,13 @@
       apply(true);
     });
   }
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape" && !sidebar.classList.contains("collapsed")) {
+      apply(true);
+      toggle.focus();
+    }
+  });
+  window.matchMedia("(max-width: 860px)").addEventListener("change", function () {
+    apply(isMobile() || sidebar.classList.contains("collapsed"));
+  });
 })();
