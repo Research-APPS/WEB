@@ -1565,14 +1565,15 @@ def build_tecnologia():
 <p class="pill">Modelos · taxonomías · contexto</p>
 <h1>Tecnología</h1>
 <p class="lead">
-  Notas para usar una taxonomía publicada como contexto de un modelo,
-  sin meter los vectores dentro del vocabulario.
+  Notas para usar una taxonomía musical como contexto de un modelo,
+  sin meter los vectores dentro del vocabulario. El ejemplo es el jazz
+  de ChordIA y de jazz21.
 </p>
 <div class="cat-grid">
   <a class="cat-card" href="/tecnologia/it/">
     <div class="icon">IT</div>
     <h3>Taxonomía como contexto</h3>
-    <p>Qué trae el SKOS de LexiMus, qué se calcula aparte y en qué orden.</p>
+    <p>Un esquema de armonía de ejemplo, jazz21 como lenguaje y MCI como agente.</p>
   </a>
 </div>
 """
@@ -1595,109 +1596,124 @@ def build_tecnologia():
     write_text(DOCS / "tecnologia" / "index.html", html)
 
     it_crumbs = [("Radio Micelio", "/"), ("Tecnología", "/tecnologia/"), ("Taxonomía como contexto", None)]
-    it_body = f"""
-{crumbs_html(it_crumbs)}
-<p class="pill">LexiMus · SKOS · embeddinggemma:300m</p>
+    it_body = crumbs_html(it_crumbs) + """
+<p class="pill">ChordIA · jazz21 · MCI</p>
 <h1>Usar una taxonomía como contexto</h1>
 <p class="lead">
-  El fichero SKOS o JSON-LD nombra las clases y el modelo con el que se
-  calculan sus perfiles. Los vectores no viajan dentro. Esta página dice
-  cómo obtenerlos y cómo dárselos a un modelo.
+  Un vocabulario SKOS nombra las clases y el modelo con el que se calculan
+  sus perfiles. Los vectores no viajan dentro. El ejemplo de esta página es
+  una taxonomía de armonía jazz, el lenguaje de
+  <a href="https://github.com/Research-APPS/jazz21">jazz21</a>.
 </p>
 
-<h2>Qué declara el vocabulario</h2>
+<h2>El ejemplo</h2>
 <p>
-  La taxonomía «Los nombres de la música» se publica como esquema SKOS.
-  Cada concepto tiene como identificador la ficha oficial del nodo.
-  El fichero incluye la etiqueta, la definición cuando existe, los ejemplos,
-  la nota de alcance, el concepto más amplio y esta declaración:
-</p>
-<pre style="background:#141416;padding:12px;border-radius:4px;overflow:auto;font-size:13px">leximus:embeddingModel "embeddinggemma:300m"</pre>
-<p>
-  Turtle: <a href="https://core.iccmu.es/leximus-corpus/browser/skos/">/leximus-corpus/browser/skos/</a>.
-  JSON-LD: el mismo camino con <code>?formato=jsonld</code>.
-  El esquema es
-  <a href="https://core.iccmu.es/leximus/taxonomias/taxonomia-jc/">taxonomia-jc</a>.
-  Esas direcciones piden la sesión de core.iccmu.es.
+  jazz21 es la librería pública de Radio Micelio para cifrado americano,
+  lead sheets y guitarra, apoyada en music21. ChordIA la usa como motor de
+  composición. Los repositorios de
+  <a href="https://github.com/ChordIA-project">ChordIA-project</a> todavía
+  no son públicos: hasta recogerlos y adaptar el sistema, el ejemplo vive
+  en jazz21 y en <a href="https://chordia.es/">chordia.es</a>.
 </p>
 <p>
-  SKOS no tiene un hueco estándar para un vector de 768 números. El vector
-  además cambia si cambia el modelo o una definición. Por eso el fichero
-  nombra el modelo y deja el cálculo fuera.
+  Una clase de ejemplo, en Turtle. Los identificadores son de muestra:
+</p>
+<pre style="background:#141416;padding:12px;border-radius:4px;overflow:auto;font-size:13px">@prefix skos: &lt;http://www.w3.org/2004/02/skos/core#&gt; .
+@prefix rm: &lt;https://www.radiomicelio.es/vocab/&gt; .
+
+&lt;https://www.radiomicelio.es/id/armonia/ii-v-i&gt; a skos:Concept ;
+  skos:prefLabel "ii–V–I"@es ;
+  skos:definition "Cadencia en la que un acorde de segunda precede a la dominante y esta resuelve en la tónica."@es ;
+  skos:example "Dm7 G7 Cmaj7" ;
+  skos:broader &lt;https://www.radiomicelio.es/id/armonia/cadencia&gt; ;
+  rm:embeddingModel "modelo-local" .</pre>
+<p>
+  SKOS no tiene un hueco estándar para un vector. El vector además cambia
+  si cambia el modelo o la definición. El fichero declara el nombre exacto
+  del modelo y deja el cálculo fuera. Lo mismo vale en JSON-LD.
 </p>
 
-<h2>Dos cosas que no son el mismo archivo</h2>
+<h2>Dos archivos distintos</h2>
 <p>
-  <strong>Los pesos del modelo</strong> son lo que descarga Ollama al pedir
-  <code>embeddinggemma:300m</code>. Sin ese modelo no hay vectores.
+  <strong>Los pesos</strong> son el modelo que descargas para poder incrustar
+  texto. Sin ellos no hay vectores.
 </p>
 <p>
-  <strong>Los vectores</strong> son el resultado de pasar un texto por ese
-  modelo. El perfil de un nodo cabe en unos cientos de kilobytes para toda
-  la taxonomía: cerca de 132 conceptos por 768 números en coma flotante.
-  Una caché de muchos pasajes del corpus puede ocupar más de un gigabyte.
-  Esa caché no hace falta para usar la taxonomía, y no se reconstruye
-  descargando un fichero ligero.
+  <strong>Los vectores</strong> son el resultado de pasar cada perfil por ese
+  modelo. El conjunto de una taxonomía de clases cabe en un fichero pequeño.
+  Una caché de muchos pasajes de un corpus es otra cosa, y no hace falta para
+  usar el vocabulario. Descargar los pesos no reconstruye los vectores: hay
+  que calcularlos.
 </p>
 
 <h2>Pasos</h2>
 <ol>
   <li>
-    <strong>Descarga el vocabulario</strong> en Turtle o JSON-LD.
-    Quédate con cada <code>skos:Concept</code>: su URI, su etiqueta,
-    su definición, sus ejemplos y su concepto más amplio.
-    El nodo raíz no se exporta.
+    <strong>Lee el vocabulario</strong> en Turtle o JSON-LD. De cada
+    <code>skos:Concept</code> guarda la URI, la etiqueta, la definición,
+    los ejemplos y el concepto más amplio.
   </li>
   <li>
-    <strong>Escribe el texto del perfil</strong>, uno por concepto.
-    El orden usado en LexiMus es: etiqueta, camino de categorías
-    (sin la raíz), definición curada y ejemplos.
-    <pre style="background:#141416;padding:12px;border-radius:4px;overflow:auto;font-size:13px">Sinfonía. Categoría: Los nombres de la música › …. Definición del nodo. Ejemplos: ….
-</pre>
-    Si el nodo no tiene definición, el perfil se queda en la etiqueta y el
-    camino. No inventes el texto que falta: el vector saldría de otra clase.
+    <strong>Escribe el texto del perfil</strong>, uno por concepto: etiqueta,
+    camino de categorías, definición y ejemplos.
+    <pre style="background:#141416;padding:12px;border-radius:4px;overflow:auto;font-size:13px">ii–V–I. Categoría: armonía jazz › cadencia. Cadencia en la que un acorde de segunda precede a la dominante y esta resuelve en la tónica. Ejemplos: Dm7, G7, Cmaj7.</pre>
+    Si falta la definición, el perfil se queda en la etiqueta y el camino.
+    No inventes el texto: el vector saldría de otra clase.
   </li>
   <li>
-    <strong>Pon el prefijo del modelo.</strong> Para <code>embeddinggemma</code>
-    el documento lleva <code>title: none | text: </code> delante del perfil.
-    El pasaje que quieres clasificar lleva
-    <code>task: classification | query: </code> delante del texto.
-    Esos prefijos son parte de la entrada: sin ellos el vector no es comparable
-    con los que ya calculó LexiMus.
+    <strong>Respeta el prefijo del modelo.</strong> Muchos modelos de
+    embedding piden una fórmula distinta para el documento y para la consulta.
+    Esa fórmula forma parte del texto. Sin ella, el vector del pasaje no se
+    puede comparar con el del concepto.
   </li>
   <li>
-    <strong>Calcula el vector en local</strong> con el mismo modelo y anota
-    su digest. Ollama lo devuelve en <code>/api/tags</code>.
-    La misma frase con otro digest es otro vector.
-    <pre style="background:#141416;padding:12px;border-radius:4px;overflow:auto;font-size:13px">curl http://localhost:11434/api/embed \\
-  -H 'Content-Type: application/json' \\
-  -d '{{"model":"embeddinggemma:300m","input":"title: none | text: Sinfonía. Categoría: …"}}'</pre>
-    Guarda junto a cada vector la URI del concepto. Así el resultado vuelve
-    a la ficha oficial.
+    <strong>Calcula el vector en local</strong> con el modelo declarado y
+    anota su digest. La misma frase con otro digest es otro vector. Guarda
+    la URI del concepto junto al vector.
+    En jazz21 el mismo símbolo ya es un objeto, no solo una frase:
+    <pre style="background:#141416;padding:12px;border-radius:4px;overflow:auto;font-size:13px">import jazz21
+jazz21.describe_chord("Cmaj7")</pre>
+    El texto del perfil y ese objeto deben nombrar el mismo acorde.
   </li>
   <li>
     <strong>Compara</strong> el vector del pasaje con el de cada concepto
-    mediante similitud del coseno. Los conceptos más cercanos son el contexto
-    taxonómico de ese pasaje.
+    por similitud del coseno. Los conceptos más cercanos son el contexto
+    de ese pasaje: una cadencia, un modo, un cifrado con bajo distinto.
   </li>
   <li>
-    <strong>Pasa texto, no números, al modelo generativo.</strong>
-    El embedding solo elige qué clases entran. En el prompt van la etiqueta,
-    la definición y la URI de esas clases. Un modelo de lenguaje no lee
-    un vector de 768 dimensiones como si fuera una frase.
+    <strong>Al modelo de lenguaje le pasas texto, no números.</strong>
+    El embedding solo elige qué clases entran. En la conversación van la
+    etiqueta, la definición y el cifrado. Un modelo de lenguaje no lee un
+    vector como si fuera una frase.
   </li>
 </ol>
-
-<h2>Cuándo hay que repetir el cálculo</h2>
 <p>
-  Hay que volver a incrustar un concepto si cambia su definición, sus
-  ejemplos o el digest del modelo. No mezcles vectores de dos digest en la
-  misma comparación. El SKOS puede quedarse igual mientras el modelo
-  declarado siga siendo <code>embeddinggemma:300m</code>.
+  Hay que repetir el cálculo de un concepto si cambia su definición, sus
+  ejemplos o el digest del modelo. No mezcles vectores de dos digest.
+</p>
+
+<h2>De la taxonomía a una conversación sobre componer</h2>
+<p>
+  La idea siguiente no es un generador de audio. Es un modelo de lenguaje
+  entrenado con el lenguaje simbólico de jazz21: cifrados, progresiones,
+  bajos en slash chord, formas de lead sheet. Se le habla de cómo componer
+  y responde en ese mismo lenguaje.
+</p>
+<p>
+  El agente que ejecuta la respuesta sería una versión nueva de MCI,
+  el Music Controller Interpreter. MCI hoy se sienta entre quien toca y el
+  motor armónico: escucha, pregunta qué función tiene lo tocado y puede
+  pedir un acorde, un parche, una lista diatónica o una inversión. La
+  versión nueva se sentaría entre la conversación y jazz21. Una frase como
+  «cambia el segundo acorde por un tritono sustituto» se convierte en una
+  llamada a la librería, y la respuesta vuelve como cifrado y como objeto
+  simbólico. Si luego suena, es porque algo reproduce ese objeto. El modelo
+  no sintetiza la onda.
 </p>
 <p class="lead">
+  <a href="https://github.com/Research-APPS/jazz21">jazz21</a> ·
+  <a href="https://chordia.es/">ChordIA</a> ·
   <a href="https://www.w3.org/TR/skos-reference/">SKOS</a> ·
-  <a href="https://ollama.com/library/embeddinggemma">embeddinggemma en Ollama</a> ·
   <a href="https://github.com/ollama/ollama/blob/main/docs/api.md">API de embeddings</a>
 </p>
 """
@@ -1706,15 +1722,15 @@ def build_tecnologia():
         "name": f"Usar una taxonomía como contexto · {SITE_NAME}",
         "url": f"{SITE_URL}/tecnologia/it/",
         "description": (
-            "Pasos para calcular el embedding de una taxonomía SKOS "
-            "y usarla como contexto de un modelo fundacional."
+            "Cómo usar una taxonomía SKOS de armonía como contexto, "
+            "con jazz21 como lenguaje simbólico y MCI como agente."
         ),
         "breadcrumb": crumbs_jsonld(it_crumbs),
-        "about": {"@id": "https://core.iccmu.es/leximus/taxonomias/taxonomia-jc/"},
+        "about": {"@id": "https://github.com/Research-APPS/jazz21"},
     })
     it_html = page_shell(
         title=f"Taxonomía como contexto · {SITE_NAME}",
-        description="Cómo usar el SKOS de LexiMus como contexto: el modelo va declarado y los vectores se calculan aparte.",
+        description="Taxonomía de armonía como contexto de un modelo: jazz21 nombra los acordes y los vectores se calculan aparte.",
         canonical=f"{SITE_URL}/tecnologia/it/",
         body_html=it_body,
         jsonld_obj=it_jsonld,

@@ -135,8 +135,9 @@ WebP, JPG, GIF, SVG y AVIF, incluidas subcarpetas. El marco conserva espacio inc
 cuando todavía no hay retrato.
 
 `/tecnologia/it/` explica cómo usar una taxonomía SKOS como contexto de un
-modelo: el vocabulario declara el modelo de embedding y los vectores se
-calculan aparte. La página la escribe `build_tecnologia()` en `build_site.py`.
+modelo. Los ejemplos son de armonía jazz, con jazz21 como lenguaje y MCI
+como agente de la conversación. La página la escribe `build_tecnologia()`
+en `build_site.py`.
 
 ## Generar y publicar a mano
 
