@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taxonomía como contexto · Radio Micelio</title>
+<meta name="description" content="Cómo usar el SKOS de LexiMus como contexto: el modelo va declarado y los vectores se calculan aparte.">
+<link rel="canonical" href="https://www.radiomicelio.es/tecnologia/it/">
+<meta property="og:title" content="Taxonomía como contexto · Radio Micelio">
+<meta property="og:description" content="Cómo usar el SKOS de LexiMus como contexto: el modelo va declarado y los vectores se calculan aparte.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.radiomicelio.es/tecnologia/it/">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Ctext%20y%3D%22.9em%22%20font-size%3D%2290%22%3E%F0%9F%8D%84%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="/assets/style.css">
+
+<script type="application/ld+json">
+{
+  "@type": "TechArticle",
+  "name": "Usar una taxonomía como contexto · Radio Micelio",
+  "url": "https://www.radiomicelio.es/tecnologia/it/",
+  "description": "Pasos para calcular el embedding de una taxonomía SKOS y usarla como contexto de un modelo fundacional.",
+  "breadcrumb": {
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Radio Micelio",
+        "item": "https://www.radiomicelio.es/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Tecnología",
+        "item": "https://www.radiomicelio.es/tecnologia/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Taxonomía como contexto"
+      }
+    ]
+  },
+  "about": {
+    "@id": "https://core.iccmu.es/leximus/taxonomias/taxonomia-jc/"
+  },
+  "@context": {
+    "@vocab": "https://schema.org/",
+    "rm": "https://www.radiomicelio.es/vocab/"
+  }
+}
+</script>
+</head>
+<body>
+<div class="app-shell">
+<aside class="sidebar" id="sidebar"><div class="sidebar-inner">
+      <a class="side-home" href="/">RADIO MICELIO <span>Inicio ↗</span></a>
+      <div class="side-section-label">El proyecto</div><a class="side-onto branch-nav" href="/banda/"><b>La banda</b></a><details class="side-group"><summary>Integrantes</summary><nav aria-label="Integrantes"><a class="side-person group-index" href="/banda/integrantes/">Ver todos →</a><a class="side-person" href="/personajes/sismico/">Sísmico</a><a class="side-person" href="/personajes/atomico/">Atómico Vaquero</a><a class="side-person" href="/personajes/amethystos/">Amethystos</a><a class="side-person" href="/personajes/tamen/">Tamen</a></nav></details><details class="side-group"><summary>Antiguos integrantes</summary><nav aria-label="Antiguos integrantes"><a class="side-person group-index" href="/banda/antiguos-integrantes/">Ver todos →</a><a class="side-person" href="/personajes/basscolgado/">Basscolgado</a><a class="side-person" href="/personajes/musitoxic/">Musitoxic</a><a class="side-person" href="/personajes/miguel-mafias-el-muso/">Miguel Mafias (el Muso)</a><a class="side-person" href="/personajes/will-el-puas/">Will el púas</a><a class="side-person" href="/personajes/tocarlos-el-nino-rave/">Tocarlos el niño Rave</a></nav></details><a class="side-onto branch-nav" href="/comic/"><b>Cómic</b></a><details class="side-group"><summary>Personajes</summary><nav aria-label="Personajes"><a class="side-person group-index" href="/comic/personajes/">Ver todos →</a><a class="side-person" href="/personajes/marza/">Marza</a><a class="side-person" href="/personajes/daphne-rockmore/">Daphne Rockmore</a><a class="side-person" href="/personajes/solfa/">Solfa</a><a class="side-person" href="/personajes/jhonny/">Jhonny</a><a class="side-person" href="/personajes/aro/">Aro</a><a class="side-person" href="/personajes/gab/">Gab</a><a class="side-person" href="/personajes/foca-1/">Foca 1</a><a class="side-person" href="/personajes/caballo-1/">Caballo 1</a><a class="side-person" href="/personajes/cobaya-1/">Cobaya 1</a><a class="side-person" href="/personajes/cobaya-2/">Cobaya 2</a><a class="side-person" href="/personajes/cobaya-n-1/">Cobaya n-1</a></nav></details>
+      <details class="side-resources" open><summary>Otros espacios</summary>
+        <nav aria-label="Otros espacios"><a class="side-person" href="/tecnologia/it/">Tecnología</a>
+        <a class="side-person" href="/atlas/">Wiki musical</a>
+        <a class="side-person" href="/lab/">Laboratorio</a><a class="side-person" href="/chess-lab/">Chess Lab</a>
+        <a class="side-person" href="/story-lab/">Story Lab</a><a class="side-person" href="/arcade/">Arcade</a>
+        <a class="side-person" href="/escena/">Escena</a><a class="side-person" href="/productora/">Productora</a></nav>
+      </details><a class="side-ontology" href="/ontologia/">Ontología del proyecto ↗</a>
+    </div></aside>
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <div class="content-col">
+    <header class="site">
+      <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Mostrar/ocultar menú" aria-controls="sidebar" aria-expanded="true">☰</button>
+      <a class="brand" href="/">Radio Micelio</a>
+      <nav><a href="/banda/" class="">La banda</a><a href="/comic/" class="">Cómic</a></nav>
+    </header>
+    <main>
+
+<div class="crumbs"><a href="/">Radio Micelio</a> › <a href="/tecnologia/">Tecnología</a> › Taxonomía como contexto</div>
+<p class="pill">LexiMus · SKOS · embeddinggemma:300m</p>
+<h1>Usar una taxonomía como contexto</h1>
+<p class="lead">
+  El fichero SKOS o JSON-LD nombra las clases y el modelo con el que se
+  calculan sus perfiles. Los vectores no viajan dentro. Esta página dice
+  cómo obtenerlos y cómo dárselos a un modelo.
+</p>
+
+<h2>Qué declara el vocabulario</h2>
+<p>
+  La taxonomía «Los nombres de la música» se publica como esquema SKOS.
+  Cada concepto tiene como identificador la ficha oficial del nodo.
+  El fichero incluye la etiqueta, la definición cuando existe, los ejemplos,
+  la nota de alcance, el concepto más amplio y esta declaración:
+</p>
+<pre style="background:#141416;padding:12px;border-radius:4px;overflow:auto;font-size:13px">leximus:embeddingModel "embeddinggemma:300m"</pre>
+<p>
+  Turtle: <a href="https://core.iccmu.es/leximus-corpus/browser/skos/">/leximus-corpus/browser/skos/</a>.
+  JSON-LD: el mismo camino con <code>?formato=jsonld</code>.
+  El esquema es
+  <a href="https://core.iccmu.es/leximus/taxonomias/taxonomia-jc/">taxonomia-jc</a>.
+  Esas direcciones piden la sesión de core.iccmu.es.
+</p>
+<p>
+  SKOS no tiene un hueco estándar para un vector de 768 números. El vector
+  además cambia si cambia el modelo o una definición. Por eso el fichero
+  nombra el modelo y deja el cálculo fuera.
+</p>
+
+<h2>Dos cosas que no son el mismo archivo</h2>
+<p>
+  <strong>Los pesos del modelo</strong> son lo que descarga Ollama al pedir
+  <code>embeddinggemma:300m</code>. Sin ese modelo no hay vectores.
+</p>
+<p>
+  <strong>Los vectores</strong> son el resultado de pasar un texto por ese
+  modelo. El perfil de un nodo cabe en unos cientos de kilobytes para toda
+  la taxonomía: cerca de 132 conceptos por 768 números en coma flotante.
+  Una caché de muchos pasajes del corpus puede ocupar más de un gigabyte.
+  Esa caché no hace falta para usar la taxonomía, y no se reconstruye
+  descargando un fichero ligero.
+</p>
+
+<h2>Pasos</h2>
+<ol>
+  <li>
+    <strong>Descarga el vocabulario</strong> en Turtle o JSON-LD.
+    Quédate con cada <code>skos:Concept</code>: su URI, su etiqueta,
+    su definición, sus ejemplos y su concepto más amplio.
+    El nodo raíz no se exporta.
+  </li>
+  <li>
+    <strong>Escribe el texto del perfil</strong>, uno por concepto.
+    El orden usado en LexiMus es: etiqueta, camino de categorías
+    (sin la raíz), definición curada y ejemplos.
+    <pre style="background:#141416;padding:12px;border-radius:4px;overflow:auto;font-size:13px">Sinfonía. Categoría: Los nombres de la música › …. Definición del nodo. Ejemplos: ….
+</pre>
+    Si el nodo no tiene definición, el perfil se queda en la etiqueta y el
+    camino. No inventes el texto que falta: el vector saldría de otra clase.
+  </li>
+  <li>
+    <strong>Pon el prefijo del modelo.</strong> Para <code>embeddinggemma</code>
+    el documento lleva <code>title: none | text: </code> delante del perfil.
+    El pasaje que quieres clasificar lleva
+    <code>task: classification | query: </code> delante del texto.
+    Esos prefijos son parte de la entrada: sin ellos el vector no es comparable
+    con los que ya calculó LexiMus.
+  </li>
+  <li>
+    <strong>Calcula el vector en local</strong> con el mismo modelo y anota
+    su digest. Ollama lo devuelve en <code>/api/tags</code>.
+    La misma frase con otro digest es otro vector.
+    <pre style="background:#141416;padding:12px;border-radius:4px;overflow:auto;font-size:13px">curl http://localhost:11434/api/embed \
+  -H 'Content-Type: application/json' \
+  -d '{"model":"embeddinggemma:300m","input":"title: none | text: Sinfonía. Categoría: …"}'</pre>
+    Guarda junto a cada vector la URI del concepto. Así el resultado vuelve
+    a la ficha oficial.
+  </li>
+  <li>
+    <strong>Compara</strong> el vector del pasaje con el de cada concepto
+    mediante similitud del coseno. Los conceptos más cercanos son el contexto
+    taxonómico de ese pasaje.
+  </li>
+  <li>
+    <strong>Pasa texto, no números, al modelo generativo.</strong>
+    El embedding solo elige qué clases entran. En el prompt van la etiqueta,
+    la definición y la URI de esas clases. Un modelo de lenguaje no lee
+    un vector de 768 dimensiones como si fuera una frase.
+  </li>
+</ol>
+
+<h2>Cuándo hay que repetir el cálculo</h2>
+<p>
+  Hay que volver a incrustar un concepto si cambia su definición, sus
+  ejemplos o el digest del modelo. No mezcles vectores de dos digest en la
+  misma comparación. El SKOS puede quedarse igual mientras el modelo
+  declarado siga siendo <code>embeddinggemma:300m</code>.
+</p>
+<p class="lead">
+  <a href="https://www.w3.org/TR/skos-reference/">SKOS</a> ·
+  <a href="https://ollama.com/library/embeddinggemma">embeddinggemma en Ollama</a> ·
+  <a href="https://github.com/ollama/ollama/blob/main/docs/api.md">API de embeddings</a>
+</p>
+
+    </main>
+    <footer class="site">
+      <a href="https://www.radiomicelio.es">Radio Micelio</a> ·
+      La banda y el cómic ·
+      Contenido bajo CC BY 4.0 ·
+      <a href="/ontologia/">Ontología del proyecto</a>
+      · <a href="/editor/">Editor</a>
+      <p id="persistence-note">Edición en esta web: los cambios no se guardan en el sitio publicado.</p>
+    </footer>
+  </div>
+</div>
+<script src="/assets/app.js" defer></script>
+<script src="/assets/persistence.js" defer></script>
+</body>
+</html>

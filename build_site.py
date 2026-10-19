@@ -449,8 +449,9 @@ def build_sidebar_html(active_section=None, active_path=None):
     return f'''<aside class="sidebar" id="sidebar"><div class="sidebar-inner">
       <a class="side-home" href="/">RADIO MICELIO <span>Inicio ↗</span></a>
       <div class="side-section-label">El proyecto</div>{"".join(sections)}
-      <details class="side-resources"{" open" if active_section in ("wiki", "lab") else ""}><summary>Otros espacios</summary>
-        <nav aria-label="Otros espacios"><a class="side-person" href="/atlas/">Wiki musical</a>
+      <details class="side-resources"{" open" if active_section in ("wiki", "lab", "tecnologia") else ""}><summary>Otros espacios</summary>
+        <nav aria-label="Otros espacios"><a class="side-person" href="/tecnologia/it/">Tecnología</a>
+        <a class="side-person" href="/atlas/">Wiki musical</a>
         <a class="side-person" href="/lab/">Laboratorio</a><a class="side-person" href="/chess-lab/">Chess Lab</a>
         <a class="side-person" href="/story-lab/">Story Lab</a><a class="side-person" href="/arcade/">Arcade</a>
         <a class="side-person" href="/escena/">Escena</a><a class="side-person" href="/productora/">Productora</a></nav>
@@ -1557,6 +1558,172 @@ GRAPH_JS = """
 """
 
 
+def build_tecnologia():
+    crumbs = [("Radio Micelio", "/"), ("Tecnología", None)]
+    body = f"""
+{crumbs_html(crumbs)}
+<p class="pill">Modelos · taxonomías · contexto</p>
+<h1>Tecnología</h1>
+<p class="lead">
+  Notas para usar una taxonomía publicada como contexto de un modelo,
+  sin meter los vectores dentro del vocabulario.
+</p>
+<div class="cat-grid">
+  <a class="cat-card" href="/tecnologia/it/">
+    <div class="icon">IT</div>
+    <h3>Taxonomía como contexto</h3>
+    <p>Qué trae el SKOS de LexiMus, qué se calcula aparte y en qué orden.</p>
+  </a>
+</div>
+"""
+    jsonld = with_context({
+        "@type": "CollectionPage",
+        "name": f"Tecnología · {SITE_NAME}",
+        "url": f"{SITE_URL}/tecnologia/",
+        "description": "Documentación técnica de Radio Micelio sobre modelos y taxonomías.",
+        "breadcrumb": crumbs_jsonld(crumbs),
+    })
+    html = page_shell(
+        title=f"Tecnología · {SITE_NAME}",
+        description="Documentación técnica: modelos fundacionales y taxonomías usadas como contexto.",
+        canonical=f"{SITE_URL}/tecnologia/",
+        body_html=body,
+        jsonld_obj=jsonld,
+        active_section="tecnologia",
+        active_path="/tecnologia/",
+    )
+    write_text(DOCS / "tecnologia" / "index.html", html)
+
+    it_crumbs = [("Radio Micelio", "/"), ("Tecnología", "/tecnologia/"), ("Taxonomía como contexto", None)]
+    it_body = f"""
+{crumbs_html(it_crumbs)}
+<p class="pill">LexiMus · SKOS · embeddinggemma:300m</p>
+<h1>Usar una taxonomía como contexto</h1>
+<p class="lead">
+  El fichero SKOS o JSON-LD nombra las clases y el modelo con el que se
+  calculan sus perfiles. Los vectores no viajan dentro. Esta página dice
+  cómo obtenerlos y cómo dárselos a un modelo.
+</p>
+
+<h2>Qué declara el vocabulario</h2>
+<p>
+  La taxonomía «Los nombres de la música» se publica como esquema SKOS.
+  Cada concepto tiene como identificador la ficha oficial del nodo.
+  El fichero incluye la etiqueta, la definición cuando existe, los ejemplos,
+  la nota de alcance, el concepto más amplio y esta declaración:
+</p>
+<pre style="background:#141416;padding:12px;border-radius:4px;overflow:auto;font-size:13px">leximus:embeddingModel "embeddinggemma:300m"</pre>
+<p>
+  Turtle: <a href="https://core.iccmu.es/leximus-corpus/browser/skos/">/leximus-corpus/browser/skos/</a>.
+  JSON-LD: el mismo camino con <code>?formato=jsonld</code>.
+  El esquema es
+  <a href="https://core.iccmu.es/leximus/taxonomias/taxonomia-jc/">taxonomia-jc</a>.
+  Esas direcciones piden la sesión de core.iccmu.es.
+</p>
+<p>
+  SKOS no tiene un hueco estándar para un vector de 768 números. El vector
+  además cambia si cambia el modelo o una definición. Por eso el fichero
+  nombra el modelo y deja el cálculo fuera.
+</p>
+
+<h2>Dos cosas que no son el mismo archivo</h2>
+<p>
+  <strong>Los pesos del modelo</strong> son lo que descarga Ollama al pedir
+  <code>embeddinggemma:300m</code>. Sin ese modelo no hay vectores.
+</p>
+<p>
+  <strong>Los vectores</strong> son el resultado de pasar un texto por ese
+  modelo. El perfil de un nodo cabe en unos cientos de kilobytes para toda
+  la taxonomía: cerca de 132 conceptos por 768 números en coma flotante.
+  Una caché de muchos pasajes del corpus puede ocupar más de un gigabyte.
+  Esa caché no hace falta para usar la taxonomía, y no se reconstruye
+  descargando un fichero ligero.
+</p>
+
+<h2>Pasos</h2>
+<ol>
+  <li>
+    <strong>Descarga el vocabulario</strong> en Turtle o JSON-LD.
+    Quédate con cada <code>skos:Concept</code>: su URI, su etiqueta,
+    su definición, sus ejemplos y su concepto más amplio.
+    El nodo raíz no se exporta.
+  </li>
+  <li>
+    <strong>Escribe el texto del perfil</strong>, uno por concepto.
+    El orden usado en LexiMus es: etiqueta, camino de categorías
+    (sin la raíz), definición curada y ejemplos.
+    <pre style="background:#141416;padding:12px;border-radius:4px;overflow:auto;font-size:13px">Sinfonía. Categoría: Los nombres de la música › …. Definición del nodo. Ejemplos: ….
+</pre>
+    Si el nodo no tiene definición, el perfil se queda en la etiqueta y el
+    camino. No inventes el texto que falta: el vector saldría de otra clase.
+  </li>
+  <li>
+    <strong>Pon el prefijo del modelo.</strong> Para <code>embeddinggemma</code>
+    el documento lleva <code>title: none | text: </code> delante del perfil.
+    El pasaje que quieres clasificar lleva
+    <code>task: classification | query: </code> delante del texto.
+    Esos prefijos son parte de la entrada: sin ellos el vector no es comparable
+    con los que ya calculó LexiMus.
+  </li>
+  <li>
+    <strong>Calcula el vector en local</strong> con el mismo modelo y anota
+    su digest. Ollama lo devuelve en <code>/api/tags</code>.
+    La misma frase con otro digest es otro vector.
+    <pre style="background:#141416;padding:12px;border-radius:4px;overflow:auto;font-size:13px">curl http://localhost:11434/api/embed \\
+  -H 'Content-Type: application/json' \\
+  -d '{{"model":"embeddinggemma:300m","input":"title: none | text: Sinfonía. Categoría: …"}}'</pre>
+    Guarda junto a cada vector la URI del concepto. Así el resultado vuelve
+    a la ficha oficial.
+  </li>
+  <li>
+    <strong>Compara</strong> el vector del pasaje con el de cada concepto
+    mediante similitud del coseno. Los conceptos más cercanos son el contexto
+    taxonómico de ese pasaje.
+  </li>
+  <li>
+    <strong>Pasa texto, no números, al modelo generativo.</strong>
+    El embedding solo elige qué clases entran. En el prompt van la etiqueta,
+    la definición y la URI de esas clases. Un modelo de lenguaje no lee
+    un vector de 768 dimensiones como si fuera una frase.
+  </li>
+</ol>
+
+<h2>Cuándo hay que repetir el cálculo</h2>
+<p>
+  Hay que volver a incrustar un concepto si cambia su definición, sus
+  ejemplos o el digest del modelo. No mezcles vectores de dos digest en la
+  misma comparación. El SKOS puede quedarse igual mientras el modelo
+  declarado siga siendo <code>embeddinggemma:300m</code>.
+</p>
+<p class="lead">
+  <a href="https://www.w3.org/TR/skos-reference/">SKOS</a> ·
+  <a href="https://ollama.com/library/embeddinggemma">embeddinggemma en Ollama</a> ·
+  <a href="https://github.com/ollama/ollama/blob/main/docs/api.md">API de embeddings</a>
+</p>
+"""
+    it_jsonld = with_context({
+        "@type": "TechArticle",
+        "name": f"Usar una taxonomía como contexto · {SITE_NAME}",
+        "url": f"{SITE_URL}/tecnologia/it/",
+        "description": (
+            "Pasos para calcular el embedding de una taxonomía SKOS "
+            "y usarla como contexto de un modelo fundacional."
+        ),
+        "breadcrumb": crumbs_jsonld(it_crumbs),
+        "about": {"@id": "https://core.iccmu.es/leximus/taxonomias/taxonomia-jc/"},
+    })
+    it_html = page_shell(
+        title=f"Taxonomía como contexto · {SITE_NAME}",
+        description="Cómo usar el SKOS de LexiMus como contexto: el modelo va declarado y los vectores se calculan aparte.",
+        canonical=f"{SITE_URL}/tecnologia/it/",
+        body_html=it_body,
+        jsonld_obj=it_jsonld,
+        active_section="tecnologia",
+        active_path="/tecnologia/it/",
+    )
+    write_text(DOCS / "tecnologia" / "it" / "index.html", it_html)
+
+
 def build_404():
     body = """
 <div class="hero">
@@ -1655,6 +1822,7 @@ def build():
     build_arcade_decade_pages()
     build_arcade_game_pages()
     build_upcoming_pages()
+    build_tecnologia()
     build_404()
     build_graph_data()
     build_ontology_jsonld()

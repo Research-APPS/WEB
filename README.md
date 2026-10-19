@@ -134,6 +134,10 @@ pública `/assets/img/nombre-del-archivo.webp` en la ficha. Se copian imágenes 
 WebP, JPG, GIF, SVG y AVIF, incluidas subcarpetas. El marco conserva espacio incluso
 cuando todavía no hay retrato.
 
+`/tecnologia/it/` explica cómo usar una taxonomía SKOS como contexto de un
+modelo: el vocabulario declara el modelo de embedding y los vectores se
+calculan aparte. La página la escribe `build_tecnologia()` en `build_site.py`.
+
 ## Generar y publicar a mano
 
 Desde esta carpeta, con Python 3.9 o posterior y sin instalar dependencias:
