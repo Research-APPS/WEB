@@ -150,10 +150,7 @@ CHARACTERS = [
         "status": "published",
         "topic": "Microfonía y sensórica",
         "producer_role": "Producción musical · Grabación · Sonido",
-        "description": (
-            "Personaje del universo Radio Micelio. Su extraordinario sistema auditivo "
-            "conecta su historia con el estudio del sonido, los sensores y la captación acústica."
-        ),
+        "description": "Sonido, sensores y captación acústica.",
         "current_url": "/universo/personajes/sismico/",
         "canonical_url": "/universo/personajes/sismico/",
         "future_url": "/universo/personajes/sismico/",
@@ -202,10 +199,7 @@ for _raw in _UPCOMING_RAW:
             "status": "upcoming",
             "topic": _raw["topic"],
             "producer_role": _raw["producer_role"],
-            "description": (
-                f"Personaje del universo Radio Micelio. Campo de investigación: {_raw['topic']}. "
-                "Contenido en preparación."
-            ),
+            "description": _raw["topic"] + ".",
             "current_url": f"/proximamente/{_slug}/",
             "canonical_url": f"/proximamente/{_slug}/",
             "future_url": f"/universo/personajes/{_slug}/",

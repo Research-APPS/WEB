@@ -12,6 +12,13 @@ def h(value):
     return escape(str(value), quote=True)
 
 
+EN_CONSTRUCCION = "En construcción"
+IMAGEN_PENDIENTE = "Imagen pendiente"
+CANCION_EN_PREPARACION = "Canción en preparación"
+JUEGO_EN_DESARROLLO = "Juego en desarrollo"
+HISTORIA_EN_CONSTRUCCION = "Historia en construcción"
+
+
 def ref(path):
     return {"@id": abs_url(path)}
 
@@ -28,7 +35,7 @@ def portrait(p):
     if p["imagen"]:
         return f'<img src="{h(p["imagen"])}" alt="Retrato de {h(p["nombre"])}" width="600" height="600" loading="lazy">'
     initials = "".join(word[0] for word in p["nombre"].split()[:2])
-    return f'<div class="portrait-placeholder"><span aria-hidden="true">{h(initials)}</span><small>Imagen en preparación</small></div>'
+    return f'<div class="portrait-placeholder"><span aria-hidden="true">{h(initials)}</span><small>{IMAGEN_PENDIENTE}</small></div>'
 
 
 def cards(profiles):
@@ -43,21 +50,20 @@ def branch_cards():
     return '''<div class="branch-grid">
       <a class="branch-card band-card" href="/banda/">
         <span class="eyebrow">Música · integrantes</span><span class="branch-mark" aria-hidden="true">01 /</span>
-        <h2>La banda</h2><p>Quienes dan sonido a Radio Micelio.<br>La formación actual y quienes pasaron por ella.</p>
-        <span class="branch-action">Conoce a la banda <span aria-hidden="true">↗</span></span>
+        <h2>La banda</h2><p>La formación actual y quienes pasaron por ella.</p>
+        <span class="branch-action">Entrar <span aria-hidden="true">↗</span></span>
       </a>
       <a class="branch-card comic-card" href="/comic/">
-        <span class="eyebrow">Historias · personajes</span><span class="branch-mark" aria-hidden="true">02 /</span>
-        <h2>Cómic</h2><p>El mundo que vive entre viñetas.<br>Sus protagonistas y las historias por contar.</p>
-        <span class="branch-action">Entra en el cómic <span aria-hidden="true">↗</span></span>
+        <span class="eyebrow">Personajes</span><span class="branch-mark" aria-hidden="true">02 /</span>
+        <h2>Cómic</h2><p>Personajes del cómic.</p>
+        <span class="branch-action">Entrar <span aria-hidden="true">↗</span></span>
       </a>
     </div>'''
 
 
 def resources():
-    return '''<section class="project-resources"><h2>Sigue explorando</h2>
-      <p>El conocimiento, los juegos y los otros espacios del proyecto.</p>
-      <div class="resource-links"><a href="/atlas/">Wiki musical ↗</a><a href="/lab/">Laboratorio y juegos ↗</a>
+    return '''<section class="project-resources"><h2>También</h2>
+      <div class="resource-links"><a href="/atlas/">Wiki musical ↗</a><a href="/lab/">Laboratorio ↗</a>
       <a href="/escena/">Escena ↗</a><a href="/productora/">Productora ↗</a></div></section>'''
 
 
@@ -72,7 +78,7 @@ def osm_urls(location):
 def map_panel(p):
     loc = p["ubicacion"]
     if not loc:
-        return '<div class="map-placeholder"><span aria-hidden="true">⌖</span><p>Ubicación por anunciar</p><small>El mapa de OpenStreetMap aparecerá aquí.</small></div>'
+        return ""
     embed, full = osm_urls(loc)
     return (f'<p>{h(loc["nombre"])}</p><iframe class="location-map" title="Ubicación actual de {h(p["nombre"])} en OpenStreetMap" '
             f'src="{h(embed)}" loading="lazy" referrerpolicy="no-referrer"></iframe>'
@@ -87,14 +93,13 @@ def resource_panel(title, item, empty, action):
 
 
 def game_panel(p):
-    panel = resource_panel("Su juego", p["juego"], "Juego en preparación.", "Jugar")
+    if not p["juego"]:
+        return ""
+    panel = resource_panel("Su juego", p["juego"], JUEGO_EN_DESARROLLO, "Jugar")
     tutorial = p.get("tutorial")
-    if tutorial:
-        extra = f'<p><a href="{h(tutorial["url"])}">{h(tutorial["titulo"])} ↗</a></p>'
-    elif p["juego"]:
-        extra = '<p class="pending">Tutorial en preparación.</p>'
-    else:
-        extra = ''
+    if not tutorial:
+        return panel
+    extra = f'<p><a href="{h(tutorial["url"])}">{h(tutorial["titulo"])} ↗</a></p>'
     return panel.replace('</section>', extra + '</section>')
 
 
@@ -219,12 +224,11 @@ def build_project(shell, write_text, write_json, docs, crumbs_html, crumbs_jsonl
     # Two equal entrances, with resources deliberately placed after them.
     featured = next(p for p in PROFILES if p["id"] == "sismico")
     spotlight = (f'<a class="spotlight" href="{featured["url"]}"><div class="spotlight-portrait">{portrait(featured)}</div>'
-                 f'<div><span class="eyebrow">Empieza por aquí</span><h2>Conoce a {h(featured["nombre"])}</h2>'
-                 '<p>Música, juego y conocimiento: descubre su ficha.</p></div><span aria-hidden="true">↗</span></a>')
+                 f'<div><span class="eyebrow">Ficha</span><h2>{h(featured["nombre"])}</h2>'
+                 f'<p>{h(featured["descripcion"])}</p></div><span aria-hidden="true">↗</span></a>')
     page("/", "La banda y el cómic", SITE_DESCRIPTION,
-         '<section class="home-hero"><p class="eyebrow">Música e historias conectadas</p><h1 class="home-brand">Radio Micelio</h1>'
-         '<p class="home-tagline">Una banda. Un cómic.<br>Un mundo compartido.</p>'
-         '<p class="home-sub">Conoce a quienes hacen la música y a quienes habitan las viñetas. Cada ficha abre una parte del proyecto.</p></section>'
+         '<section class="home-hero"><h1 class="home-brand">Radio Micelio</h1>'
+         '<p class="home-tagline">Una banda. Un cómic.</p></section>'
          + branch_cards() + spotlight
          + resources() + ontology_link("/ontologia/", "Ontología del proyecto"),
          nodes=[graph[0], {"@id": SITE_URL + "/#website", "@type": "WebSite", "name": "Radio Micelio", "url": SITE_URL + "/", "about": ref("/id/radio-micelio")}])
@@ -257,11 +261,18 @@ def build_project(shell, write_text, write_json, docs, crumbs_html, crumbs_jsonl
         body = f'<section class="profile-hero"><div class="portrait">{portrait(p)}</div><div><p class="eyebrow">{b["label"]} / {g["label"]}</p><h1>{h(p["nombre"])}</h1><p class="lead">{h(p["descripcion"])}</p>{quick}</div></section>'
         if len(p["grupos"]) > 1:
             body += '<nav class="profile-contexts" aria-label="También en">' + ' · '.join(f'<a href="{GROUPS[group]["url"]}">{BRANCHES[GROUPS[group]["branch"]]["label"]}: {GROUPS[group]["label"]}</a>' for group in p["grupos"]) + '</nav>'
-        body += '<div class="profile-grid">' + resource_panel("Su canción", p["cancion"], "Canción por anunciar.", "Escuchar canción")
-        body += game_panel(p)
-        body += f'<section class="profile-panel profile-map"><h2>Ubicación actual</h2>{map_panel(p)}</section>'
-        links = ''.join(f'<li><a href="{h(x["url"])}">{h(x["titulo"])} ↗</a></li>' for x in p["enlaces"])
-        body += '<section class="profile-panel"><h2>Más enlaces</h2>' + (f'<ul class="profile-links">{links}</ul>' if links else '<p class="pending">Próximamente, más conexiones.</p>') + '</section></div>'
+        panels = ""
+        if p["cancion"]:
+            panels += resource_panel("Su canción", p["cancion"], CANCION_EN_PREPARACION, "Escuchar")
+        panels += game_panel(p)
+        location = map_panel(p)
+        if location:
+            panels += f'<section class="profile-panel profile-map"><h2>Ubicación actual</h2>{location}</section>'
+        if p["enlaces"]:
+            links = ''.join(f'<li><a href="{h(x["url"])}">{h(x["titulo"])} ↗</a></li>' for x in p["enlaces"])
+            panels += f'<section class="profile-panel"><h2>Más enlaces</h2><ul class="profile-links">{links}</ul></section>'
+        if panels:
+            body += f'<div class="profile-grid">{panels}</div>'
         if p["apariciones"]:
             body += '<section class="profile-panel"><h2>Apariciones</h2><ul class="profile-links">' + ''.join(f'<li><a href="{h(x["url"])}">{h(x["titulo"])}</a></li>' for x in p["apariciones"]) + '</ul></section>'
         body += ontology_link(p["ontology"], f"Ontología de {p['nombre']}")
@@ -310,18 +321,20 @@ def build_project(shell, write_text, write_json, docs, crumbs_html, crumbs_jsonl
                 body += f'<dt>{relation}</dt><dd><a href="{BRANCHES[g["branch"]]["url"]}ontologia/">{BRANCHES[g["branch"]]["label"]}</a></dd>'
             for field, label in (("cancion", "Canción asociada"), ("juego", "Juego asociado"), ("tutorial", "Tutorial")):
                 item = profile.get(field)
-                body += f'<dt>{label}</dt><dd>' + (f'<a href="{h(item["url"])}">{h(item.get("nombre", item["titulo"]))}</a>' if item else 'Pendiente') + '</dd>'
+                if item:
+                    body += f'<dt>{label}</dt><dd><a href="{h(item["url"])}">{h(item.get("nombre", item["titulo"]))}</a></dd>'
             loc = profile["ubicacion"]
-            body += '<dt>Ubicación actual</dt><dd>' + (f'<a href="{h(osm_urls(loc)[1])}">{h(loc["nombre"])}</a>' if loc else 'Por anunciar') + '</dd>'
+            if loc:
+                body += f'<dt>Ubicación actual</dt><dd><a href="{h(osm_urls(loc)[1])}">{h(loc["nombre"])}</a></dd>'
             for appearance in profile["apariciones"]:
                 body += f'<dt>Aparece en</dt><dd><a href="{h(appearance["url"])}">{h(appearance["titulo"])}</a></dd>'
             body += '</dl>'
             body += '<h2>Campos de conocimiento</h2>'
             if not profile["dominios"]:
-                body += '<p class="pending">Conexiones de conocimiento en preparación.</p>'
+                body += f'<p class="pending">{EN_CONSTRUCCION}</p>'
             for domain_id in profile["dominios"]:
                 d = next(d for d in DOMAINS if d["id"] == domain_id)
-                body += f'<p><a href="{d["current_url"]}">{h(d["label"])}</a></p>' if d["current_url"] else f'<p>{h(d["label"])} · en preparación</p>'
+                body += f'<p><a href="{d["current_url"]}">{h(d["label"])}</a></p>' if d["current_url"] else f'<p>{h(d["label"])}. {EN_CONSTRUCCION}</p>'
                 if domain_id == "microfonia":
                     body += '<p><a href="/ontology.jsonld">Ontología completa de microfonía (JSON-LD)</a> · <a href="/grafo/">Ver su grafo</a></p>'
             if profile["ontologia_url"]:
@@ -349,7 +362,7 @@ def build_project(shell, write_text, write_json, docs, crumbs_html, crumbs_jsonl
             aliases[f"/proximamente/{p['id']}/"] = p["url"]
     for old, new in aliases.items():
         page(old, "Esta ficha tiene una nueva dirección", "La banda y el cómic de Radio Micelio.",
-             f'<h1>El proyecto crece</h1><p><a href="{new}">Continuar a la nueva página →</a></p>', canonical=new,
+             f'<h1>Esta ficha tiene una nueva dirección</h1><p><a href="{new}">Continuar</a></p>', canonical=new,
              extra_head=f'<meta http-equiv="refresh" content="0;url={new}">')
 
     from editor_pages import build_editor

@@ -113,5 +113,5 @@ def apply_profiles(characters):
         c.update(label=p["nombre"], schema_type="Person" if p["rama"] == "banda" else "Thing",
                  section=p["rama"], status="published", description=p["descripcion"],
                  image=p["imagen"], current_url=p["url"], canonical_url=p["url"], future_url=p["url"])
-        c.setdefault("topic", "Historia en preparación")
+        c.setdefault("topic", "")
         c["relations"]["knows_about"] = p["dominios"]

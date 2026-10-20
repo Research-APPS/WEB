@@ -74,7 +74,7 @@
     </header>
     <main>
 <div class="crumbs"><a href="/">Radio Micelio</a> › <a href="/tecnologia/">Tecnología</a> › Taxonomía como contexto</div>
-<p class="pill">ChordIA · jazz21 · MCI</p>
+<p class="pill">jazz21 · MCI</p>
 <h1>Usar una taxonomía como contexto</h1>
 <p class="lead">
   Un vocabulario SKOS nombra las clases y el modelo con el que se calculan
@@ -86,11 +86,8 @@
 <h2>El ejemplo</h2>
 <p>
   jazz21 es la librería pública de Radio Micelio para cifrado americano,
-  lead sheets y guitarra, apoyada en music21. ChordIA la usa como motor de
-  composición. Los repositorios de
-  <a href="https://github.com/ChordIA-project">ChordIA-project</a> todavía
-  no son públicos: hasta recogerlos y adaptar el sistema, el ejemplo vive
-  en jazz21 y en <a href="https://chordia.es/">chordia.es</a>.
+  lead sheets y guitarra, apoyada en music21. El ejemplo de esta página
+  usa solo ese lenguaje.
 </p>
 <p>
   Una clase de ejemplo, en Turtle. Los identificadores son de muestra:
@@ -178,18 +175,15 @@ jazz21.describe_chord("Cmaj7")</pre>
 </p>
 <p>
   El agente que ejecuta la respuesta sería una versión nueva de MCI,
-  el Music Controller Interpreter. MCI hoy se sienta entre quien toca y el
-  motor armónico: escucha, pregunta qué función tiene lo tocado y puede
-  pedir un acorde, un parche, una lista diatónica o una inversión. La
-  versión nueva se sentaría entre la conversación y jazz21. Una frase como
-  «cambia el segundo acorde por un tritono sustituto» se convierte en una
-  llamada a la librería, y la respuesta vuelve como cifrado y como objeto
-  simbólico. Si luego suena, es porque algo reproduce ese objeto. El modelo
-  no sintetiza la onda.
+  el Music Controller Interpreter. MCI hoy registra por MIDI lo que se toca
+  y lo devuelve como cifrado, función y forma. La versión nueva se sentaría
+  entre la conversación y jazz21. Una frase como «cambia el segundo acorde
+  por un tritono sustituto» se convierte en una llamada a la librería, y la
+  respuesta vuelve como cifrado y como objeto simbólico. Si luego suena, es
+  porque algo reproduce ese objeto. El modelo no sintetiza la onda.
 </p>
 <p class="lead">
   <a href="https://github.com/Research-APPS/jazz21">jazz21</a> ·
-  <a href="https://chordia.es/">ChordIA</a> ·
   <a href="https://www.w3.org/TR/skos-reference/">SKOS</a> ·
   <a href="https://github.com/ollama/ollama/blob/main/docs/api.md">API de embeddings</a>
 </p>

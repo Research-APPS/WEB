@@ -75,8 +75,12 @@ class ProjectTests(unittest.TestCase):
         for p in PROFILES:
             with self.subTest(profile=p["id"]):
                 html = (DOCS / p["url"].strip("/") / "index.html").read_text()
-                for text in ("Su canción", "Su juego", "Ubicación actual", "Más enlaces", p["ontology"]):
-                    self.assertIn(text, html)
+                self.assertIn(p["ontology"], html)
+                self.assertNotIn("Próximamente", html)
+                self.assertNotIn("por anunciar", html)
+                for field, label in (("cancion", "Su canción"), ("juego", "Su juego"), ("ubicacion", "Ubicación actual"), ("enlaces", "Más enlaces")):
+                    present = bool(p[field])
+                    self.assertEqual(label in html, present)
                 data = json.loads((DOCS / p["ontology"].strip("/") / "ontology.jsonld").read_text())
                 self.assertTrue(any(n["@id"] == SITE_URL + "/id/" + p["id"] for n in data["@graph"]))
 

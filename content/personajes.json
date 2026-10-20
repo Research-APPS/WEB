@@ -2,7 +2,7 @@
   {
     "id": "sismico",
     "nombre": "Sísmico",
-    "descripcion": "Su extraordinario sistema auditivo conecta su historia con el sonido, los sensores y la captación acústica.",
+    "descripcion": "Sonido, sensores y captación acústica.",
     "imagen": "/assets/img/sismico.png",
     "cancion": null,
     "ubicacion": null,
@@ -32,7 +32,7 @@
   {
     "id": "atomico",
     "nombre": "Atómico Vaquero",
-    "descripcion": "Su campo de investigación: evolución. Su historia está en preparación.",
+    "descripcion": "Evolución.",
     "imagen": null,
     "cancion": null,
     "ubicacion": null,
@@ -57,7 +57,7 @@
   {
     "id": "amethystos",
     "nombre": "Amethystos",
-    "descripcion": "Su campo de investigación: botánica. Su historia está en preparación.",
+    "descripcion": "Botánica.",
     "imagen": null,
     "cancion": null,
     "ubicacion": null,
@@ -82,7 +82,7 @@
   {
     "id": "tamen",
     "nombre": "Tamen",
-    "descripcion": "Su campo de investigación: nuevas redes. Su historia está en preparación.",
+    "descripcion": "Nuevas redes.",
     "imagen": null,
     "cancion": null,
     "ubicacion": null,
@@ -105,7 +105,7 @@
   {
     "id": "basscolgado",
     "nombre": "Basscolgado",
-    "descripcion": "Su campo de investigación: españa vaciada. Su historia está en preparación.",
+    "descripcion": "España vaciada.",
     "imagen": null,
     "cancion": null,
     "ubicacion": null,
@@ -128,7 +128,7 @@
   {
     "id": "musitoxic",
     "nombre": "Musitoxic",
-    "descripcion": "Su campo de investigación: imt. Su historia está en preparación.",
+    "descripcion": "IMT.",
     "imagen": null,
     "cancion": null,
     "ubicacion": null,
@@ -151,7 +151,7 @@
   {
     "id": "miguel-mafias-el-muso",
     "nombre": "Miguel Mafias (el Muso)",
-    "descripcion": "Su campo de investigación: demonios internos. Su historia está en preparación.",
+    "descripcion": "Demonios internos.",
     "imagen": null,
     "cancion": null,
     "ubicacion": null,
@@ -174,7 +174,7 @@
   {
     "id": "will-el-puas",
     "nombre": "Will el púas",
-    "descripcion": "Descripción en preparación.",
+    "descripcion": "En construcción",
     "imagen": null,
     "cancion": null,
     "ubicacion": null,
@@ -197,7 +197,7 @@
   {
     "id": "tocarlos-el-nino-rave",
     "nombre": "Tocarlos el niño Rave",
-    "descripcion": "Descripción en preparación.",
+    "descripcion": "En construcción",
     "imagen": null,
     "cancion": null,
     "ubicacion": null,
@@ -220,7 +220,7 @@
   {
     "id": "marza",
     "nombre": "Marza",
-    "descripcion": "Su campo de investigación: naturaleza y tecnología. Su historia está en preparación.",
+    "descripcion": "Naturaleza y tecnología.",
     "imagen": null,
     "cancion": null,
     "ubicacion": null,
@@ -245,7 +245,7 @@
   {
     "id": "daphne-rockmore",
     "nombre": "Daphne Rockmore",
-    "descripcion": "Su campo de investigación: electricidad y electrónica. Su historia está en preparación.",
+    "descripcion": "Electricidad y electrónica.",
     "imagen": null,
     "cancion": null,
     "ubicacion": null,
@@ -270,7 +270,7 @@
   {
     "id": "solfa",
     "nombre": "Solfa",
-    "descripcion": "Descripción en preparación.",
+    "descripcion": "En construcción",
     "imagen": null,
     "cancion": null,
     "ubicacion": null,
@@ -293,7 +293,7 @@
   {
     "id": "jhonny",
     "nombre": "Jhonny",
-    "descripcion": "Su campo de investigación: energía. Su historia está en preparación.",
+    "descripcion": "Energía.",
     "imagen": null,
     "cancion": null,
     "ubicacion": null,
@@ -316,7 +316,7 @@
   {
     "id": "aro",
     "nombre": "Aro",
-    "descripcion": "Descripción en preparación.",
+    "descripcion": "En construcción",
     "imagen": null,
     "cancion": null,
     "ubicacion": null,
@@ -339,7 +339,7 @@
   {
     "id": "gab",
     "nombre": "Gab",
-    "descripcion": "Descripción en preparación.",
+    "descripcion": "En construcción",
     "imagen": null,
     "cancion": null,
     "ubicacion": null,
@@ -362,7 +362,7 @@
   {
     "id": "foca-1",
     "nombre": "Foca 1",
-    "descripcion": "Descripción en preparación.",
+    "descripcion": "En construcción",
     "imagen": null,
     "cancion": null,
     "ubicacion": null,
@@ -385,7 +385,7 @@
   {
     "id": "caballo-1",
     "nombre": "Caballo 1",
-    "descripcion": "Descripción en preparación.",
+    "descripcion": "En construcción",
     "imagen": null,
     "cancion": null,
     "ubicacion": null,
@@ -408,7 +408,7 @@
   {
     "id": "cobaya-1",
     "nombre": "Cobaya 1",
-    "descripcion": "Descripción en preparación.",
+    "descripcion": "En construcción",
     "imagen": null,
     "cancion": null,
     "ubicacion": null,
@@ -431,7 +431,7 @@
   {
     "id": "cobaya-2",
     "nombre": "Cobaya 2",
-    "descripcion": "Descripción en preparación.",
+    "descripcion": "En construcción",
     "imagen": null,
     "cancion": null,
     "ubicacion": null,
@@ -454,7 +454,7 @@
   {
     "id": "cobaya-n-1",
     "nombre": "Cobaya n-1",
-    "descripcion": "Descripción en preparación.",
+    "descripcion": "En construcción",
     "imagen": null,
     "cancion": null,
     "ubicacion": null,

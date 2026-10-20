@@ -36,8 +36,7 @@ from entities import (
 )
 
 from project_data import BRANCHES, GROUPS, PROFILES, group_profiles
-from project_pages import build_project
-from project_pages import project_graph
+from project_pages import EN_CONSTRUCCION, build_project, project_graph
 
 ONTOLOGY_NS = f"{SITE_URL}/ontology#"
 ROOT = Path(__file__).parent
@@ -548,7 +547,7 @@ def build_atlas_hub():
                 f"""<div class="cat-card soon">
               <div class="icon">{d['icon']}</div>
               <h3>{d['label']}</h3>
-              <p>{d['short']} · en preparación</p>
+              <p>{d['short']}. {EN_CONSTRUCCION}</p>
             </div>"""
             )
     crumbs = [("Radio Micelio", "/"), ("Wiki", None)]
@@ -557,8 +556,7 @@ def build_atlas_hub():
 <p class="pill">Atlas · conocimiento</p>
 <h1>Wiki musical</h1>
 <p class="lead">
-  Ontologías abiertas del universo Radio Micelio. Empieza por lo publicado;
-  el resto irá creciendo alrededor de cada personaje y de la escena.
+  Microfonía está publicada. Las demás ramas, {EN_CONSTRUCCION.lower()}.
 </p>
 <div class="cat-grid">
 {"".join(cards)}
@@ -603,7 +601,7 @@ def build_microfonia_landing():
 <h1>Microfonía</h1>
 <p class="lead">{MICROFONIA['description']}</p>
 <div class="hero-actions">
-  <a class="btn primary" href="{SISMICO['current_url']}">Conocer a Sísmico →</a>
+  <a class="btn primary" href="{SISMICO['current_url']}">Sísmico →</a>
   <a class="btn ghost" href="/grafo/">Explorar el grafo</a>
   <a class="btn ghost" href="/ontology.jsonld">Descargar JSON-LD</a>
 </div>
@@ -646,21 +644,8 @@ def build_escena_hub():
     crumbs = [("Radio Micelio", "/"), ("Escena", None)]
     body = f"""
 {crumbs_html(crumbs)}
-<p class="pill">Cultura real</p>
 <h1>Escena</h1>
-<p class="lead">
-  Bandas, conciertos, salas, entrevistas, reviews y lanzamientos.
-  Empezaremos cerca: nuestra música, la gente con la que compartimos escena
-  y las bandas locales que merece la pena conocer.
-</p>
-<p class="lead">
-  Cuando publiquemos la primera banda, concierto o entrevista, aparecerán aquí
-  como páginas propias — conectadas entre sí y con la wiki.
-</p>
-<p class="pill">Próximamente: bandas · conciertos · salas · entrevistas · reviews · lanzamientos</p>
-<div class="hero-actions">
-  <a class="btn ghost" href="/atlas/">Ir a la Wiki →</a>
-</div>
+<p class="lead">{EN_CONSTRUCCION}</p>
 """
     jsonld = with_context(
         {
@@ -673,7 +658,7 @@ def build_escena_hub():
     )
     html = page_shell(
         title=f"Escena · {SITE_NAME}",
-        description="Escena cultural: bandas, conciertos, salas, entrevistas y reviews.",
+        description="Escena. En construcción.",
         canonical=f"{SITE_URL}/escena/",
         body_html=body,
         jsonld_obj=jsonld,
@@ -688,31 +673,18 @@ def build_productora_hub():
         if not c.get("producer_role"):
             continue
         soon = " soon" if c["status"] != "published" else ""
+        topic = escape(c.get("topic") or "")
+        topic_html = f"<span>{topic}</span>" if topic else ""
         cards.append(
             f"""<a class="concept-card{soon}" href="{c['current_url']}">
-              <b>{c['label']}</b><span>{c['producer_role']}</span>
+              <b>{escape(c['label'])}</b>{topic_html}
             </a>"""
         )
     crumbs = [("Radio Micelio", "/"), ("Productora", None)]
     body = f"""
 {crumbs_html(crumbs)}
-<p class="pill">Productora cultural</p>
 <h1>Productora</h1>
-<p class="lead">
-  Radio Micelio es también una productora cultural formada por profesionales
-  de distintas disciplinas. Sus alter ego del universo son la interfaz pública —
-  sin fingir que ficción y realidad son lo mismo.
-</p>
-<div class="split-block two">
-  <div class="split-panel">
-    <h3>En la productora</h3>
-    <p>Producción musical, fotografía de directo, comunicación, técnica de escenario y más. Portfolios y trabajos irán apareciendo aquí.</p>
-  </div>
-  <div class="split-panel">
-    <h3>En el universo</h3>
-    <p>Los mismos nombres existen como personajes ficticios con historias, poderes y campos de investigación propios.</p>
-  </div>
-</div>
+<p class="lead">{EN_CONSTRUCCION}</p>
 <h2>Alter ego</h2>
 <div class="concept-list">
 {"".join(cards)}
@@ -730,7 +702,7 @@ def build_productora_hub():
     )
     html = page_shell(
         title=f"Productora · {SITE_NAME}",
-        description="Productora cultural Radio Micelio: profesionales a través de sus alter ego.",
+        description="Productora. En construcción. Alter ego del proyecto.",
         canonical=f"{SITE_URL}/productora/",
         body_html=body,
         jsonld_obj=jsonld,
@@ -757,7 +729,7 @@ def build_lab_hub():
                 f"""<div class="cat-card soon">
               <div class="icon">{s['icon']}</div>
               <h3>{s['label']}</h3>
-              <p>{s['short']} · en preparación</p>
+              <p>{s['short']}. {EN_CONSTRUCCION}</p>
             </div>"""
             )
     crumbs = [("Radio Micelio", "/"), ("Lab", None)]
@@ -766,8 +738,7 @@ def build_lab_hub():
 <p class="pill">I+D · videojuego RM</p>
 <h1>Laboratorio</h1>
 <p class="lead">
-  Cuaderno de laboratorio del videojuego Radio Micelio. Chess Lab es el experimento
-  principal ahora; Arcade y AIRAM lo rodean. Lo que se prueba aquí alimenta el juego.
+  Chess Lab, Arcade y AIRAM están en marcha. Criaturas y RM Game, {EN_CONSTRUCCION.lower()}.
 </p>
 <aside class="feature-strip" aria-label="Chess Lab">
   <div class="feature-kicker">Destacado · H−2</div>
@@ -852,8 +823,8 @@ def build_airam_docs():
 <p class="pill">AIRAM Music · H8</p>
 <h1>AIRAM</h1>
 <p class="lead">
-  Núcleo completo hasta Story Mode: juego (ajedrez/go) → semántica → música →
-  personaje → datasets → mundo narrativo.
+  Juego (ajedrez/go) → semántica → música → personaje → datasets → mundo narrativo.
+  Lo que falta está en Deuda.
 </p>
 <div class="hero-actions">
   <a class="btn primary" href="/chess-lab/">Chess Lab →</a>
@@ -1351,13 +1322,9 @@ def build_upcoming_pages():
         ]
         body = f"""
 {crumbs_html(crumbs)}
-<p class="pill">Personaje · en preparación</p>
 <h1>{c['label']}</h1>
 <p class="lead">{c['description']}</p>
-<p class="lead">
-  Mientras tanto puedes explorar a <a href="{SISMICO['current_url']}">Sísmico</a>
-  y su dominio de <a href="/atlas/microfonia/">Microfonía</a>.
-</p>
+<p class="lead">{EN_CONSTRUCCION}</p>
 """
         jsonld = with_context(
             [
@@ -1566,8 +1533,7 @@ def build_tecnologia():
 <h1>Tecnología</h1>
 <p class="lead">
   Notas para usar una taxonomía musical como contexto de un modelo,
-  sin meter los vectores dentro del vocabulario. El ejemplo es el jazz
-  de ChordIA y de jazz21.
+  sin meter los vectores dentro del vocabulario. El ejemplo es jazz21.
 </p>
 <div class="cat-grid">
   <a class="cat-card" href="/tecnologia/it/">
@@ -1597,7 +1563,7 @@ def build_tecnologia():
 
     it_crumbs = [("Radio Micelio", "/"), ("Tecnología", "/tecnologia/"), ("Taxonomía como contexto", None)]
     it_body = crumbs_html(it_crumbs) + """
-<p class="pill">ChordIA · jazz21 · MCI</p>
+<p class="pill">jazz21 · MCI</p>
 <h1>Usar una taxonomía como contexto</h1>
 <p class="lead">
   Un vocabulario SKOS nombra las clases y el modelo con el que se calculan
@@ -1609,11 +1575,8 @@ def build_tecnologia():
 <h2>El ejemplo</h2>
 <p>
   jazz21 es la librería pública de Radio Micelio para cifrado americano,
-  lead sheets y guitarra, apoyada en music21. ChordIA la usa como motor de
-  composición. Los repositorios de
-  <a href="https://github.com/ChordIA-project">ChordIA-project</a> todavía
-  no son públicos: hasta recogerlos y adaptar el sistema, el ejemplo vive
-  en jazz21 y en <a href="https://chordia.es/">chordia.es</a>.
+  lead sheets y guitarra, apoyada en music21. El ejemplo de esta página
+  usa solo ese lenguaje.
 </p>
 <p>
   Una clase de ejemplo, en Turtle. Los identificadores son de muestra:
@@ -1701,18 +1664,15 @@ jazz21.describe_chord("Cmaj7")</pre>
 </p>
 <p>
   El agente que ejecuta la respuesta sería una versión nueva de MCI,
-  el Music Controller Interpreter. MCI hoy se sienta entre quien toca y el
-  motor armónico: escucha, pregunta qué función tiene lo tocado y puede
-  pedir un acorde, un parche, una lista diatónica o una inversión. La
-  versión nueva se sentaría entre la conversación y jazz21. Una frase como
-  «cambia el segundo acorde por un tritono sustituto» se convierte en una
-  llamada a la librería, y la respuesta vuelve como cifrado y como objeto
-  simbólico. Si luego suena, es porque algo reproduce ese objeto. El modelo
-  no sintetiza la onda.
+  el Music Controller Interpreter. MCI hoy registra por MIDI lo que se toca
+  y lo devuelve como cifrado, función y forma. La versión nueva se sentaría
+  entre la conversación y jazz21. Una frase como «cambia el segundo acorde
+  por un tritono sustituto» se convierte en una llamada a la librería, y la
+  respuesta vuelve como cifrado y como objeto simbólico. Si luego suena, es
+  porque algo reproduce ese objeto. El modelo no sintetiza la onda.
 </p>
 <p class="lead">
   <a href="https://github.com/Research-APPS/jazz21">jazz21</a> ·
-  <a href="https://chordia.es/">ChordIA</a> ·
   <a href="https://www.w3.org/TR/skos-reference/">SKOS</a> ·
   <a href="https://github.com/ollama/ollama/blob/main/docs/api.md">API de embeddings</a>
 </p>

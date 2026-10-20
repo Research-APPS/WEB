@@ -4,7 +4,7 @@
     {
       "id": "sismico",
       "nombre": "Sísmico",
-      "descripcion": "Su extraordinario sistema auditivo conecta su historia con el sonido, los sensores y la captación acústica.",
+      "descripcion": "Sonido, sensores y captación acústica.",
       "imagen": "/assets/img/sismico.png",
       "cancion": null,
       "ubicacion": null,
@@ -34,7 +34,7 @@
     {
       "id": "atomico",
       "nombre": "Atómico Vaquero",
-      "descripcion": "Su campo de investigación: evolución. Su historia está en preparación.",
+      "descripcion": "Evolución.",
       "imagen": null,
       "cancion": null,
       "ubicacion": null,
@@ -59,7 +59,7 @@
     {
       "id": "amethystos",
       "nombre": "Amethystos",
-      "descripcion": "Su campo de investigación: botánica. Su historia está en preparación.",
+      "descripcion": "Botánica.",
       "imagen": null,
       "cancion": null,
       "ubicacion": null,
@@ -84,7 +84,7 @@
     {
       "id": "tamen",
       "nombre": "Tamen",
-      "descripcion": "Su campo de investigación: nuevas redes. Su historia está en preparación.",
+      "descripcion": "Nuevas redes.",
       "imagen": null,
       "cancion": null,
       "ubicacion": null,
@@ -107,7 +107,7 @@
     {
       "id": "basscolgado",
       "nombre": "Basscolgado",
-      "descripcion": "Su campo de investigación: españa vaciada. Su historia está en preparación.",
+      "descripcion": "España vaciada.",
       "imagen": null,
       "cancion": null,
       "ubicacion": null,
@@ -130,7 +130,7 @@
     {
       "id": "musitoxic",
       "nombre": "Musitoxic",
-      "descripcion": "Su campo de investigación: imt. Su historia está en preparación.",
+      "descripcion": "IMT.",
       "imagen": null,
       "cancion": null,
       "ubicacion": null,
@@ -153,7 +153,7 @@
     {
       "id": "miguel-mafias-el-muso",
       "nombre": "Miguel Mafias (el Muso)",
-      "descripcion": "Su campo de investigación: demonios internos. Su historia está en preparación.",
+      "descripcion": "Demonios internos.",
       "imagen": null,
       "cancion": null,
       "ubicacion": null,
@@ -176,7 +176,7 @@
     {
       "id": "will-el-puas",
       "nombre": "Will el púas",
-      "descripcion": "Descripción en preparación.",
+      "descripcion": "En construcción",
       "imagen": null,
       "cancion": null,
       "ubicacion": null,
@@ -199,7 +199,7 @@
     {
       "id": "tocarlos-el-nino-rave",
       "nombre": "Tocarlos el niño Rave",
-      "descripcion": "Descripción en preparación.",
+      "descripcion": "En construcción",
       "imagen": null,
       "cancion": null,
       "ubicacion": null,
@@ -222,7 +222,7 @@
     {
       "id": "marza",
       "nombre": "Marza",
-      "descripcion": "Su campo de investigación: naturaleza y tecnología. Su historia está en preparación.",
+      "descripcion": "Naturaleza y tecnología.",
       "imagen": null,
       "cancion": null,
       "ubicacion": null,
@@ -247,7 +247,7 @@
     {
       "id": "daphne-rockmore",
       "nombre": "Daphne Rockmore",
-      "descripcion": "Su campo de investigación: electricidad y electrónica. Su historia está en preparación.",
+      "descripcion": "Electricidad y electrónica.",
       "imagen": null,
       "cancion": null,
       "ubicacion": null,
@@ -272,7 +272,7 @@
     {
       "id": "solfa",
       "nombre": "Solfa",
-      "descripcion": "Descripción en preparación.",
+      "descripcion": "En construcción",
       "imagen": null,
       "cancion": null,
       "ubicacion": null,
@@ -295,7 +295,7 @@
     {
       "id": "jhonny",
       "nombre": "Jhonny",
-      "descripcion": "Su campo de investigación: energía. Su historia está en preparación.",
+      "descripcion": "Energía.",
       "imagen": null,
       "cancion": null,
       "ubicacion": null,
@@ -318,7 +318,7 @@
     {
       "id": "aro",
       "nombre": "Aro",
-      "descripcion": "Descripción en preparación.",
+      "descripcion": "En construcción",
       "imagen": null,
       "cancion": null,
       "ubicacion": null,
@@ -341,7 +341,7 @@
     {
       "id": "gab",
       "nombre": "Gab",
-      "descripcion": "Descripción en preparación.",
+      "descripcion": "En construcción",
       "imagen": null,
       "cancion": null,
       "ubicacion": null,
@@ -364,7 +364,7 @@
     {
       "id": "foca-1",
       "nombre": "Foca 1",
-      "descripcion": "Descripción en preparación.",
+      "descripcion": "En construcción",
       "imagen": null,
       "cancion": null,
       "ubicacion": null,
@@ -387,7 +387,7 @@
     {
       "id": "caballo-1",
       "nombre": "Caballo 1",
-      "descripcion": "Descripción en preparación.",
+      "descripcion": "En construcción",
       "imagen": null,
       "cancion": null,
       "ubicacion": null,
@@ -410,7 +410,7 @@
     {
       "id": "cobaya-1",
       "nombre": "Cobaya 1",
-      "descripcion": "Descripción en preparación.",
+      "descripcion": "En construcción",
       "imagen": null,
       "cancion": null,
       "ubicacion": null,
@@ -433,7 +433,7 @@
     {
       "id": "cobaya-2",
       "nombre": "Cobaya 2",
-      "descripcion": "Descripción en preparación.",
+      "descripcion": "En construcción",
       "imagen": null,
       "cancion": null,
       "ubicacion": null,
@@ -456,7 +456,7 @@
     {
       "id": "cobaya-n-1",
       "nombre": "Cobaya n-1",
-      "descripcion": "Descripción en preparación.",
+      "descripcion": "En construcción",
       "imagen": null,
       "cancion": null,
       "ubicacion": null,
@@ -699,7 +699,7 @@
         "Person"
       ],
       "name": "Sísmico",
-      "description": "Su extraordinario sistema auditivo conecta su historia con el sonido, los sensores y la captación acústica.",
+      "description": "Sonido, sensores y captación acústica.",
       "url": "https://www.radiomicelio.es/personajes/sismico/",
       "mainEntityOfPage": {
         "@id": "https://www.radiomicelio.es/personajes/sismico/"
@@ -751,7 +751,7 @@
         "Person"
       ],
       "name": "Atómico Vaquero",
-      "description": "Su campo de investigación: evolución. Su historia está en preparación.",
+      "description": "Evolución.",
       "url": "https://www.radiomicelio.es/personajes/atomico/",
       "mainEntityOfPage": {
         "@id": "https://www.radiomicelio.es/personajes/atomico/"
@@ -799,7 +799,7 @@
         "Person"
       ],
       "name": "Amethystos",
-      "description": "Su campo de investigación: botánica. Su historia está en preparación.",
+      "description": "Botánica.",
       "url": "https://www.radiomicelio.es/personajes/amethystos/",
       "mainEntityOfPage": {
         "@id": "https://www.radiomicelio.es/personajes/amethystos/"
@@ -847,7 +847,7 @@
         "Person"
       ],
       "name": "Tamen",
-      "description": "Su campo de investigación: nuevas redes. Su historia está en preparación.",
+      "description": "Nuevas redes.",
       "url": "https://www.radiomicelio.es/personajes/tamen/",
       "mainEntityOfPage": {
         "@id": "https://www.radiomicelio.es/personajes/tamen/"
@@ -890,7 +890,7 @@
         "Person"
       ],
       "name": "Basscolgado",
-      "description": "Su campo de investigación: españa vaciada. Su historia está en preparación.",
+      "description": "España vaciada.",
       "url": "https://www.radiomicelio.es/personajes/basscolgado/",
       "mainEntityOfPage": {
         "@id": "https://www.radiomicelio.es/personajes/basscolgado/"
@@ -933,7 +933,7 @@
         "Person"
       ],
       "name": "Musitoxic",
-      "description": "Su campo de investigación: imt. Su historia está en preparación.",
+      "description": "IMT.",
       "url": "https://www.radiomicelio.es/personajes/musitoxic/",
       "mainEntityOfPage": {
         "@id": "https://www.radiomicelio.es/personajes/musitoxic/"
@@ -976,7 +976,7 @@
         "Person"
       ],
       "name": "Miguel Mafias (el Muso)",
-      "description": "Su campo de investigación: demonios internos. Su historia está en preparación.",
+      "description": "Demonios internos.",
       "url": "https://www.radiomicelio.es/personajes/miguel-mafias-el-muso/",
       "mainEntityOfPage": {
         "@id": "https://www.radiomicelio.es/personajes/miguel-mafias-el-muso/"
@@ -1019,7 +1019,7 @@
         "Person"
       ],
       "name": "Will el púas",
-      "description": "Descripción en preparación.",
+      "description": "En construcción",
       "url": "https://www.radiomicelio.es/personajes/will-el-puas/",
       "mainEntityOfPage": {
         "@id": "https://www.radiomicelio.es/personajes/will-el-puas/"
@@ -1062,7 +1062,7 @@
         "Person"
       ],
       "name": "Tocarlos el niño Rave",
-      "description": "Descripción en preparación.",
+      "description": "En construcción",
       "url": "https://www.radiomicelio.es/personajes/tocarlos-el-nino-rave/",
       "mainEntityOfPage": {
         "@id": "https://www.radiomicelio.es/personajes/tocarlos-el-nino-rave/"
@@ -1104,7 +1104,7 @@
         "rm:Character"
       ],
       "name": "Marza",
-      "description": "Su campo de investigación: naturaleza y tecnología. Su historia está en preparación.",
+      "description": "Naturaleza y tecnología.",
       "url": "https://www.radiomicelio.es/personajes/marza/",
       "mainEntityOfPage": {
         "@id": "https://www.radiomicelio.es/personajes/marza/"
@@ -1153,7 +1153,7 @@
         "rm:Character"
       ],
       "name": "Daphne Rockmore",
-      "description": "Su campo de investigación: electricidad y electrónica. Su historia está en preparación.",
+      "description": "Electricidad y electrónica.",
       "url": "https://www.radiomicelio.es/personajes/daphne-rockmore/",
       "mainEntityOfPage": {
         "@id": "https://www.radiomicelio.es/personajes/daphne-rockmore/"
@@ -1202,7 +1202,7 @@
         "rm:Character"
       ],
       "name": "Solfa",
-      "description": "Descripción en preparación.",
+      "description": "En construcción",
       "url": "https://www.radiomicelio.es/personajes/solfa/",
       "mainEntityOfPage": {
         "@id": "https://www.radiomicelio.es/personajes/solfa/"
@@ -1246,7 +1246,7 @@
         "rm:Character"
       ],
       "name": "Jhonny",
-      "description": "Su campo de investigación: energía. Su historia está en preparación.",
+      "description": "Energía.",
       "url": "https://www.radiomicelio.es/personajes/jhonny/",
       "mainEntityOfPage": {
         "@id": "https://www.radiomicelio.es/personajes/jhonny/"
@@ -1290,7 +1290,7 @@
         "rm:Character"
       ],
       "name": "Aro",
-      "description": "Descripción en preparación.",
+      "description": "En construcción",
       "url": "https://www.radiomicelio.es/personajes/aro/",
       "mainEntityOfPage": {
         "@id": "https://www.radiomicelio.es/personajes/aro/"
@@ -1334,7 +1334,7 @@
         "rm:Character"
       ],
       "name": "Gab",
-      "description": "Descripción en preparación.",
+      "description": "En construcción",
       "url": "https://www.radiomicelio.es/personajes/gab/",
       "mainEntityOfPage": {
         "@id": "https://www.radiomicelio.es/personajes/gab/"
@@ -1378,7 +1378,7 @@
         "rm:Character"
       ],
       "name": "Foca 1",
-      "description": "Descripción en preparación.",
+      "description": "En construcción",
       "url": "https://www.radiomicelio.es/personajes/foca-1/",
       "mainEntityOfPage": {
         "@id": "https://www.radiomicelio.es/personajes/foca-1/"
@@ -1422,7 +1422,7 @@
         "rm:Character"
       ],
       "name": "Caballo 1",
-      "description": "Descripción en preparación.",
+      "description": "En construcción",
       "url": "https://www.radiomicelio.es/personajes/caballo-1/",
       "mainEntityOfPage": {
         "@id": "https://www.radiomicelio.es/personajes/caballo-1/"
@@ -1466,7 +1466,7 @@
         "rm:Character"
       ],
       "name": "Cobaya 1",
-      "description": "Descripción en preparación.",
+      "description": "En construcción",
       "url": "https://www.radiomicelio.es/personajes/cobaya-1/",
       "mainEntityOfPage": {
         "@id": "https://www.radiomicelio.es/personajes/cobaya-1/"
@@ -1510,7 +1510,7 @@
         "rm:Character"
       ],
       "name": "Cobaya 2",
-      "description": "Descripción en preparación.",
+      "description": "En construcción",
       "url": "https://www.radiomicelio.es/personajes/cobaya-2/",
       "mainEntityOfPage": {
         "@id": "https://www.radiomicelio.es/personajes/cobaya-2/"
@@ -1554,7 +1554,7 @@
         "rm:Character"
       ],
       "name": "Cobaya n-1",
-      "description": "Descripción en preparación.",
+      "description": "En construcción",
       "url": "https://www.radiomicelio.es/personajes/cobaya-n-1/",
       "mainEntityOfPage": {
         "@id": "https://www.radiomicelio.es/personajes/cobaya-n-1/"
